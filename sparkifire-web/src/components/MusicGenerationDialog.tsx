@@ -22,6 +22,16 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
       return;
     }
 
+    if (sanitizedStyle && sanitizedStyle.length < 10) {
+      setMusicStatus('Prompt input must be between 10 and 300 characters.');
+      return;
+    }
+
+    if (!sanitizedLyrics && sanitizedStyle.length < 10) {
+      setMusicStatus('Prompt input must be between 10 and 300 characters.');
+      return;
+    }
+
     try {
       const payload = sanitizedStyle ? `${sanitizedLyrics}|${sanitizedStyle}` : sanitizedLyrics;
       await generateMusic(payload);
@@ -79,6 +89,10 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               placeholder="Example: Jazz, romantic, dreamy. Include genre, mood, instruments."
               maxLength={300}
             />
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>Requires 10-300 characters when used. Leave blank if you only want to send lyrics.</span>
+              <span>{stylePrompt.length}/300</span>
+            </div>
           </div>
 
           {musicStatus && (
