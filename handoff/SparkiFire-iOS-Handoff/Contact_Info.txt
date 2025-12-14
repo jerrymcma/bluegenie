@@ -1,0 +1,37 @@
+SparkiFire iOS – Contact & Communication Info
+=============================================
+
+Android Point of Contact (Jerry)
+--------------------------------
+- **Email**: <your email>
+- **Phone / SMS**: <optional>
+- **Slack/Discord Handle**: <handle>
+- **GitHub Username**: <username>
+- **Timezone**: <e.g., EST / GMT-5>
+- **Typical Availability**: <e.g., Mon–Fri 9a–5p local>
+
+iOS Developer (Friend)
+----------------------
+- **Name**: <name>
+- **Email**: <email>
+- **Preferred Chat**: <Slack/Discord/Teams>
+- **Timezone**: <timezone>
+
+Recurring Sync Meeting
+----------------------
+- **Cadence**: Weekly / Bi-weekly
+- **Day & Time**: <e.g., Tuesdays 3p EST>
+- **Video Link**: <Zoom/Meet link>
+- **Agenda Template**:
+  1. Progress since last sync
+  2. Demos or screenshots
+  3. Blockers/questions
+  4. Next milestone goals
+
+Response Time Expectations
+--------------------------
+- **Non-urgent questions**: <e.g., within 24 hours>
+- **Urgent blockers**: <e.g., within 4 hours / text me>
+- **Escalation path**: <e.g., call my mobile if production issue>
+
+Fill in the placeholders before handing the package over so your teammate knows exactly how and when to reach you.

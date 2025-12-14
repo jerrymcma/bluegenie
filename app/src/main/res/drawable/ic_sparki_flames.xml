@@ -1,0 +1,66 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Main left flame -->
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M20,85 Q15,75 15,65 Q15,50 20,40 Q22,35 25,32 Q27,38 28,45 Q29,52 28,60 Q27,70 25,78 Q23,82 20,85 Z" />
+
+    <!-- Center large flame -->
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M50,95 Q40,88 35,75 Q30,60 32,45 Q34,30 40,20 Q43,15 47,12 Q48,10 50,8 Q52,10 53,12 Q57,15 60,20 Q66,30 68,45 Q70,60 65,75 Q60,88 50,95 Z" />
+
+    <!-- Right flame -->
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M80,85 Q85,75 85,65 Q85,50 80,40 Q78,35 75,32 Q73,38 72,45 Q71,52 72,60 Q73,70 75,78 Q77,82 80,85 Z" />
+
+    <!-- Small left inner flame -->
+    <path
+        android:fillColor="#FFA500"
+        android:pathData="M22,75 Q19,68 19,60 Q19,50 22,42 Q23,39 25,37 Q26,42 26,48 Q26,55 25,62 Q24,68 22,75 Z" />
+
+    <!-- Center inner flame - orange -->
+    <path
+        android:fillColor="#FFA500"
+        android:pathData="M50,85 Q43,80 40,70 Q37,58 39,45 Q41,32 46,23 Q48,19 50,15 Q52,19 54,23 Q59,32 61,45 Q63,58 60,70 Q57,80 50,85 Z" />
+
+    <!-- Right inner flame -->
+    <path
+        android:fillColor="#FFA500"
+        android:pathData="M78,75 Q81,68 81,60 Q81,50 78,42 Q77,39 75,37 Q74,42 74,48 Q74,55 75,62 Q76,68 78,75 Z" />
+
+    <!-- Center bright yellow flame -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M50,75 Q45,71 43,63 Q41,53 43,43 Q45,33 48,27 Q49,24 50,22 Q51,24 52,27 Q55,33 57,43 Q59,53 57,63 Q55,71 50,75 Z" />
+
+    <!-- Small bottom left accent -->
+    <path
+        android:fillColor="#FF6347"
+        android:pathData="M30,85 Q28,80 28,75 Q28,70 30,66 Q31,70 31,75 Q31,80 30,85 Z" />
+
+    <!-- Small bottom right accent -->
+    <path
+        android:fillColor="#FF6347"
+        android:pathData="M70,85 Q72,80 72,75 Q72,70 70,66 Q69,70 69,75 Q69,80 70,85 Z" />
+
+    <!-- Tiny left tip -->
+    <path
+        android:fillColor="#FFFF00"
+        android:pathData="M25,45 Q24,40 25,35 Q26,40 26,45 Q26,48 25,45 Z" />
+
+    <!-- Tiny center tip -->
+    <path
+        android:fillColor="#FFFF00"
+        android:pathData="M50,30 Q49,25 50,18 Q51,25 50,30 Z" />
+
+    <!-- Tiny right tip -->
+    <path
+        android:fillColor="#FFFF00"
+        android:pathData="M75,45 Q76,40 75,35 Q74,40 74,45 Q74,48 75,45 Z" />
+</vector>

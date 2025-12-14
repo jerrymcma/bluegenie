@@ -1,0 +1,23 @@
+{
+  "model": "gemini-1.5-flash",
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Please describe the image and call out any notable UI elements."
+        },
+        {
+          "inline_data": {
+            "mime_type": "image/png",
+            "data": "<BASE64_ENCODED_IMAGE_DATA>"
+          }
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.4,
+    "maxOutputTokens": 768
+  }
+}

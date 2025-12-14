@@ -1,0 +1,31 @@
+SparkiFire Brand Palette
+========================
+
+Core UI
+-------
+- **Background Light**: #F5F5F5
+- **Surface Light**: #FFFFFF
+- **User Message Bubble**: #2196F3
+- **AI Message Bubble (default)**: #E3F2FD
+- **Text Primary**: #0F172A
+- **Accent**: #FF6F00
+
+Personality Colors
+------------------
+- **SparkiFire (Default)**: #FF6F00
+- **Sparki Pro (Professional)**: #1976D2
+- **Creative Spark (Creative)**: #9C27B0
+- **Code Master Spark (Technical)**: #4CAF50
+- **Joke Bot Sparki (Funny)**: #FF9800
+- **Buddy Spark (Casual)**: #00BCD4
+- **Sparki Love (Loving)**: #E53935
+- **Genius Spark (Academic)**: #5E35B1
+- **Game Day Spark (Sports)**: #FF6F00
+- **Sparki Ultimate**: #B71C1C
+
+Typography
+----------
+- **Primary Font**: San Francisco (native iOS)
+- **Android Reference**: Google Sans / Roboto
+
+Use this palette to ensure the SwiftUI implementation matches the Android experience. All hex values map directly from the Jetpack Compose theme files.

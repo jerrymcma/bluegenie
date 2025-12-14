@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Sparki AI</string>
+    <string name="welcome_title">Welcome to Sparki Fire AI! 🔥</string>
+    <string name="welcome_message">I\'m here to help you with any questions or tasks you have. How can I assist you today?</string>
+    <string name="message_hint">Type your message...</string>
+    <string name="send_button">Send message</string>
+    <string name="ai_typing">AI is typing</string>
+    <string name="ai_assistant">Fueled by Firebender</string>
+    <string name="error_message">Sorry, I encountered an error while processing your request. Please try again.</string>
+</resources>

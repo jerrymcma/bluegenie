@@ -1,0 +1,25 @@
+{
+  "model": "gemini-1.5-flash",
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Hello Sparki, can you summarize the key features of our app?"
+        }
+      ]
+    }
+  ],
+  "safetySettings": [
+    {
+      "category": "HARM_CATEGORY_HATE_SPEECH",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.6,
+    "topK": 40,
+    "topP": 0.95,
+    "maxOutputTokens": 512
+  }
+}

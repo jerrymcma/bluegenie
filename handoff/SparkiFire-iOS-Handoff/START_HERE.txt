@@ -1,0 +1,13 @@
+SparkiFire iOS Handoff Package
+================================
+
+Welcome! Everything you need to kick off iOS development is inside this folder.
+
+1. **Start with** `Documentation/IOS_DEVELOPER_WELCOME.md` for the orientation overview.
+2. **Work through** `Documentation/IOS_QUICK_START_CHECKLIST.md` to track day-by-day progress.
+3. **Reference** the remaining docs (`IOS_DEVELOPMENT_GUIDE`, `IOS_TECHNICAL_MAPPING`, `ANDROID_TEAM_HANDOFF_GUIDE`, and `IOS_DOCUMENTATION_SUMMARY`) whenever you need deeper architectural, technical, or coordination details.
+4. **Grab assets** from `Design_Assets/` (app icon and brand palette) for immediate use in Xcode.
+5. **Review API samples** in `API_Examples/` to verify Gemini request/response formats before wiring up networking in Swift.
+6. **Fill in** `API_CREDENTIALS_TEMPLATE.txt` and `Contact_Info.txt` with the real credentials and communication details once you receive them securely.
+
+After you read the welcome doc, follow the checklist to set up Xcode, request access, and begin porting the Android features into SwiftUI. Reach out via the contact channels if anything is missing.

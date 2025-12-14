@@ -1,0 +1,26 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "SparkiFire combines real-time AI chat, six themed personalities, voice input/output, and photo analysis in a single conversational workspace. Users can switch personas instantly, share camera shots or gallery images, and keep separate memory lanes for every personality."
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_HATE_SPEECH",
+          "probability": "NEGLIGIBLE"
+        }
+      ]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 98,
+    "candidatesTokenCount": 64,
+    "totalTokenCount": 162
+  }
+}
