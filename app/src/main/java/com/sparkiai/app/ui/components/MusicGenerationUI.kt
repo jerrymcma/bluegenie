@@ -258,8 +258,11 @@ fun MusicGenerationDialog(
 ) {
     var lyrics by remember { mutableStateOf("") }
     var musicStyle by remember { mutableStateOf("") }
+    var promptError by remember { mutableStateOf<String?>(null) }
 
     val maxChars = remember { FeatureFlags.MusicComposerConfig.MAX_PROMPT_CHARACTERS }
+    val maxPromptChars = 300
+    val minPromptChars = 10
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -354,8 +357,13 @@ fun MusicGenerationDialog(
                 OutlinedTextField(
                     value = musicStyle,
                     onValueChange = {
-                        if (it.length <= 200) {
-                            musicStyle = it
+                        val trimmed =
+                            if (it.length > maxPromptChars) it.take(maxPromptChars) else it
+                        musicStyle = trimmed
+                        promptError = when {
+                            trimmed.isBlank() -> null
+                            trimmed.length < minPromptChars -> "Needs at least 10 characters"
+                            else -> null
                         }
                     },
                     modifier = Modifier
@@ -377,15 +385,31 @@ fun MusicGenerationDialog(
                         cursorColor = Color(0xFFE91E63)
                     ),
                     supportingText = {
-                        Text(
-                            text = "${musicStyle.length}/200 characters",
-                            fontSize = 10.sp,
-                            color = when {
-                                musicStyle.length > 200 -> Color.Red
-                                musicStyle.length > 180 -> Color(0xFFFF9800)
-                                else -> Color.Gray
+                        val textColor = when {
+                            promptError != null -> Color.Red
+                            musicStyle.length > maxPromptChars -> Color.Red
+                            musicStyle.length > maxPromptChars * 0.9 -> Color(0xFFFF9800)
+                            else -> Color.Gray
+                        }
+                        Column {
+                            Text(
+                                text = "${musicStyle.length}/$maxPromptChars characters",
+                                fontSize = 10.sp,
+                                color = textColor
+                            )
+                            Text(
+                                text = "Requires ${minPromptChars}–$maxPromptChars characters when used.",
+                                fontSize = 10.sp,
+                                color = textColor
+                            )
+                            if (promptError != null) {
+                                Text(
+                                    text = promptError!!,
+                                    fontSize = 10.sp,
+                                    color = Color.Red
+                                )
                             }
-                        )
+                        }
                     }
                 )
             }
@@ -406,6 +430,11 @@ fun MusicGenerationDialog(
                         musicStyle.trim()
                     } else {
                         ""
+                    }
+
+                    if (musicStyle.isNotBlank() && musicStyle.trim().length < minPromptChars) {
+                        promptError = "Needs at least 10 characters"
+                        return@Button
                     }
 
                     if (finalPrompt.isNotBlank()) {
