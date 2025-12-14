@@ -11,7 +11,8 @@ interface ChatInputProps {
 export function ChatInput({ onStartFresh }: ChatInputProps) {
   const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
   const [messageText, setMessageText] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -64,13 +65,17 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0] || null;
     if (file) {
+      setSelectedImageFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
-        setSelectedImage(event.target?.result as string);
+        setSelectedImagePreview(event.target?.result as string);
       };
       reader.readAsDataURL(file);
+    } else {
+      setSelectedImageFile(null);
+      setSelectedImagePreview(null);
     }
     setShowImageOptions(false);
   };
