@@ -4,7 +4,7 @@ import { AIPersonality, ResponseStyle, ConversationPair } from '../types';
 class GeminiService {
   private apiKey: string;
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  private geminiModel = 'gemini-3-pro';
+  private geminiModel = 'gemini-2.0-flash-exp';
 
   constructor() {
     this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -28,7 +28,7 @@ class GeminiService {
       const conversationHistory = this.buildConversationHistory(conversationContext);
       const fullPrompt = `${systemPrompt}\n\n${conversationHistory}\nUser: ${userMessage}\nAssistant:`;
 
-      console.log('Using Gemini 3 Pro with integrated grounding for query:', userMessage);
+      console.log('Using Gemini 2.0 Flash with integrated grounding for query:', userMessage);
 
       const requestBody = {
         contents: [
@@ -80,8 +80,8 @@ class GeminiService {
         console.warn(`Model ${this.geminiModel} failed:`, error);
       }
 
-      console.error('Gemini 3 Pro request failed');
-      return 'Sorry, I encountered an error. Using demo mode instead.';
+      console.error('Gemini 2.0 Flash request failed');
+      return 'Sorry, I encountered an error generating a response. Please try again.';
 
     } catch (error) {
       console.error('Gemini service error:', error);
