@@ -1,5 +1,6 @@
 import { AIPersonality, ResponseStyle } from '../types';
 
+// All 11 AI Personalities including Magic Music Spark
 export const personalities: Record<string, AIPersonality> = {
   DEFAULT: {
     id: 'default',
