@@ -3,6 +3,7 @@ import { Message, AIPersonality, MessageType } from '../types';
 import { personalities } from '../data/personalities';
 import { geminiService } from '../services/geminiService';
 import { storageService } from '../services/storageService';
+import { musicService } from '../services/musicService'; // Added import for musicService
 
 interface ChatState {
   messages: Message[];
@@ -10,6 +11,8 @@ interface ChatState {
   currentPersonality: AIPersonality;
   isListening: boolean;
   isSpeaking: boolean;
+  isGeneratingMusic: boolean;
+  musicStatus: string | null;
   
   // Actions
   sendMessage: (
@@ -23,6 +26,8 @@ interface ChatState {
   startFresh: () => void;
   setIsListening: (isListening: boolean) => void;
   setIsSpeaking: (isSpeaking: boolean) => void;
+  setMusicStatus: (status: string | null) => void;
+  generateMusic: (payload: string) => Promise<string | null>;
   initialize: () => void;
 }
 
@@ -32,6 +37,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentPersonality: personalities.DEFAULT,
   isListening: false,
   isSpeaking: false,
+  isGeneratingMusic: false,
+  musicStatus: null,
 
   initialize: () => {
     const { currentPersonality } = get();
@@ -223,5 +230,28 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setIsSpeaking: (isSpeaking: boolean) => {
     set({ isSpeaking });
+  },
+
+  setMusicStatus: (status: string | null) => {
+    set({ musicStatus: status });
+  },
+
+  generateMusic: async (payload: string) => {
+    if (get().isGeneratingMusic) {
+      return null;
+    }
+
+    set({ isGeneratingMusic: true, musicStatus: '✨ Generating your song...' });
+
+    try {
+      const result = await musicService.generateClip(payload);
+      set({ musicStatus: result, isGeneratingMusic: false });
+      return result;
+    } catch (error) {
+      console.error('generateMusic error', error);
+      const fallback = 'Sorry, I could not reach the music service right now. Please try again later.';
+      set({ musicStatus: fallback, isGeneratingMusic: false });
+      return fallback;
+    }
   }
 }));

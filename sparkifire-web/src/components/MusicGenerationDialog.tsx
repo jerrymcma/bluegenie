@@ -1,54 +1,33 @@
 import { useState } from 'react';
 import { X, Music4 } from 'lucide-react';
-import { musicService } from '../services/musicService';
+import { useChatStore } from '../store/chatStore';
 
 interface MusicGenerationDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const outputOptions = ['Vocals', 'Instrumental', 'Composition', 'Music'];
-const genreOptions = ['Pop', 'Rap', 'Country', 'Rock', 'R&B', 'Orchestral', 'Acoustic'];
-const tempoOptions = ['Fast', 'Slow', 'Medium', 'Upbeat', 'Downbeat'];
-const toneOptions = ['Happy', 'Sad', 'Uplifting', 'Dark', 'Dreamy', 'Intense'];
-const styleOptions = ['Love Song', 'Funny', 'Dramatic', 'Inspirational', 'Relaxing'];
-
 export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialogProps) {
-  const [description, setDescription] = useState('');
-  const [outputIndex, setOutputIndex] = useState(0);
-  const [genreIndex, setGenreIndex] = useState(0);
-  const [tempoIndex, setTempoIndex] = useState(2);
-  const [toneIndex, setToneIndex] = useState(0);
-  const [styleIndex, setStyleIndex] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const { generateMusic, isGeneratingMusic, musicStatus, setMusicStatus } = useChatStore();
+  const [lyrics, setLyrics] = useState('');
+  const [stylePrompt, setStylePrompt] = useState('');
 
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
-    const prompt = [
-      `Make a ${genreOptions[genreIndex].toLowerCase()} song`,
-      `with ${outputOptions[outputIndex].toLowerCase()}`,
-      `at a ${tempoOptions[tempoIndex].toLowerCase()} tempo`,
-      `and a ${toneOptions[toneIndex].toLowerCase()} tone`,
-      `in a ${styleOptions[styleIndex].toLowerCase()} style`,
-    ].join(' ');
-
-    const fullPrompt = description.trim()
-      ? `${prompt}. ${description.trim()}`
-      : prompt;
-
-    setIsGenerating(true);
-    setStatusMessage('Sending your music idea to Sparkis composer0 please wait...');
+    const sanitizedLyrics = lyrics.trim();
+    const sanitizedStyle = stylePrompt.trim();
+    if (!sanitizedLyrics && !sanitizedStyle) {
+      setMusicStatus('Please provide lyrics, a style prompt, or both.');
+      return;
+    }
 
     try {
-      const result = await musicService.generateClip(fullPrompt);
-      setStatusMessage(result);
+      const payload = sanitizedStyle ? `${sanitizedLyrics}|${sanitizedStyle}` : sanitizedLyrics;
+      await generateMusic(payload);
     } catch (error) {
       console.error('Music generation error', error);
-      setStatusMessage('Sorry, I could not generate music just now. Please try again.');
-    } finally {
-      setIsGenerating(false);
+      setMusicStatus('Sorry, I could not generate music just now. Please try again.');
     }
   };
 
@@ -77,108 +56,61 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
 
         {/* Content */}
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
-          {/* Description */}
           <div className="space-y-1">
-            <label className="block text-sm font-semibold text-gray-800">Description</label>
+            <label className="block text-sm font-semibold text-gray-800">Lyrics (optional)</label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={lyrics}
+              onChange={(e) => setLyrics(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              rows={5}
+              placeholder="Paste your lyrics here (max 600 characters). Leave blank to let Sparki write them."
+              maxLength={1000}
+            />
+            <p className="text-xs text-gray-500">Replicate uses up to 600 characters of lyrics.</p>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-semibold text-gray-800">Music Prompt / Style</label>
+            <textarea
+              value={stylePrompt}
+              onChange={(e) => setStylePrompt(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={3}
-              placeholder="Lyrics, description, style, structure, composition. Examples: make a love song; upbeat pop; dramatic ballad."
+              placeholder="Example: Jazz, romantic, dreamy. Include genre, mood, instruments."
+              maxLength={300}
             />
           </div>
 
-          {/* Settings */}
-          <div className="space-y-2">
-            <div className="text-sm font-semibold text-gray-800">Settings</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <SelectField
-                label="Output"
-                value={outputIndex}
-                onChange={setOutputIndex}
-                options={outputOptions}
-              />
-              <SelectField
-                label="Genre"
-                value={genreIndex}
-                onChange={setGenreIndex}
-                options={genreOptions}
-              />
-              <SelectField
-                label="Tempo"
-                value={tempoIndex}
-                onChange={setTempoIndex}
-                options={tempoOptions}
-              />
-              <SelectField
-                label="Tone"
-                value={toneIndex}
-                onChange={setToneIndex}
-                options={toneOptions}
-              />
-              <SelectField
-                label="Style"
-                value={styleIndex}
-                onChange={setStyleIndex}
-                options={styleOptions}
-              />
-            </div>
-          </div>
-
-          {statusMessage && (
+          {musicStatus && (
             <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-              {statusMessage}
+              {musicStatus}
             </div>
           )}
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <div className="flex-1">
+            <p className="text-xs text-gray-500">Music is generated in the cloud via Replicate's Minimax Music 1.5 model.</p>
+          </div>
+          <button
+            onClick={handleGenerate}
+            disabled={isGeneratingMusic}
+            className="px-5 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            {isGeneratingMusic && (
+              <span className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+            )}
+            <span>{isGeneratingMusic ? 'Generating...' : 'Generate'}</span>
+          </button>
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100"
           >
-            Cancel
-          </button>
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="px-5 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-2"
-          >
-            {isGenerating && (
-              <span className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
-            )}
-            <span>{isGenerating ? 'Generating...' : 'Generate'}</span>
+            Close
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-interface SelectFieldProps {
-  label: string;
-  value: number;
-  onChange: (index: number) => void;
-  options: string[];
-}
-
-function SelectField({ label, value, onChange, options }: SelectFieldProps) {
-  return (
-    <div className="space-y-1">
-      <label className="block text-xs font-medium text-gray-600">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {options.map((option, index) => (
-          <option key={option} value={index}>
-            {option}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

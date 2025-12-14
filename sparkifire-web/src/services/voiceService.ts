@@ -10,27 +10,31 @@ export class VoiceService {
     this.synthesis = window.speechSynthesis;
     
     // Check if browser supports speech recognition
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    type SpeechRecognitionConstructor = typeof window.SpeechRecognition;
+    const SpeechRecognitionClass =
+      (window.SpeechRecognition || window.webkitSpeechRecognition) as SpeechRecognitionConstructor;
     
-    if (SpeechRecognition) {
-      this.recognition = new SpeechRecognition();
+    if (SpeechRecognitionClass) {
+      this.recognition = new SpeechRecognitionClass();
       this.recognition.continuous = false;
       this.recognition.interimResults = false;
       this.recognition.lang = 'en-US';
 
-      this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const handleResult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0]?.[0]?.transcript;
         if (transcript && this.onTextRecognized) {
           this.onTextRecognized(transcript);
         }
       };
 
+      this.recognition.onresult = handleResult;
+
       this.recognition.onend = () => {
         this.isListeningState = false;
         this.onListeningChange?.(false);
       };
 
-      this.recognition.onerror = (event: any) => {
+      this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         this.isListeningState = false;
         this.onListeningChange?.(false);

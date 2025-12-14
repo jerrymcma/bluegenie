@@ -20,6 +20,7 @@ export default defineConfig({
     // Make environment variables available in the app
     'process.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY || ''),
     'process.env.VITE_CLAUDE_API_KEY': JSON.stringify(process.env.VITE_CLAUDE_API_KEY || ''),
-    'process.env.VITE_OPENAI_API_KEY': JSON.stringify(process.env.VITE_OPENAI_API_KEY || '')
+    'process.env.VITE_OPENAI_API_KEY': JSON.stringify(process.env.VITE_OPENAI_API_KEY || ''),
+    'process.env.VITE_REPLICATE_API_KEY': JSON.stringify(process.env.VITE_REPLICATE_API_KEY || '')
   }
 })
