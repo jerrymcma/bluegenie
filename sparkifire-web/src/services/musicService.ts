@@ -8,23 +8,20 @@ interface PredictionResponse {
 }
 
 class MusicService {
-  private apiKey: string;
-  private baseUrl = 'https://api.replicate.com/v1';
-  private modelPath = 'minimax/music-1.5';
+  private apiUrl: string;
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_REPLICATE_API_KEY || '';
+    // Use serverless function endpoint for production, direct API for development
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    this.apiUrl = isProduction ? '/api/music' : '/api/music';
   }
 
   isConfigured(): boolean {
-    return this.apiKey.length > 0 && this.apiKey !== 'your-replicate-api-key-here';
+    // Always return true since API key is handled server-side
+    return true;
   }
 
   async generateClip(prompt: string): Promise<string> {
-    if (!this.isConfigured()) {
-      return 'Music generation is not configured yet. Please add your Replicate API key in the Vercel project.';
-    }
-
     try {
       const { lyrics, style } = this.parsePrompt(prompt);
 
@@ -39,8 +36,18 @@ class MusicService {
       }
 
       return `✨ Sparki composed your song! Download it here: ${outputUrl}`;
-    } catch (error) {
+    } catch (error: any) {
       console.error('MusicService.generateClip error', error);
+      
+      // Provide more specific error messages
+      if (error.message?.includes('not configured')) {
+        return 'Music generation is not configured yet. Please add your Replicate API key in the Vercel environment variables.';
+      }
+      
+      if (error.response?.status === 401) {
+        return 'Authentication failed with Replicate. Please check your API key configuration.';
+      }
+      
       return 'Sorry, I could not reach Replicate right now. Please try again later.';
     }
   }
@@ -78,27 +85,31 @@ class MusicService {
   }
 
   private async createPrediction(lyrics: string, style: string): Promise<string | null> {
-    const payload = {
-      input: {
-        lyrics,
-        prompt: style
-      }
-    };
-
-    const response = await axios.post<PredictionResponse>(
-      `${this.baseUrl}/models/${this.modelPath}/predictions`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          Prefer: 'wait'
+    try {
+      console.log('Creating prediction with API URL:', this.apiUrl);
+      const response = await axios.post<PredictionResponse>(
+        this.apiUrl,
+        {
+          action: 'create',
+          lyrics,
+          prompt: style
         },
-        timeout: 120000
-      }
-    );
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 120000
+        }
+      );
 
-    return response.data?.id ?? null;
+      console.log('Prediction created:', response.data);
+      return response.data?.id ?? null;
+    } catch (error: any) {
+      console.error('createPrediction error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      throw error;
+    }
   }
 
   private async pollPrediction(predictionId: string): Promise<string | null> {
@@ -133,12 +144,19 @@ class MusicService {
 
   private async fetchPrediction(predictionId: string): Promise<PredictionResponse | null> {
     try {
-      const response = await axios.get<PredictionResponse>(`${this.baseUrl}/predictions/${predictionId}`, {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`
+      const response = await axios.post<PredictionResponse>(
+        this.apiUrl,
+        {
+          action: 'check',
+          predictionId
         },
-        timeout: 60000
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 60000
+        }
+      );
 
       return response.data;
     } catch (error) {
