@@ -40,6 +40,34 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
       setMusicStatus('Sorry, I could not generate music just now. Please try again.');
     }
   };
+  
+  const renderMusicStatus = () => {
+    if (!musicStatus) return null;
+
+    const downloadPrefix = 'Download it here: ';
+    const downloadIndex = musicStatus.indexOf(downloadPrefix);
+
+    if (downloadIndex !== -1) {
+      const textPart = musicStatus.substring(0, downloadIndex);
+      const urlPart = musicStatus.substring(downloadIndex + downloadPrefix.length);
+      return (
+        <span>
+          {textPart}
+          <a
+            href={urlPart}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline font-semibold"
+          >
+            Download it here
+          </a>
+          .
+        </span>
+      );
+    }
+    
+    return musicStatus;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
@@ -97,7 +125,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
 
           {musicStatus && (
             <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-              {musicStatus}
+              {renderMusicStatus()}
             </div>
           )}
         </div>
