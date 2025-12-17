@@ -38,7 +38,7 @@ export function ChatScreen() {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header (Shrink: 0, Grow: 0) */}
+      {/* Header */}
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -76,7 +76,7 @@ export function ChatScreen() {
         </div>
       </header>
 
-      {/* Messages Area (Shrink: 1, Grow: 1) */}
+      {/* Messages Area */}
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
@@ -96,7 +96,7 @@ export function ChatScreen() {
         </div>
       </main>
 
-      {/* Input Area (Shrink: 0, Grow: 0) */}
+      {/* Input Area */}
       <footer className="flex-shrink-0">
         <ChatInput onStartFresh={handleStartFresh} />
       </footer>
