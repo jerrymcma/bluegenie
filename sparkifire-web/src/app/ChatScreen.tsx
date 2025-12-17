@@ -80,22 +80,22 @@ export function ChatScreen() {
 
       {/* Messages Area */}
       <main className="flex-1 overflow-y-auto min-h-0">
-        {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center px-4">
+        <div className="max-w-4xl mx-auto px-4 pt-8">
+          {messages.length === 0 ? (
             <WelcomeMessage
               personalityName={currentPersonality.name}
               greeting={currentPersonality.greeting}
             />
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
-            {isLoading && <TypingIndicator />}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+          ) : (
+            <>
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              {isLoading && <TypingIndicator />}
+              <div ref={messagesEndRef} />
+            </>
+          )}
+        </div>
       </main>
 
       {/* Input Area */}
