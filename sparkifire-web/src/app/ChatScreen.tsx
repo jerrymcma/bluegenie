@@ -41,7 +41,7 @@ export function ChatScreen() {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-md border-b border-gray-200">
+      <header className="bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-gray-800">{currentPersonality.name}</h1>
@@ -50,7 +50,6 @@ export function ChatScreen() {
             )}
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
-            {/* Show full button for Sparki, compact button for other personalities */}
             {isSparki ? (
               <button
                 onClick={() => setShowPersonalitySelector(true)}
@@ -68,7 +67,6 @@ export function ChatScreen() {
                 <Sparkles className="w-5 h-5" />
               </button>
             )}
-
             <button
               onClick={() => setShowMusicDialog(true)}
               className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-200 text-blue-600 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-all shadow-md hover:shadow-lg"
@@ -81,59 +79,49 @@ export function ChatScreen() {
       </header>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto h-full flex flex-col px-4 py-6">
           {messages.length === 0 ? (
-            <WelcomeMessage
-              personalityName={currentPersonality.name}
-              greeting={currentPersonality.greeting}
-            />
+            <div className="flex-1 flex items-center justify-center">
+              <WelcomeMessage
+                personalityName={currentPersonality.name}
+                greeting={currentPersonality.greeting}
+              />
+            </div>
           ) : (
-            <>
+            <div className="flex-1 overflow-y-auto">
               {messages.map((message) => (
                 <MessageBubble key={message.id} message={message} />
               ))}
               {isLoading && <TypingIndicator />}
-            </>
+              <div ref={messagesEndRef} />
+            </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
-      </div>
+      </main>
 
       {/* Input Area */}
       <ChatInput onStartFresh={handleStartFresh} />
 
-      {/* Personality Selector Modal */}
+      {/* Modals */}
       <PersonalitySelector
         isOpen={showPersonalitySelector}
         onClose={() => setShowPersonalitySelector(false)}
       />
-
-      {/* Music Generation Dialog */}
       <MusicGenerationDialog
         isOpen={showMusicDialog}
         onClose={() => setShowMusicDialog(false)}
       />
-
-      {/* Start Fresh Confirmation Dialog */}
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-3">Start Fresh</h3>
-            <p className="text-gray-600 mb-6">
-              Start over? AI will forget this chat and begin a new conversation.
-            </p>
+            <p className="text-gray-600 mb-6">Start over? AI will forget this chat and begin a new conversation.</p>
             <div className="flex space-x-3">
-              <button
-                onClick={() => setShowStartFreshDialog(false)}
-                className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
+              <button onClick={() => setShowStartFreshDialog(false)} className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                 Cancel
               </button>
-              <button
-                onClick={confirmStartFresh}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
+              <button onClick={confirmStartFresh} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 Confirm
               </button>
             </div>
