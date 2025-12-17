@@ -60,17 +60,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } else if (savedMessages.length > 0) {
       set({ messages: savedMessages });
     } else {
-      // Add greeting if no messages
-      const greetingMessage: Message = {
-        id: crypto.randomUUID(),
-        content: currentPersonality.greeting,
-        isFromUser: false,
-        timestamp: Date.now(),
-        messageType: MessageType.TEXT,
-        personalityId: currentPersonality.id
-      };
-      set({ messages: [greetingMessage] });
-      storageService.saveMessages(currentPersonality.id, [greetingMessage]);
+      // If there are no saved messages, ensure the state is empty
+      set({ messages: [] });
     }
   },
 
