@@ -80,9 +80,9 @@ export function ChatScreen() {
 
       {/* Messages Area */}
       <main className="flex-1 overflow-y-auto min-h-0">
-        <div className="max-w-4xl mx-auto h-full flex flex-col px-4 py-6">
+        <div className="max-w-4xl mx-auto h-full flex flex-col px-4 pt-8">
           {messages.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-start justify-center">
               <WelcomeMessage
                 personalityName={currentPersonality.name}
                 greeting={currentPersonality.greeting}
