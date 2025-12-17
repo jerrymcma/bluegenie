@@ -44,7 +44,7 @@ class GeminiService {
           temperature: 0.6,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024
+          maxOutputTokens: 2048
         }
       };
 
@@ -133,7 +133,7 @@ class GeminiService {
           temperature: 0.55,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024
+          maxOutputTokens: 2048
         }
       };
 

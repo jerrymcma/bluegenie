@@ -38,27 +38,27 @@ export function ChatScreen() {
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-gray-800">{currentPersonality.name}</h1>
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-gray-800 truncate">{currentPersonality.name}</h1>
             {isSpeaking && (
-              <Volume2 className="w-5 h-5 text-blue-600 animate-pulse" />
+              <Volume2 className="w-5 h-5 text-blue-600 animate-pulse flex-shrink-0" />
             )}
           </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setShowMusicDialog(true)}
-              className="flex items-center space-x-2 bg-white border border-blue-200 text-blue-600 px-4 py-2 rounded-full hover:bg-blue-50 transition-all shadow-md"
-            >
-              <Music4 className="w-4 h-4" />
-              <span className="font-semibold text-sm">Music</span>
-            </button>
-
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <button
               onClick={() => setShowPersonalitySelector(true)}
               className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
             >
               <span className="font-semibold text-sm">Personalities</span>
               <Sparkles className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setShowMusicDialog(true)}
+              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-200 text-blue-600 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-all shadow-md hover:shadow-lg"
+              title="Generate Music"
+            >
+              <Music4 className="w-5 h-5" />
             </button>
           </div>
         </div>
