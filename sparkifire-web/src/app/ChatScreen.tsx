@@ -33,25 +33,39 @@ export function ChatScreen() {
     setShowStartFreshDialog(false);
   };
 
+  // Check if current personality is Sparki (default)
+  const isSparki = currentPersonality.id === 'default';
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-gray-800 truncate">{currentPersonality.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{currentPersonality.name}</h1>
             {isSpeaking && (
               <Volume2 className="w-5 h-5 text-blue-600 animate-pulse flex-shrink-0" />
             )}
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
-            <button
-              onClick={() => setShowPersonalitySelector(true)}
-              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
-            >
-              <span className="font-semibold text-sm">Personalities</span>
-              <Sparkles className="w-4 h-4" />
-            </button>
+            {/* Show full button for Sparki, compact button for other personalities */}
+            {isSparki ? (
+              <button
+                onClick={() => setShowPersonalitySelector(true)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
+              >
+                <span className="font-semibold text-sm">Personalities</span>
+                <Sparkles className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowPersonalitySelector(true)}
+                className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
+                title="Switch Personality"
+              >
+                <Sparkles className="w-5 h-5" />
+              </button>
+            )}
 
             <button
               onClick={() => setShowMusicDialog(true)}
