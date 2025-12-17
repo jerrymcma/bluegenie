@@ -35,13 +35,12 @@ export function ChatScreen() {
     setShowStartFreshDialog(false);
   };
 
-  // Check if current personality is Sparki (default)
   const isSparki = currentPersonality.id === 'default';
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-md border-b border-gray-200 z-10">
+      <header className="bg-white shadow-md border-b border-gray-200 z-10 flex-shrink-0">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-gray-800">{currentPersonality.name}</h1>
@@ -79,27 +78,31 @@ export function ChatScreen() {
       </header>
 
       {/* Messages Area */}
-      <main className="flex-1 overflow-y-auto min-h-0">
-        <div className="max-w-4xl mx-auto px-4 pt-8">
-          {messages.length === 0 ? (
-            <WelcomeMessage
-              personalityName={currentPersonality.name}
-              greeting={currentPersonality.greeting}
-            />
-          ) : (
-            <>
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              {isLoading && <TypingIndicator />}
-              <div ref={messagesEndRef} />
-            </>
-          )}
+      <main className="flex-1 relative">
+        <div className="absolute inset-0 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-4 pt-8">
+            {messages.length === 0 ? (
+              <WelcomeMessage
+                personalityName={currentPersonality.name}
+                greeting={currentPersonality.greeting}
+              />
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
+                {isLoading && <TypingIndicator />}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
         </div>
       </main>
 
       {/* Input Area */}
-      <ChatInput onStartFresh={handleStartFresh} />
+      <footer className="flex-shrink-0">
+        <ChatInput onStartFresh={handleStartFresh} />
+      </footer>
 
       {/* Modals */}
       <PersonalitySelector
