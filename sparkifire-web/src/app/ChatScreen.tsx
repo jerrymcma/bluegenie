@@ -37,7 +37,7 @@ export function ChatScreen() {
   const isSparki = currentPersonality.id === 'default';
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
