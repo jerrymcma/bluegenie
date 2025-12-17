@@ -79,7 +79,7 @@ export function ChatScreen() {
       </header>
 
       {/* Messages Area */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto min-h-0">
         <div className="max-w-4xl mx-auto h-full flex flex-col px-4 py-6">
           {messages.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
