@@ -14,17 +14,14 @@ export function ChatScreen() {
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isInitialMount = useRef(true);
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
   useEffect(() => {
-    // Don't scroll on initial render, only on new messages
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
+    // Only scroll to the bottom if there are messages
+    if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
