@@ -139,7 +139,7 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Say hello, ask anything..."
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[54px] sm:min-h-[72px]"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[54px] sm:min-h-[72px] text-blue-600"
           rows={2}
           disabled={isLoading}
         />

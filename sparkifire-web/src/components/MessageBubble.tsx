@@ -68,7 +68,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </div>
           )}
           <div className="bg-blue-500 text-white rounded-2xl px-4 py-3 shadow-md">
-            <p className="whitespace-pre-wrap break-words text-blue-600">{message.content}</p>
+            <p className="whitespace-pre-wrap break-words">{message.content}</p>
             <p className="text-xs text-blue-100 mt-1">{formatTime(message.timestamp)}</p>
           </div>
         </div>
