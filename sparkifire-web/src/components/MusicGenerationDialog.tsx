@@ -18,17 +18,12 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
     const sanitizedLyrics = lyrics.trim();
     const sanitizedStyle = stylePrompt.trim();
     if (!sanitizedLyrics && !sanitizedStyle) {
-      setMusicStatus('Please provide lyrics, a style prompt, or both.');
+      setMusicStatus('Please provide lyrics, a music description, or both.');
       return;
     }
 
-    if (sanitizedStyle && sanitizedStyle.length < 10) {
-      setMusicStatus('Prompt input must be between 10 and 300 characters.');
-      return;
-    }
-
-    if (!sanitizedLyrics && sanitizedStyle.length < 10) {
-      setMusicStatus('Prompt input must be between 10 and 300 characters.');
+    if (sanitizedStyle && (sanitizedStyle.length < 10 || sanitizedStyle.length > 300)) {
+      setMusicStatus('Music Description must be between 10 and 300 characters.');
       return;
     }
 
