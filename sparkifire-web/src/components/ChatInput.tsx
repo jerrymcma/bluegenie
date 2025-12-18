@@ -145,14 +145,13 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between mt-3 space-x-2">
-          {/* Left-side buttons */}
-          <div className="flex items-center space-x-2">
-            <button onClick={handleFolders} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Folders">
+        <div className="flex items-center mt-3">
+          <div className="flex items-center space-x-1">
+            <button onClick={handleFolders} className="p-3 text-gray-500 hover:bg-gray-100 rounded-full transition-colors" title="Folders">
               <Folder className="w-6 h-6" />
             </button>
             <div className="relative">
-              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Add image">
+              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-gray-500 hover:bg-gray-100 rounded-full transition-colors" title="Add image">
                 <ImageIcon className="w-6 h-6" />
               </button>
               {showImageOptions && (
@@ -168,23 +167,23 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
                 </div>
               )}
             </div>
-            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-500' : 'text-gray-500 hover:bg-gray-100'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
               {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </button>
-            <button onClick={handleSparkIdea} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Spark Idea">
+            <button onClick={handleSparkIdea} className="p-3 text-gray-500 hover:bg-gray-100 rounded-full transition-colors" title="Spark Idea">
               <Zap className="w-6 h-6" />
             </button>
           </div>
-
-          {/* Send Button */}
-          <button
-            onClick={handleSend}
-            disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
-          >
-            <Send className="w-5 h-5" />
-            <span className="font-medium">Send</span>
-          </button>
+          <div className="flex-1 ml-2">
+            <button
+              onClick={handleSend}
+              disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
+              className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+            >
+              <Send className="w-5 h-5" />
+              <span className="font-medium">Send</span>
+            </button>
+          </div>
         </div>
 
         {/* Hidden File Inputs */}
