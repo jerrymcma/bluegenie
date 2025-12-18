@@ -116,7 +116,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               onChange={(e) => setStylePrompt(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={3}
-              placeholder="Genre, style, tempo, mood, instrumentals..."
+              placeholder="Genre, style, tempo, mood, instrumentals... 'Ex: Pop music upbeat medium tempo'"
               maxLength={300}
             />
             <div className="flex items-center justify-between text-xs text-gray-500 px-3">
