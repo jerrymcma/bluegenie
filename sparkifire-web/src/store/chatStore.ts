@@ -13,6 +13,7 @@ interface ChatState {
   isSpeaking: boolean;
   isGeneratingMusic: boolean;
   musicStatus: string | null;
+  musicCredits: number;
   
   // Actions
   sendMessage: (
@@ -28,6 +29,7 @@ interface ChatState {
   setIsSpeaking: (isSpeaking: boolean) => void;
   setMusicStatus: (status: string | null) => void;
   generateMusic: (payload: string) => Promise<string | null>;
+  decrementMusicCredits: () => void;
   initialize: () => void;
 }
 
@@ -39,6 +41,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isSpeaking: false,
   isGeneratingMusic: false,
   musicStatus: null,
+  musicCredits: 5,
 
   initialize: () => {
     const { currentPersonality } = get();
@@ -227,8 +230,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ musicStatus: status });
   },
 
+  decrementMusicCredits: () => {
+    set((state) => ({ musicCredits: Math.max(0, state.musicCredits - 1) }));
+  },
+
   generateMusic: async (payload: string) => {
-    if (get().isGeneratingMusic) {
+    const { isGeneratingMusic, musicCredits, decrementMusicCredits } = get();
+
+    if (isGeneratingMusic) {
+      return null;
+    }
+    
+    if (musicCredits <= 0) {
+      set({ musicStatus: 'You have no more free songs to generate.' });
       return null;
     }
 
@@ -237,6 +251,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const result = await musicService.generateClip(payload);
       set({ musicStatus: result, isGeneratingMusic: false });
+      decrementMusicCredits();
       return result;
     } catch (error) {
       console.error('generateMusic error', error);

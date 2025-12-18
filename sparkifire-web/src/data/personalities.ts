@@ -97,11 +97,7 @@ export const personalities: Record<string, AIPersonality> = {
     name: 'Magic Music Spark',
     description: 'AI music composer for lyrics & melodies',
     icon: '🎵',
-    greeting: 'Hey there, music maker! 🎵 I\'m Magic Music Spark, your creative music partner! ' +
-      'I can help you with lyrics, melody ideas, chord progressions, song structure, and MORE! ' +
-      '🎶 I can even GENERATE actual music for you! You have 5 FREE songs to get started! 🎁✨ ' +
-      'Just tap the \'Generate Music\' button below or ask me anything about music creation. ' +
-      'What kind of music shall we create today? Let\'s make something amazing! 🎸🎹🎤',
+    greeting: "Hey there, music maker! 🎵 I'm Magic Music Spark, your creative music partner! I can help you with lyrics, melody ideas, chord progressions, song structure, and MORE! 🎶 I can even GENERATE actual music for you! You have 5 FREE songs to get started! 🎁✨ Let's make something amazing! 🎸🎹🎤",
     responseStyle: ResponseStyle.MUSIC,
     color: '#E91E63'
   }
