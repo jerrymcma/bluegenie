@@ -89,7 +89,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
         {/* Content */}
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
           <div className="space-y-1">
-            <label className="block text-sm font-semibold text-gray-800">Lyrics</label>
+            <label className="block text-sm font-semibold text-gray-800 pl-3">Lyrics</label>
             <textarea
               value={lyrics}
               onChange={(e) => setLyrics(e.target.value)}
@@ -98,11 +98,11 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               placeholder="Type or paste your lyrics here. Leave blank for instrumental only"
               maxLength={1000}
             />
-            <p className="text-xs text-gray-500">10 to 600 characters is used.</p>
+            <p className="text-xs text-gray-500 pl-3">10 to 600 characters is used.</p>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-sm font-semibold text-gray-800">Music Description</label>
+            <label className="block text-sm font-semibold text-gray-800 pl-3">Music Description</label>
             <textarea
               value={stylePrompt}
               onChange={(e) => setStylePrompt(e.target.value)}
@@ -111,7 +111,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               placeholder="Genre, style, tempo, mood, instrumentals..."
               maxLength={300}
             />
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-xs text-gray-500 px-3">
               <span>10-300 characters when used.</span>
               <span>{stylePrompt.length}/300</span>
             </div>
