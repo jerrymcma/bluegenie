@@ -13,9 +13,6 @@ export default {
         'bounce': 'bounce 1s infinite',
       }
     },
-    textColor: {
-      DEFAULT: '#001f3f',
-    },
   },
   plugins: [],
 }

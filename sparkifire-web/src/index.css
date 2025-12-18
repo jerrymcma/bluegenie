@@ -17,6 +17,10 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  @apply text-dark-blue;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
