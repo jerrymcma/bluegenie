@@ -1,5 +1,5 @@
 import { useState, useRef, KeyboardEvent } from 'react';
-import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Plus } from 'lucide-react';
+import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Zap, Folder } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { voiceService } from '../services/voiceService';
 import { MessageType } from '../types';
@@ -87,9 +87,22 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
   const handleCameraClick = () => {
     cameraInputRef.current?.click();
   };
+  
+  const handleSparkIdea = () => {
+    // TODO: Implement Spark Idea functionality
+    alert('Spark Idea button clicked!');
+  };
+  
+  const handleFolders = () => {
+    // TODO: Implement Folders functionality
+    alert('Folders button clicked!');
+  };
 
   return (
-    <div className="bg-white border-t border-gray-200 p-4 shadow-lg">
+    <div
+      className="bg-white/95 border-t border-gray-200 p-3 sm:p-4 shadow-lg"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Selected Image Preview */}
         {selectedImagePreview && (
@@ -126,14 +139,23 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Say hello, ask anything..."
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors"
-          rows={3}
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[54px] sm:min-h-[72px]"
+          rows={2}
           disabled={isLoading}
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
           <div className="flex items-center space-x-2">
+            {/* Folders Button */}
+            <button
+              onClick={handleFolders}
+              className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+              title="Folders"
+            >
+              <Folder className="w-6 h-6" />
+            </button>
+
             {/* Image Button */}
             <div className="relative">
               <button
@@ -178,25 +200,27 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
               {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </button>
 
-            {/* Start Fresh Button */}
+            {/* Spark Idea Button */}
             <button
-              onClick={onStartFresh}
+              onClick={handleSparkIdea}
               className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-              title="Start fresh conversation"
+              title="Spark Idea"
             >
-              <Plus className="w-6 h-6" />
+              <Zap className="w-6 h-6" />
             </button>
           </div>
 
           {/* Send Button */}
-          <button
-            onClick={handleSend}
-            disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
-          >
-            <Send className="w-5 h-5" />
-            <span className="font-medium">Send</span>
-          </button>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={handleSend}
+              disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg w-full sm:w-auto justify-center"
+            >
+              <Send className="w-5 h-5" />
+              <span className="font-medium">Send</span>
+            </button>
+          </div>
         </div>
 
         {/* Hidden File Inputs */}
