@@ -94,30 +94,30 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
         {/* Content */}
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
           <div className="space-y-1">
-            <label className="block text-sm font-semibold text-gray-800">Lyrics (optional)</label>
+            <label className="block text-sm font-semibold text-gray-800">Lyrics</label>
             <textarea
               value={lyrics}
               onChange={(e) => setLyrics(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={5}
-              placeholder="Paste your lyrics here (max 600 characters). Leave blank to let Sparki write them."
+              placeholder="Type or paste your lyrics here. Leave blank for instrumental only"
               maxLength={1000}
             />
-            <p className="text-xs text-gray-500">Replicate uses up to 600 characters of lyrics.</p>
+            <p className="text-xs text-gray-500">10 to 600 characters is used.</p>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-sm font-semibold text-gray-800">Music Prompt / Style</label>
+            <label className="block text-sm font-semibold text-gray-800">Music Description</label>
             <textarea
               value={stylePrompt}
               onChange={(e) => setStylePrompt(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={3}
-              placeholder="Example: Jazz, romantic, dreamy. Include genre, mood, instruments."
+              placeholder="Genre, style, tempo, mood, instrumentals..."
               maxLength={300}
             />
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>Requires 10-300 characters when used. Leave blank if you only want to send lyrics.</span>
+              <span>10-300 characters when used.</span>
               <span>{stylePrompt.length}/300</span>
             </div>
           </div>
@@ -131,9 +131,6 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-          <div className="flex-1">
-            <p className="text-xs text-gray-500">Music is generated in the cloud via Replicate's Minimax Music 1.5 model.</p>
-          </div>
           <button
             onClick={handleGenerate}
             disabled={isGeneratingMusic}
