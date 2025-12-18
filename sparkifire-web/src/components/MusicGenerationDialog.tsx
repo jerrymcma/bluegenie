@@ -129,7 +129,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
           <button
             onClick={handleGenerate}
             disabled={isGeneratingMusic}
-            className="px-5 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="px-8 py-3 text-base font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {isGeneratingMusic && (
               <span className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
