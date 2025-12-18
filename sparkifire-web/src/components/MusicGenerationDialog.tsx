@@ -79,8 +79,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               <Music4 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Music Idea Generator</h2>
-              <p className="text-xs text-gray-500">Sparki sketches short clips based on your settings.</p>
+              <h2 className="text-lg font-semibold text-gray-900">Music Generator</h2>
             </div>
           </div>
           <button
