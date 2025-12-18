@@ -39,6 +39,14 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
   const renderMusicStatus = () => {
     if (!musicStatus) return null;
 
+    const isGenerating = musicStatus.includes('Generating');
+    const isSuccess = musicStatus.includes('composed');
+
+    let statusStyle = 'text-sm';
+    if (isGenerating || isSuccess) {
+      statusStyle = 'text-base font-bold';
+    }
+
     const downloadPrefix = 'Download it here: ';
     const downloadIndex = musicStatus.indexOf(downloadPrefix);
 
@@ -46,8 +54,8 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
       const textPart = musicStatus.substring(0, downloadIndex);
       const urlPart = musicStatus.substring(downloadIndex + downloadPrefix.length);
       return (
-        <span>
-          {textPart}
+        <div className={statusStyle}>
+          <span>{textPart}</span>
           <a
             href={urlPart}
             target="_blank"
@@ -57,11 +65,11 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
             Download it here
           </a>
           .
-        </span>
+        </div>
       );
     }
     
-    return musicStatus;
+    return <div className={statusStyle}>{musicStatus}</div>;
   }
 
   return (
@@ -118,18 +126,18 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
           </div>
 
           {musicStatus && (
-            <div className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <div className="text-center bg-gray-50 border border-gray-200 rounded-lg px-3 py-4">
               {renderMusicStatus()}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <div className="px-6 py-4 border-t border-gray-200 flex items-center space-x-3">
           <button
             onClick={handleGenerate}
             disabled={isGeneratingMusic}
-            className="px-8 py-3 text-base font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="flex-1 px-8 py-3 text-base font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
             {isGeneratingMusic && (
               <span className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
@@ -138,7 +146,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100"
+            className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 flex-shrink-0"
           >
             Close
           </button>

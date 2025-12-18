@@ -232,7 +232,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return null;
     }
 
-    set({ isGeneratingMusic: true, musicStatus: '✨ Generating your song...' });
+    set({ isGeneratingMusic: true, musicStatus: '✨ Generating your music... ✨' });
 
     try {
       const result = await musicService.generateClip(payload);
