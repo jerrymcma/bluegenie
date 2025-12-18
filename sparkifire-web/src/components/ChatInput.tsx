@@ -145,100 +145,51 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
+        <div className="flex items-center justify-between mt-3 space-x-2">
+          {/* Left-side buttons */}
           <div className="flex items-center space-x-2">
-            {/* Folders Button */}
-            <button
-              onClick={handleFolders}
-              className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-              title="Folders"
-            >
+            <button onClick={handleFolders} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Folders">
               <Folder className="w-6 h-6" />
             </button>
-
-            {/* Image Button */}
             <div className="relative">
-              <button
-                onClick={() => setShowImageOptions(!showImageOptions)}
-                className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                title="Add image"
-              >
+              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Add image">
                 <ImageIcon className="w-6 h-6" />
               </button>
-
-              {/* Image Options Dropdown */}
               {showImageOptions && (
                 <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 p-2 space-y-1 min-w-[150px]">
-                  <button
-                    onClick={handleCameraClick}
-                    className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left"
-                  >
+                  <button onClick={handleCameraClick} className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left">
                     <Camera className="w-5 h-5 text-gray-600" />
                     <span className="text-sm text-gray-700">Camera</span>
                   </button>
-                  <button
-                    onClick={handleGalleryClick}
-                    className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left"
-                  >
+                  <button onClick={handleGalleryClick} className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left">
                     <ImageIcon className="w-5 h-5 text-gray-600" />
                     <span className="text-sm text-gray-700">Gallery</span>
                   </button>
                 </div>
               )}
             </div>
-
-            {/* Voice Button */}
-            <button
-              onClick={handleVoiceToggle}
-              className={`p-3 rounded-full transition-colors ${
-                isListening
-                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                  : 'text-blue-600 hover:bg-blue-50'
-              }`}
-              title={isListening ? 'Stop listening' : 'Start voice input'}
-            >
+            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
               {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </button>
-
-            {/* Spark Idea Button */}
-            <button
-              onClick={handleSparkIdea}
-              className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-              title="Spark Idea"
-            >
+            <button onClick={handleSparkIdea} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Spark Idea">
               <Zap className="w-6 h-6" />
             </button>
           </div>
 
           {/* Send Button */}
-          <div className="flex-1 flex justify-end">
-            <button
-              onClick={handleSend}
-              disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg w-full sm:w-auto justify-center"
-            >
-              <Send className="w-5 h-5" />
-              <span className="font-medium">Send</span>
-            </button>
-          </div>
+          <button
+            onClick={handleSend}
+            disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+          >
+            <Send className="w-5 h-5" />
+            <span className="font-medium">Send</span>
+          </button>
         </div>
 
         {/* Hidden File Inputs */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageSelect}
-          className="hidden"
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleImageSelect}
-          className="hidden"
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
       </div>
     </div>
   );
