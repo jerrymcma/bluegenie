@@ -6,9 +6,15 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        'dark-blue': '#001f3f',
+      },
       animation: {
         'bounce': 'bounce 1s infinite',
       }
+    },
+    textColor: {
+      DEFAULT: '#001f3f',
     },
   },
   plugins: [],
