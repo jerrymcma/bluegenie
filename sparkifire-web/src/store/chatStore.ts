@@ -35,6 +35,7 @@ interface ChatState {
   addMusicToLibrary: (music: GeneratedMusic) => void;
   deleteMusicFromLibrary: (id: string) => void;
   loadMusicLibrary: () => void;
+  markMusicAsRead: (id: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -272,6 +273,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           timestamp: Date.now(),
           isFreeTier: musicCredits > 0,
           costCents: musicCredits > 0 ? 0 : 6,
+          isRead: false,
         };
         addMusicToLibrary(newMusic);
       }
@@ -307,5 +309,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error) {
       console.error('Error loading music library:', error);
     }
+  },
+
+  markMusicAsRead: (id: string) => {
+    const updatedLibrary = get().musicLibrary.map((m) =>
+      m.id === id ? { ...m, isRead: true } : m
+    );
+    set({ musicLibrary: updatedLibrary });
+    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
   }
 }));

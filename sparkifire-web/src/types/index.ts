@@ -55,4 +55,5 @@ export interface GeneratedMusic {
   timestamp: number;
   isFreeTier: boolean;
   costCents: number;
+  isRead: boolean;
 }

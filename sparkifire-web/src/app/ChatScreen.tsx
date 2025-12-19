@@ -19,6 +19,8 @@ export function ChatScreen() {
     musicCredits,
     musicLibrary,
     deleteMusicFromLibrary,
+    markMusicAsRead,
+    changePersonality,
     initialize,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
@@ -49,11 +51,31 @@ export function ChatScreen() {
   const isMusicPersonality = currentPersonality.id === 'music_composer';
   const isSparki = currentPersonality.id === 'default';
 
+  const unreadCount = musicLibrary.filter((m) => !m.isRead).length;
+  const hasUnreadMusic = unreadCount > 0;
+
+  const handleMusicButtonClick = () => {
+    if (isSparki) {
+      // Switch to Magic Music Sparki personality
+      import('../data/personalities').then(({ personalities }) => {
+        const musicSparki = personalities.MUSIC;
+        if (musicSparki) {
+          changePersonality(musicSparki);
+        }
+      });
+    } else {
+      // Already in Music personality, open the generator dialog
+      setShowMusicDialog(true);
+    }
+  };
+
   const handlePlayMusic = (music: GeneratedMusic) => {
+    markMusicAsRead(music.id);
     window.open(music.url, '_blank');
   };
 
   const handleShareMusic = async (music: GeneratedMusic) => {
+    markMusicAsRead(music.id);
     try {
       if (navigator.share) {
         await navigator.share({
@@ -112,24 +134,30 @@ export function ChatScreen() {
               </button>
             )}
             <button
-              onClick={() => setShowMusicDialog(true)}
+              onClick={handleMusicButtonClick}
               className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-200 text-blue-600 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-all shadow-md hover:shadow-lg"
-              title="Generate Music"
+              title={isSparki ? "Go to Music Sparki" : "Generate Music"}
             >
               <Music4 className="w-5 h-5" />
             </button>
-            <button
-              onClick={() => setShowMusicLibrary(true)}
-              className="relative w-10 h-10 flex items-center justify-center bg-white border-2 border-purple-200 text-purple-600 rounded-full hover:bg-purple-50 hover:border-purple-300 transition-all shadow-md hover:shadow-lg"
-              title="Music Library"
-            >
-              <Library className="w-5 h-5" />
-              {musicLibrary.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {musicLibrary.length}
-                </span>
-              )}
-            </button>
+            {isMusicPersonality && (
+              <button
+                onClick={() => setShowMusicLibrary(true)}
+                className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-md hover:shadow-lg ${
+                  hasUnreadMusic
+                    ? 'bg-purple-600 border-2 border-purple-400 text-white shadow-purple-400 shadow-lg animate-pulse'
+                    : 'bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300'
+                }`}
+                title="Music Library"
+              >
+                <Library className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-white text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-purple-600">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
