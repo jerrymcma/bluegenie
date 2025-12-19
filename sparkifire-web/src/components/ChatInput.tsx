@@ -147,12 +147,12 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         {/* Action Buttons */}
         <div className="flex items-center mt-3">
           <div className="flex items-center space-x-1">
-            <button onClick={handleFolders} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Folders">
-              <Folder className="w-6 h-6" />
+            <button onClick={handleFolders} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
+              <Folder className="w-5 h-5" />
             </button>
             <div className="relative">
-              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Add image">
-                <ImageIcon className="w-6 h-6" />
+              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Add image">
+                <ImageIcon className="w-5 h-5" />
               </button>
               {showImageOptions && (
                 <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 p-2 space-y-1 min-w-[150px]">
@@ -167,11 +167,11 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
                 </div>
               )}
             </div>
-            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
-              {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            <button onClick={handleVoiceToggle} className={`p-2 rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
-            <button onClick={handleSparkIdea} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Spark Idea">
-              <Zap className="w-6 h-6" />
+            <button onClick={handleSparkIdea} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Spark Idea">
+              <Zap className="w-5 h-5" />
             </button>
           </div>
           <div className="flex-1 ml-2">
