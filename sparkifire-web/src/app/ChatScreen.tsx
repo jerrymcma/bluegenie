@@ -45,16 +45,17 @@ export function ChatScreen() {
     const handleScroll = () => {
       if (mainRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
-        // Show footer when scrolled near bottom (within 100px)
-        setShowFooter(scrollTop + clientHeight >= scrollHeight - 100);
+        // Show footer when scrolled down (not at top)
+        // Only show if there's content to scroll (scrollHeight > clientHeight) and user has scrolled
+        const hasScrollableContent = scrollHeight > clientHeight + 50;
+        const hasScrolled = scrollTop > 50;
+        setShowFooter(hasScrollableContent && hasScrolled);
       }
     };
 
     const mainElement = mainRef.current;
     if (mainElement) {
       mainElement.addEventListener('scroll', handleScroll);
-      // Check initial state
-      handleScroll();
     }
 
     return () => {
@@ -62,7 +63,7 @@ export function ChatScreen() {
         mainElement.removeEventListener('scroll', handleScroll);
       }
     };
-  }, []);
+  }, [messages]);
 
   const handleStartFresh = () => {
     setShowStartFreshDialog(true);
