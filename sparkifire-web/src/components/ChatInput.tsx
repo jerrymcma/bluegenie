@@ -145,13 +145,13 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center mt-3">
-          <div className="flex items-center space-x-1">
-            <button onClick={handleFolders} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
+        <div className="flex items-center mt-3 gap-2">
+          <div className="flex items-center gap-2 flex-1">
+            <button onClick={handleFolders} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
               <Folder className="w-5 h-5" />
             </button>
             <div className="relative">
-              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Add image">
+              <button onClick={() => setShowImageOptions(!showImageOptions)} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Add image">
                 <ImageIcon className="w-5 h-5" />
               </button>
               {showImageOptions && (
@@ -167,23 +167,21 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
                 </div>
               )}
             </div>
-            <button onClick={handleVoiceToggle} className={`p-2 rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+            <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
-            <button onClick={handleSparkIdea} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Spark Idea">
+            <button onClick={handleSparkIdea} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Spark Idea">
               <Zap className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 ml-2 flex justify-end">
-            <button
-              onClick={handleSend}
-              disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg min-w-[120px]"
-            >
-              <Send className="w-5 h-5" />
-              <span className="font-medium">Send</span>
-            </button>
-          </div>
+          <button
+            onClick={handleSend}
+            disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+          >
+            <Send className="w-5 h-5" />
+            <span className="font-medium text-base">Send</span>
+          </button>
         </div>
 
         {/* Hidden File Inputs */}
