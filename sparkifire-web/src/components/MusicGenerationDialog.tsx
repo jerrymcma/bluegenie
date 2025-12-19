@@ -104,9 +104,12 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               rows={5}
               placeholder="Type or paste your lyrics here. Leave blank for instrumental only"
-              maxLength={1000}
+              maxLength={600}
             />
-            <p className="text-xs text-gray-500 pl-3">10 to 600 characters is used.</p>
+            <div className="flex items-center justify-between text-xs text-gray-500 px-3">
+              <span>10-600 characters when used.</span>
+              <span>{lyrics.length}/600</span>
+            </div>
           </div>
 
           <div className="space-y-1">
