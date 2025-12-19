@@ -57,7 +57,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   if (message.isFromUser) {
     return (
       <div className="flex justify-end mb-4">
-        <div className="max-w-[70%]">
+        <div className="max-w-[85%]">
           {message.imageUri && (
             <div className="mb-2">
               <img
@@ -78,7 +78,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div className="flex justify-start mb-4">
-      <div className="max-w-[70%]">
+      <div className="max-w-[85%]">
         <div className="bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800 rounded-2xl px-4 py-3 shadow-md border border-gray-100">
           <p className="whitespace-pre-wrap break-words text-blue-600" dangerouslySetInnerHTML={{ __html: message.content }} />
           <div className="flex items-center justify-between mt-2">
