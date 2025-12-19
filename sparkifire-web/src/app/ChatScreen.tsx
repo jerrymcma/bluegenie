@@ -27,9 +27,7 @@ export function ChatScreen() {
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
   const [showMusicLibrary, setShowMusicLibrary] = useState(false);
-  const [showFooter, setShowFooter] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     initialize();
@@ -41,33 +39,7 @@ export function ChatScreen() {
     }
   }, [messages]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
-        // Show footer when scrolled down OR at the bottom of the conversation
-        const hasScrollableContent = scrollHeight > clientHeight;
-        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 20;
-        const hasScrolled = scrollTop > 100;
-        
-        // Show if user has scrolled down OR is at the bottom of a conversation
-        setShowFooter(hasScrollableContent && (hasScrolled || isNearBottom));
-      }
-    };
 
-    const mainElement = mainRef.current;
-    if (mainElement) {
-      mainElement.addEventListener('scroll', handleScroll);
-      // Check on mount and when messages change
-      handleScroll();
-    }
-
-    return () => {
-      if (mainElement) {
-        mainElement.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, [messages]);
 
   const handleStartFresh = () => {
     setShowStartFreshDialog(true);
@@ -193,7 +165,7 @@ export function ChatScreen() {
       </header>
 
       {/* Messages Area */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
             <WelcomeMessage
@@ -232,23 +204,21 @@ export function ChatScreen() {
       <footer className="flex-shrink-0">
         <ChatInput onStartFresh={handleStartFresh} />
         
-        {/* Footer with Copyright and Android App Link - Fixed at bottom, shows when scrolled */}
-        {showFooter && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40 animate-in fade-in slide-in-from-bottom duration-300">
-            <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
-              <span>© 2025 SparkiFire AI. All rights reserved.</span>
-              <span>•</span>
-              <a
-                href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-              >
-                Android App
-              </a>
-            </div>
+        {/* Footer with Copyright and Android App Link - Always visible at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40">
+          <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
+            <span>© 2025 SparkiFire AI. All rights reserved.</span>
+            <span>•</span>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
+            >
+              Android App
+            </a>
           </div>
-        )}
+        </div>
       </footer>
 
       {/* Modals */}
