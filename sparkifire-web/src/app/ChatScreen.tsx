@@ -201,6 +201,23 @@ export function ChatScreen() {
       {/* Input Area */}
       <footer className="flex-shrink-0">
         <ChatInput onStartFresh={handleStartFresh} />
+        
+        {/* Footer with Copyright and Android App Link */}
+        <div className="bg-white/95 border-t border-gray-200 py-3 px-4">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 text-xs text-gray-600">
+            <span>© 2025 SparkiFire AI. All rights reserved.</span>
+            <span className="hidden sm:inline">•</span>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 font-medium hover:underline flex items-center gap-1"
+            >
+              <span>📱</span>
+              <span>Download Android App</span>
+            </a>
+          </div>
+        </div>
       </footer>
 
       {/* Modals */}
