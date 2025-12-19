@@ -147,11 +147,11 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         {/* Action Buttons */}
         <div className="flex items-center mt-3">
           <div className="flex items-center space-x-1">
-            <button onClick={handleFolders} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Folders">
+            <button onClick={handleFolders} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
               <Folder className="w-6 h-6" />
             </button>
             <div className="relative">
-              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Add image">
+              <button onClick={() => setShowImageOptions(!showImageOptions)} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Add image">
                 <ImageIcon className="w-6 h-6" />
               </button>
               {showImageOptions && (
@@ -167,10 +167,10 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
                 </div>
               )}
             </div>
-            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+            <button onClick={handleVoiceToggle} className={`p-3 rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
               {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </button>
-            <button onClick={handleSparkIdea} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Spark Idea">
+            <button onClick={handleSparkIdea} className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Spark Idea">
               <Zap className="w-6 h-6" />
             </button>
           </div>
