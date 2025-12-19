@@ -45,3 +45,14 @@ export interface ConversationPair {
   role: 'user' | 'assistant';
   content: string;
 }
+
+// Generated Music
+export interface GeneratedMusic {
+  id: string;
+  prompt: string;
+  url: string;
+  durationSeconds: number;
+  timestamp: number;
+  isFreeTier: boolean;
+  costCents: number;
+}

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Message, AIPersonality, MessageType } from '../types';
+import { Message, AIPersonality, MessageType, GeneratedMusic } from '../types';
 import { personalities } from '../data/personalities';
 import { geminiService } from '../services/geminiService';
 import { storageService } from '../services/storageService';
@@ -14,6 +14,7 @@ interface ChatState {
   isGeneratingMusic: boolean;
   musicStatus: string | null;
   musicCredits: number;
+  musicLibrary: GeneratedMusic[];
   
   // Actions
   sendMessage: (
@@ -31,6 +32,9 @@ interface ChatState {
   generateMusic: (payload: string) => Promise<string | null>;
   decrementMusicCredits: () => void;
   initialize: () => void;
+  addMusicToLibrary: (music: GeneratedMusic) => void;
+  deleteMusicFromLibrary: (id: string) => void;
+  loadMusicLibrary: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -42,8 +46,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isGeneratingMusic: false,
   musicStatus: null,
   musicCredits: 5,
+  musicLibrary: [],
 
   initialize: () => {
+    get().loadMusicLibrary();
     const { currentPersonality } = get();
     const savedMessages = storageService.loadMessages(currentPersonality.id);
     
@@ -235,7 +241,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   generateMusic: async (payload: string) => {
-    const { isGeneratingMusic, musicCredits, decrementMusicCredits } = get();
+    const { isGeneratingMusic, musicCredits, decrementMusicCredits, addMusicToLibrary } = get();
 
     if (isGeneratingMusic) {
       return null;
@@ -252,12 +258,54 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const result = await musicService.generateClip(payload);
       set({ musicStatus: result, isGeneratingMusic: false });
       decrementMusicCredits();
+      
+      // Extract URL from result and add to library
+      const downloadPrefix = 'Download it here: ';
+      const downloadIndex = result.indexOf(downloadPrefix);
+      if (downloadIndex !== -1) {
+        const url = result.substring(downloadIndex + downloadPrefix.length);
+        const newMusic: GeneratedMusic = {
+          id: crypto.randomUUID(),
+          prompt: payload,
+          url: url,
+          durationSeconds: 58, // Default duration, can be updated if we get it from the API
+          timestamp: Date.now(),
+          isFreeTier: musicCredits > 0,
+          costCents: musicCredits > 0 ? 0 : 6,
+        };
+        addMusicToLibrary(newMusic);
+      }
+      
       return result;
     } catch (error) {
       console.error('generateMusic error', error);
       const fallback = 'Sorry, I could not reach the music service right now. Please try again later.';
       set({ musicStatus: fallback, isGeneratingMusic: false });
       return fallback;
+    }
+  },
+
+  addMusicToLibrary: (music: GeneratedMusic) => {
+    const updatedLibrary = [music, ...get().musicLibrary];
+    set({ musicLibrary: updatedLibrary });
+    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
+  },
+
+  deleteMusicFromLibrary: (id: string) => {
+    const updatedLibrary = get().musicLibrary.filter((m) => m.id !== id);
+    set({ musicLibrary: updatedLibrary });
+    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
+  },
+
+  loadMusicLibrary: () => {
+    try {
+      const saved = localStorage.getItem('musicLibrary');
+      if (saved) {
+        const library = JSON.parse(saved);
+        set({ musicLibrary: library });
+      }
+    } catch (error) {
+      console.error('Error loading music library:', error);
     }
   }
 }));

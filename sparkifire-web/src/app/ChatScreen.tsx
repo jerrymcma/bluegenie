@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Volume2, Sparkles, Music4 } from 'lucide-react';
+import { Volume2, Sparkles, Music4, Library } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { MessageBubble } from '../components/MessageBubble';
 import { TypingIndicator } from '../components/TypingIndicator';
@@ -7,6 +7,8 @@ import { WelcomeMessage } from '../components/WelcomeMessage';
 import { PersonalitySelector } from '../components/PersonalitySelector';
 import { ChatInput } from '../components/ChatInput';
 import { MusicGenerationDialog } from '../components/MusicGenerationDialog';
+import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
+import { GeneratedMusic } from '../types';
 
 export function ChatScreen() {
   const {
@@ -15,11 +17,14 @@ export function ChatScreen() {
     currentPersonality,
     isSpeaking,
     musicCredits,
+    musicLibrary,
+    deleteMusicFromLibrary,
     initialize,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
+  const [showMusicLibrary, setShowMusicLibrary] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,6 +48,39 @@ export function ChatScreen() {
 
   const isMusicPersonality = currentPersonality.id === 'music_composer';
   const isSparki = currentPersonality.id === 'default';
+
+  const handlePlayMusic = (music: GeneratedMusic) => {
+    window.open(music.url, '_blank');
+  };
+
+  const handleShareMusic = async (music: GeneratedMusic) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'My SparkiFire Music',
+          text: `Check out this music I generated with SparkiFire: ${music.prompt.substring(0, 100)}`,
+          url: music.url,
+        });
+      } else {
+        await navigator.clipboard.writeText(music.url);
+        alert('Music link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      try {
+        await navigator.clipboard.writeText(music.url);
+        alert('Music link copied to clipboard!');
+      } catch (clipboardError) {
+        alert('Unable to share. Please try again.');
+      }
+    }
+  };
+
+  const handleDeleteMusic = (id: string) => {
+    if (confirm('Are you sure you want to delete this track from your library?')) {
+      deleteMusicFromLibrary(id);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -79,6 +117,18 @@ export function ChatScreen() {
               title="Generate Music"
             >
               <Music4 className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowMusicLibrary(true)}
+              className="relative w-10 h-10 flex items-center justify-center bg-white border-2 border-purple-200 text-purple-600 rounded-full hover:bg-purple-50 hover:border-purple-300 transition-all shadow-md hover:shadow-lg"
+              title="Music Library"
+            >
+              <Library className="w-5 h-5" />
+              {musicLibrary.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {musicLibrary.length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -133,6 +183,14 @@ export function ChatScreen() {
       <MusicGenerationDialog
         isOpen={showMusicDialog}
         onClose={() => setShowMusicDialog(false)}
+      />
+      <MusicLibraryDialog
+        isOpen={showMusicLibrary}
+        onClose={() => setShowMusicLibrary(false)}
+        library={musicLibrary}
+        onPlayMusic={handlePlayMusic}
+        onShareMusic={handleShareMusic}
+        onDeleteMusic={handleDeleteMusic}
       />
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
