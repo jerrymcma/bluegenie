@@ -45,17 +45,21 @@ export function ChatScreen() {
     const handleScroll = () => {
       if (mainRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
-        // Show footer when scrolled down (not at top)
-        // Only show if there's content to scroll (scrollHeight > clientHeight) and user has scrolled
-        const hasScrollableContent = scrollHeight > clientHeight + 50;
-        const hasScrolled = scrollTop > 50;
-        setShowFooter(hasScrollableContent && hasScrolled);
+        // Show footer when scrolled down OR at the bottom of the conversation
+        const hasScrollableContent = scrollHeight > clientHeight;
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 20;
+        const hasScrolled = scrollTop > 100;
+        
+        // Show if user has scrolled down OR is at the bottom of a conversation
+        setShowFooter(hasScrollableContent && (hasScrolled || isNearBottom));
       }
     };
 
     const mainElement = mainRef.current;
     if (mainElement) {
       mainElement.addEventListener('scroll', handleScroll);
+      // Check on mount and when messages change
+      handleScroll();
     }
 
     return () => {
@@ -228,9 +232,9 @@ export function ChatScreen() {
       <footer className="flex-shrink-0">
         <ChatInput onStartFresh={handleStartFresh} />
         
-        {/* Footer with Copyright and Android App Link - Only shows when scrolled */}
+        {/* Footer with Copyright and Android App Link - Fixed at bottom, shows when scrolled */}
         {showFooter && (
-          <div className="bg-white/95 border-t border-gray-200 py-3 px-4 animate-in fade-in slide-in-from-bottom duration-300">
+          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40 animate-in fade-in slide-in-from-bottom duration-300">
             <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
               <span>© 2025 SparkiFire AI. All rights reserved.</span>
               <span>•</span>
