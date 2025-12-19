@@ -174,11 +174,11 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
               <Zap className="w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 ml-2">
+          <div className="flex-1 ml-2 flex justify-end">
             <button
               onClick={handleSend}
               disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-              className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg min-w-[120px]"
             >
               <Send className="w-5 h-5" />
               <span className="font-medium">Send</span>
