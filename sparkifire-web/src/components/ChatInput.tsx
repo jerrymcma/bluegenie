@@ -146,7 +146,7 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center mt-3 gap-2">
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center justify-between flex-1">
             <button onClick={handleFolders} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
               <Folder className="w-5 h-5" />
             </button>
