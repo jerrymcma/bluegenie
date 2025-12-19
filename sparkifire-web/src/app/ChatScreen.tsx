@@ -229,22 +229,22 @@ export function ChatScreen() {
         <ChatInput onStartFresh={handleStartFresh} />
         
         {/* Footer with Copyright and Android App Link - Only shows when scrolled */}
-        <div className={`bg-white/95 border-t border-gray-200 py-3 px-4 transition-all duration-300 ${
-          showFooter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
-        }`}>
-          <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
-            <span>© 2025 SparkiFire AI. All rights reserved.</span>
-            <span>•</span>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-            >
-              Android App
-            </a>
+        {showFooter && (
+          <div className="bg-white/95 border-t border-gray-200 py-3 px-4 animate-in fade-in slide-in-from-bottom duration-300">
+            <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
+              <span>© 2025 SparkiFire AI. All rights reserved.</span>
+              <span>•</span>
+              <a
+                href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
+              >
+                Android App
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </footer>
 
       {/* Modals */}
