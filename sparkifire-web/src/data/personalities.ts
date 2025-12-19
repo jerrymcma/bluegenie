@@ -11,6 +11,15 @@ export const personalities: Record<string, AIPersonality> = {
     responseStyle: ResponseStyle.FRIENDLY,
     color: '#2196F3'
   },
+  MUSIC: {
+    id: 'music_composer',
+    name: 'Magic Music Spark',
+    description: 'AI music composer for lyrics & melodies',
+    icon: '🎵',
+    greeting: "Hey there, music maker! 🎵 I'm Magic Music Spark, your creative music partner! I can help you with lyrics, melody ideas, chord progressions, song structure, and MORE! 🎶 I can even GENERATE actual music for you! You have 5 FREE songs to get started! 🎁✨ Let's make something amazing! 🎸🎹🎤",
+    responseStyle: ResponseStyle.MUSIC,
+    color: '#E91E63'
+  },
   PROFESSIONAL: {
     id: 'professional',
     name: 'Sparki Pro',
@@ -91,15 +100,6 @@ export const personalities: Record<string, AIPersonality> = {
     greeting: 'Welcome! I am Sparki Ultimate, the pinnacle of AI assistance. With unmatched capabilities across all domains, I\'m here to provide you with the most comprehensive and powerful AI experience. What challenge shall we conquer together? ⚡🔥',
     responseStyle: ResponseStyle.ULTIMATE,
     color: '#B71C1C'
-  },
-  MUSIC: {
-    id: 'music_composer',
-    name: 'Magic Music Spark',
-    description: 'AI music composer for lyrics & melodies',
-    icon: '🎵',
-    greeting: "Hey there, music maker! 🎵 I'm Magic Music Spark, your creative music partner! I can help you with lyrics, melody ideas, chord progressions, song structure, and MORE! 🎶 I can even GENERATE actual music for you! You have 5 FREE songs to get started! 🎁✨ Let's make something amazing! 🎸🎹🎤",
-    responseStyle: ResponseStyle.MUSIC,
-    color: '#E91E63'
   }
 };
 
