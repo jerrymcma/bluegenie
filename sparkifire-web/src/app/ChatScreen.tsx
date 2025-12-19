@@ -27,7 +27,9 @@ export function ChatScreen() {
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
   const [showMusicLibrary, setShowMusicLibrary] = useState(false);
+  const [showFooter, setShowFooter] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     initialize();
@@ -38,6 +40,29 @@ export function ChatScreen() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (mainRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
+        // Show footer when scrolled near bottom (within 100px)
+        setShowFooter(scrollTop + clientHeight >= scrollHeight - 100);
+      }
+    };
+
+    const mainElement = mainRef.current;
+    if (mainElement) {
+      mainElement.addEventListener('scroll', handleScroll);
+      // Check initial state
+      handleScroll();
+    }
+
+    return () => {
+      if (mainElement) {
+        mainElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   const handleStartFresh = () => {
     setShowStartFreshDialog(true);
@@ -163,7 +188,7 @@ export function ChatScreen() {
       </header>
 
       {/* Messages Area */}
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
             <WelcomeMessage
@@ -202,8 +227,10 @@ export function ChatScreen() {
       <footer className="flex-shrink-0">
         <ChatInput onStartFresh={handleStartFresh} />
         
-        {/* Footer with Copyright and Android App Link */}
-        <div className="bg-white/95 border-t border-gray-200 py-3 px-4">
+        {/* Footer with Copyright and Android App Link - Only shows when scrolled */}
+        <div className={`bg-white/95 border-t border-gray-200 py-3 px-4 transition-all duration-300 ${
+          showFooter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
+        }`}>
           <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
             <span>© 2025 SparkiFire AI. All rights reserved.</span>
             <span>•</span>
