@@ -43,11 +43,6 @@ export function PremiumUpgradeModal({
           <h2 className="text-2xl font-bold text-white mb-2">
             {isRenewal ? '🎉 Renew Premium' : '✨ Upgrade to Premium'}
           </h2>
-          <p className="text-blue-100 text-sm">
-            {isRenewal 
-              ? 'Your month is up or you\'ve used 50 songs!' 
-              : 'You\'ve used your free tier!'}
-          </p>
         </div>
 
         {/* Content */}
@@ -58,14 +53,14 @@ export function PremiumUpgradeModal({
           </div>
 
           {/* Features */}
-          <div className="space-y-3 mb-6">
+          <div className="space-y-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="text-blue-600 font-semibold">Unlock All 11 Personalities</p>
-                <p className="text-xs text-gray-600">Including Sparki Ultimate!</p>
+                <p className="text-blue-600 font-semibold leading-tight">Unlock All 11 Personalities</p>
+                <p className="text-sm text-gray-600">Including Sparki Ultimate!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
@@ -76,7 +71,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">50 Songs per Month</p>
-                <p className="text-xs text-gray-600">AI-generated music!</p>
+                <p className="text-sm text-gray-600">Sparki-generated music!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
@@ -87,7 +82,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">Unlimited Messages</p>
-                <p className="text-xs text-gray-600">Chat as much as you want!</p>
+                <p className="text-sm text-gray-600">Chat as much as you want!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>

@@ -69,9 +69,8 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
                   }}
                 >
                   {isLocked && (
-                    <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white w-6 h-6 rounded-full flex items-center justify-center">
                       <Lock className="w-3 h-3" />
-                      <span>Premium</span>
                     </div>
                   )}
                   
