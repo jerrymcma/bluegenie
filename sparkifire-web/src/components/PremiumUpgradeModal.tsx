@@ -60,7 +60,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold leading-tight">Unlock All 11 Personalities</p>
-                <p className="text-sm text-gray-600">Including Sparki Ultimate!</p>
+                <p className="text-sm text-blue-600">Including Sparki Ultimate!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
@@ -71,7 +71,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">50 Songs per Month</p>
-                <p className="text-sm text-gray-600">Sparki-generated music!</p>
+                <p className="text-sm text-blue-600">Sparki-generated music!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
@@ -82,7 +82,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">Unlimited Messages</p>
-                <p className="text-sm text-gray-600">Chat as much as you want!</p>
+                <p className="text-sm text-blue-600">Chat as much as you want!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
