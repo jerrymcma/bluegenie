@@ -24,12 +24,12 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">Choose Your AI Personality ✨</h2>
+          <h2 className="text-2xl font-bold text-blue-600">Choose Your AI Personality ✨</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-6 h-6 text-gray-600" />
+            <X className="w-6 h-6 text-blue-600" />
           </button>
         </div>
 
@@ -53,7 +53,7 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
                 <div className="flex items-start space-x-3">
                   <div className="text-4xl">{personality.icon}</div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-800 mb-1">
+                    <h3 className="font-bold text-lg text-blue-600 mb-1">
                       {personality.name}
                       {currentPersonality.id === personality.id && (
                         <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">
@@ -61,9 +61,9 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
                         </span>
                       )}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2">{personality.description}</p>
+                    <p className="text-sm text-blue-600 mb-2">{personality.description}</p>
                     <p 
-                      className="text-xs text-gray-500 italic line-clamp-2"
+                      className="text-xs text-blue-600 italic line-clamp-2"
                       dangerouslySetInnerHTML={{ __html: `"${personality.greeting}"` }}
                     />
                   </div>
@@ -75,7 +75,7 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-blue-600 text-center">
             Each personality has its own conversation history and unique style!
           </p>
         </div>
