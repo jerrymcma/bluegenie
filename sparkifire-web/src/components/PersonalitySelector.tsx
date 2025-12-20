@@ -62,9 +62,10 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
                       )}
                     </h3>
                     <p className="text-sm text-gray-600 mb-2">{personality.description}</p>
-                    <p className="text-xs text-gray-500 italic line-clamp-2">
-                      "{personality.greeting}"
-                    </p>
+                    <p 
+                      className="text-xs text-gray-500 italic line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: `"${personality.greeting}"` }}
+                    />
                   </div>
                 </div>
               </button>
