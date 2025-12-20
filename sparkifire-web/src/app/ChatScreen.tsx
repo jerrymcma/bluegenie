@@ -8,6 +8,8 @@ import { PersonalitySelector } from '../components/PersonalitySelector';
 import { ChatInput } from '../components/ChatInput';
 import { MusicGenerationDialog } from '../components/MusicGenerationDialog';
 import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
+import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal';
+import { SignInModal } from '../components/SignInModal';
 import { GeneratedMusic } from '../types';
 
 export function ChatScreen() {
@@ -22,6 +24,13 @@ export function ChatScreen() {
     markMusicAsRead,
     changePersonality,
     initialize,
+    showUpgradeModal,
+    showSignInModal,
+    setShowUpgradeModal,
+    setShowSignInModal,
+    signIn,
+    upgradeToPremium,
+    subscription,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
@@ -31,6 +40,19 @@ export function ChatScreen() {
 
   useEffect(() => {
     initialize();
+    
+    // Check for successful payment in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      // Payment successful! Show success message
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // TODO: Activate premium in Supabase (needs webhook or manual activation)
+      alert('🎉 Payment successful! Your Premium features are being activated...');
+    } else if (urlParams.get('canceled') === 'true') {
+      // Payment was canceled
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, [initialize]);
 
   useEffect(() => {
@@ -237,6 +259,17 @@ export function ChatScreen() {
         onPlayMusic={handlePlayMusic}
         onShareMusic={handleShareMusic}
         onDeleteMusic={handleDeleteMusic}
+      />
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        onSignIn={signIn}
+      />
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onUpgrade={upgradeToPremium}
+        isRenewal={subscription.needsRenewal}
       />
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

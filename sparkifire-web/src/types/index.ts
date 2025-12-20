@@ -57,3 +57,14 @@ export interface GeneratedMusic {
   costCents: number;
   isRead: boolean;
 }
+
+// User Subscription
+export interface UserSubscription {
+  isPremium: boolean;
+  messageCount: number;
+  songCount: number;
+  songsThisPeriod: number;
+  subscriptionStartDate: string | null;
+  periodStartDate: string | null;
+  needsRenewal: boolean;
+}
