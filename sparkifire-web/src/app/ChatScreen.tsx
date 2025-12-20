@@ -110,7 +110,7 @@ export function ChatScreen() {
     <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-blue-600">{currentPersonality.name}</h1>
             {isSpeaking && (
