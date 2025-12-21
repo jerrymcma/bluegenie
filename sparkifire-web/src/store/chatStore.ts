@@ -354,7 +354,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isGeneratingMusic: true, musicStatus: '✨ Generating your music... ✨' });
 
     try {
-      const result = await musicService.generateClip(payload, accessToken);
+      const result = await musicService.generateClip(payload);
       set({ musicStatus: result, isGeneratingMusic: false });
       
       // Extract URL from result and add to library
