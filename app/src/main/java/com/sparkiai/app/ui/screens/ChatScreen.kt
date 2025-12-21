@@ -1,6 +1,7 @@
 package com.sparkiai.app.ui.screens
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
@@ -53,6 +54,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -316,10 +318,9 @@ fun ChatScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left side - current personality heading
+                // Left side - current personality heading (names)
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f, fill = false)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = currentPersonality.name,
@@ -338,18 +339,19 @@ fun ChatScreen(
                     }
                 }
 
-                // Right side - Music Library + Personalities Button
+                // Right side - Personalities Button + Music Button
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     TextButton(
                         onClick = { showPersonalitySelector = true },
-                        modifier = Modifier.padding(end = 2.dp),
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(0.dp)
                         ) {
                             Text(
                                 text = "Personalities",
@@ -357,10 +359,38 @@ fun ChatScreen(
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "✨",
                                 fontSize = 20.sp
+                            )
+                        }
+                    }
+
+                    // Music Icon Button - Opens Magic Music Spark (only show when NOT on Magic Music Spark)
+                    if (!isMusicComposerActive) {
+                        IconButton(
+                            onClick = {
+                                // Switch to Magic Music Spark personality
+                                val musicPersonality = availablePersonalities.find {
+                                    it.name == "Magic Music Spark"
+                                }
+                                musicPersonality?.let {
+                                    viewModel.changePersonality(it)
+                                    coroutineScope.launch {
+                                        delay(100)
+                                        listState.animateScrollToItem(messages.size)
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .offset(x = (-12).dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MusicNote,
+                                contentDescription = "Magic Music Spark",
+                                tint = Color(0xFFFFD700),
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
@@ -1040,6 +1070,41 @@ fun ChatScreen(
                     "⬇️ Download feature coming soon!",
                     Toast.LENGTH_SHORT
                 ).show()
+            },
+            onShareMusic = { music ->
+                try {
+                    val file = File(music.filePath)
+                    if (file.exists()) {
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            file
+                        )
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = music.mimeType
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_SUBJECT, "Check out this song created by Sparki!")
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Created with Sparki AI - Music Composer"
+                            )
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Share Music"))
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "❌ Music file not found",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        "❌ Error sharing music: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             },
             onDismiss = { showMusicLibraryDialog = false }
         )

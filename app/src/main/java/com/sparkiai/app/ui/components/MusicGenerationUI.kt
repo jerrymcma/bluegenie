@@ -563,6 +563,7 @@ fun MusicLibraryDialog(
     onPlayMusic: (GeneratedMusic) -> Unit,
     onDeleteMusic: (String) -> Unit,
     onDownloadMusic: (GeneratedMusic) -> Unit,
+    onShareMusic: (GeneratedMusic) -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -637,7 +638,8 @@ fun MusicLibraryDialog(
                                 music = music,
                                 onPlay = { onPlayMusic(music) },
                                 onDelete = { onDeleteMusic(music.id) },
-                                onDownload = { onDownloadMusic(music) }
+                                onDownload = { onDownloadMusic(music) },
+                                onShare = { onShareMusic(music) }
                             )
                         }
                     }
@@ -661,6 +663,7 @@ fun MusicTrackCard(
     onPlay: () -> Unit,
     onDelete: () -> Unit,
     onDownload: () -> Unit,
+    onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showOptions by remember { mutableStateOf(false) }
@@ -734,8 +737,10 @@ fun MusicTrackCard(
                     color = Color.White.copy(alpha = 0.2f)
                 )
                 Row(
-                    modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally),
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     IconButton(onClick = onPlay) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -749,15 +754,30 @@ fun MusicTrackCard(
                         }
                     }
 
-                    IconButton(onClick = onDelete) {
+                    IconButton(onClick = onShare) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share",
+                                tint = Color(0xFF2196F3),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text("Share", fontSize = 10.sp, color = Color.White)
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(36.dp)
+                    ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
-                                tint = Color(0xFFF44336),
-                                modifier = Modifier.size(20.dp)
+                                tint = Color(0xFF9E9E9E),
+                                modifier = Modifier.size(16.dp)
                             )
-                            Text("Delete", fontSize = 10.sp, color = Color.White)
+                            Text("Delete", fontSize = 9.sp, color = Color.White.copy(alpha = 0.7f))
                         }
                     }
                 }

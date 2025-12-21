@@ -445,22 +445,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return false;
     }
     
-    // If not premium and hit limits
+    // If not signed in, require login for song generation (messages are free and unlimited)
+    if (!user) {
+      set({ showSignInModal: true });
+      return false;
+    }
+    
+    // If signed in but not premium, check if they've used their 5 free songs
     if (!subscription.isPremium) {
-      // If user not signed in, use localStorage
-      if (!user) {
-        const localMessageCount = parseInt(localStorage.getItem('anonymousMessageCount') || '0');
-        const localSongCount = parseInt(localStorage.getItem('anonymousSongCount') || '0');
-        
-        if (localMessageCount >= 50 || localSongCount >= 5) {
-          set({ showSignInModal: true });
-          return false;
-        }
-        return true;
-      }
-      
-      // User is signed in but not premium
-      if (subscription.messageCount >= 50 || subscription.songCount >= 5) {
+      if (subscription.songCount >= 5) {
         set({ showUpgradeModal: true });
         return false;
       }
