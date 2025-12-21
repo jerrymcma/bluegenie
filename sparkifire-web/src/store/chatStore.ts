@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { create } from 'zustand';
 import { Message, AIPersonality, MessageType, GeneratedMusic, UserSubscription } from '../types';
 import { personalities } from '../data/personalities';
@@ -367,10 +366,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
           id: crypto.randomUUID(),
           prompt: payload,
           url: url,
-          durationSeconds: 58, // Default duration, can be updated if we get it from the API
+          durationSeconds: 58,
           timestamp: Date.now(),
-          isFreeTier: musicCredits > 0,
-          costCents: musicCredits > 0 ? 0 : 6,
+          isFreeTier: true,
+          costCents: 0,
           isRead: false,
         };
         addMusicToLibrary(newMusic);
@@ -475,9 +474,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   checkUsageLimits: (checkingSongGeneration: boolean = false) => {
-=======
-  checkUsageLimits: () => {
->>>>>>> 265c5b54bc84061e47a059ab26bc0080b8147f00
     const { user, subscription } = get();
     
     console.log('[checkUsageLimits] Called with:', { checkingSongGeneration, hasUser: !!user, subscription });
@@ -489,28 +485,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return false;
     }
     
-<<<<<<< HEAD
     // For song generation specifically, require login
     if (checkingSongGeneration && !user) {
       console.log('[checkUsageLimits] Song generation requires login - showing sign in modal');
-=======
-    // If not signed in, require login for song generation (messages are free and unlimited)
-    if (!user) {
->>>>>>> 265c5b54bc84061e47a059ab26bc0080b8147f00
       set({ showSignInModal: true });
       return false;
     }
     
     // If signed in but not premium, check if they've used their 5 free songs
-<<<<<<< HEAD
     if (checkingSongGeneration && !subscription.isPremium && user) {
       console.log('[checkUsageLimits] Checking song count:', subscription.songCount);
       if (subscription.songCount >= 5) {
         console.log('[checkUsageLimits] Hit 5 song limit - showing upgrade modal');
-=======
-    if (!subscription.isPremium) {
-      if (subscription.songCount >= 5) {
->>>>>>> 265c5b54bc84061e47a059ab26bc0080b8147f00
         set({ showUpgradeModal: true });
         return false;
       }
@@ -519,3 +505,57 @@ export const useChatStore = create<ChatState>((set, get) => ({
     console.log('[checkUsageLimits] Passed all checks, allowing action');
     return true;
   },
+
+  incrementMessageCount: async () => {
+    const { user } = get();
+    
+    if (user) {
+      // Increment in database
+      await supabaseService.incrementMessageCount(user.id);
+      set((state) => ({
+        subscription: {
+          ...state.subscription,
+          messageCount: state.subscription.messageCount + 1,
+        }
+      }));
+    } else {
+      // Increment in localStorage for anonymous users
+      const count = parseInt(localStorage.getItem('anonymousMessageCount') || '0');
+      localStorage.setItem('anonymousMessageCount', (count + 1).toString());
+    }
+  },
+
+  incrementSongCount: async () => {
+    const { user } = get();
+    
+    if (user) {
+      // Increment in database
+      await supabaseService.incrementSongCount(user.id);
+      set((state) => ({
+        subscription: {
+          ...state.subscription,
+          songCount: state.subscription.songCount + 1,
+          songsThisPeriod: state.subscription.songsThisPeriod + 1,
+        }
+      }));
+    } else {
+      // Increment in localStorage for anonymous users
+      const count = parseInt(localStorage.getItem('anonymousSongCount') || '0');
+      localStorage.setItem('anonymousSongCount', (count + 1).toString());
+    }
+  },
+
+  upgradeToPremium: () => {
+    // This will be called when Stripe payment succeeds
+    // For now, just open Stripe checkout (we'll implement this next)
+    set({ showUpgradeModal: true });
+  },
+
+  setShowUpgradeModal: (show: boolean) => {
+    set({ showUpgradeModal: show });
+  },
+
+  setShowSignInModal: (show: boolean) => {
+    set({ showSignInModal: show });
+  }
+}));
