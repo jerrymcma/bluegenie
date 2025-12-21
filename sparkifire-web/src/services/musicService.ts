@@ -21,16 +21,16 @@ class MusicService {
     return true;
   }
 
-  async generateClip(prompt: string): Promise<string> {
+  async generateClip(prompt: string, authToken: string): Promise<string> {
     try {
       const { lyrics, style } = this.parsePrompt(prompt);
 
-      const predictionId = await this.createPrediction(lyrics, style);
+      const predictionId = await this.createPrediction(lyrics, style, authToken);
       if (!predictionId) {
         return 'I could not start the Replicate music job. Please try again in a moment.';
       }
 
-      const outputUrl = await this.pollPrediction(predictionId);
+      const outputUrl = await this.pollPrediction(predictionId, authToken);
       if (!outputUrl) {
         return 'The music job did not finish successfully. Please try a simpler prompt or try again soon.';
       }
@@ -84,7 +84,7 @@ class MusicService {
     return { lyrics, style };
   }
 
-  private async createPrediction(lyrics: string, style: string): Promise<string | null> {
+  private async createPrediction(lyrics: string, style: string, authToken: string): Promise<string | null> {
     try {
       console.log('Creating prediction with API URL:', this.apiUrl);
       const response = await axios.post<PredictionResponse>(
@@ -96,7 +96,8 @@ class MusicService {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
           },
           timeout: 120000
         }
@@ -112,11 +113,11 @@ class MusicService {
     }
   }
 
-  private async pollPrediction(predictionId: string): Promise<string | null> {
+  private async pollPrediction(predictionId: string, authToken: string): Promise<string | null> {
     const maxAttempts = 60;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       await this.delay(2000);
-      const result = await this.fetchPrediction(predictionId);
+      const result = await this.fetchPrediction(predictionId, authToken);
 
       if (!result) {
         continue;
@@ -142,7 +143,7 @@ class MusicService {
     return null;
   }
 
-  private async fetchPrediction(predictionId: string): Promise<PredictionResponse | null> {
+  private async fetchPrediction(predictionId: string, authToken: string): Promise<PredictionResponse | null> {
     try {
       const response = await axios.post<PredictionResponse>(
         this.apiUrl,
@@ -152,7 +153,8 @@ class MusicService {
         },
         {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
           },
           timeout: 60000
         }
