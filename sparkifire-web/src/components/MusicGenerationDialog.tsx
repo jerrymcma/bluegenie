@@ -8,13 +8,22 @@ interface MusicGenerationDialogProps {
 }
 
 export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialogProps) {
-  const { generateMusic, isGeneratingMusic, musicStatus, setMusicStatus } = useChatStore();
+  const { generateMusic, isGeneratingMusic, musicStatus, setMusicStatus, user, showSignInModal, setShowSignInModal } = useChatStore();
   const [lyrics, setLyrics] = useState('');
   const [stylePrompt, setStylePrompt] = useState('');
 
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
+    const { user } = useChatStore.getState();
+    
+    // Check authentication first, before any validation
+    if (!user) {
+      console.warn('[MusicGenerationDialog] User not authenticated - showing sign-in modal');
+      useChatStore.setState({ showSignInModal: true });
+      return;
+    }
+    
     const sanitizedLyrics = lyrics.trim();
     const sanitizedStyle = stylePrompt.trim();
     if (!sanitizedLyrics && !sanitizedStyle) {
@@ -96,6 +105,18 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
 
         {/* Content */}
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
+          {!user && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg px-4 py-3 text-center">
+              <p className="text-sm font-semibold text-blue-900 mb-2">Sign in to generate music</p>
+              <p className="text-xs text-blue-700">You need to sign in with Google to unlock 5 free songs</p>
+              <button
+                onClick={() => setShowSignInModal(true)}
+                className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              >
+                Sign In with Google
+              </button>
+            </div>
+          )}
           <div className="space-y-1">
             <label className="block text-sm font-semibold text-gray-800 pl-3">Lyrics</label>
             <textarea
@@ -139,7 +160,7 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
         <div className="px-6 py-4 border-t border-gray-200 flex items-center space-x-3">
           <button
             onClick={handleGenerate}
-            disabled={isGeneratingMusic}
+            disabled={isGeneratingMusic || !user}
             className="flex-1 px-8 py-3 text-base font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
             {isGeneratingMusic && (

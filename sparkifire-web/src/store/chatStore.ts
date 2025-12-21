@@ -47,7 +47,7 @@ interface ChatState {
   // Subscription actions
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
-  checkUsageLimits: () => boolean;
+  checkUsageLimits: (checkingSongGeneration?: boolean) => boolean;
   upgradeToPremium: () => void;
   setShowUpgradeModal: (show: boolean) => void;
   setShowSignInModal: (show: boolean) => void;
@@ -86,6 +86,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     // Set up auth listener
     supabaseService.onAuthStateChange((user) => {
+      console.log('[chatStore.initialize] Auth state changed:', { hasUser: !!user, userId: user?.id });
       set({ user });
       if (user) {
         get().loadUserProfile();
@@ -94,10 +95,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     // Check if user is already signed in
     supabaseService.getCurrentUser().then((user) => {
+      console.log('[chatStore.initialize] Checked current user:', { hasUser: !!user, userId: user?.id });
       if (user) {
         set({ user });
         get().loadUserProfile();
       }
+    }).catch((error) => {
+      console.error('[chatStore.initialize] Error checking current user:', error);
     });
     const { currentPersonality } = get();
     const savedMessages = storageService.loadMessages(currentPersonality.id);
@@ -132,11 +136,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { currentPersonality, isLoading } = get();
     
     if ((content.trim().length === 0 && !imagePreview) || isLoading) {
-      return;
-    }
-
-    // Check usage limits before sending
-    if (!get().checkUsageLimits()) {
       return;
     }
 
@@ -298,34 +297,71 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   generateMusic: async (payload: string) => {
-    const { isGeneratingMusic, musicCredits, decrementMusicCredits, addMusicToLibrary } = get();
+    const { isGeneratingMusic, decrementMusicCredits, addMusicToLibrary, user, subscription } = get();
 
     if (isGeneratingMusic) {
       return null;
     }
     
-    // Check usage limits before generating
-    if (!get().checkUsageLimits()) {
+    // CRITICAL: Check for valid access token FIRST before anything else
+    // This is the ultimate gate - if there's no token, nothing happens
+    const accessToken = await supabaseService.getAccessToken();
+    if (!accessToken) {
+      console.warn('[generateMusic] No access token - user must sign in');
+      set({
+        showSignInModal: true,
+      });
       return null;
     }
     
-    if (musicCredits <= 0) {
-      set({ musicStatus: 'You have no more free songs to generate.' });
+    // CRITICAL: Verify user state is in sync with session
+    if (!user) {
+      console.warn('[generateMusic] User state not in sync - reloading from session');
+      const currentUser = await supabaseService.getCurrentUser();
+      if (!currentUser) {
+        console.error('[generateMusic] No user found in session');
+        set({
+          showSignInModal: true,
+        });
+        return null;
+      }
+      // User exists, update state
+      set({ user: currentUser });
+      await get().loadUserProfile();
+    }
+    
+    // Check usage limits for authenticated users
+    const { isPremium, songCount } = subscription;
+    
+    // Free tier users (not premium) can only generate 5 songs
+    if (!isPremium && songCount >= 5) {
+      console.log('[generateMusic] Free tier user has hit 5 song limit');
+      set({
+        showUpgradeModal: true,
+      });
+      return null;
+    }
+    
+    // Premium users need to check renewal
+    if (isPremium && subscription.needsRenewal) {
+      console.log('[generateMusic] Premium user subscription needs renewal');
+      set({
+        showUpgradeModal: true,
+      });
       return null;
     }
 
     set({ isGeneratingMusic: true, musicStatus: '✨ Generating your music... ✨' });
 
     try {
-      const result = await musicService.generateClip(payload);
+      const result = await musicService.generateClip(payload, accessToken);
       set({ musicStatus: result, isGeneratingMusic: false });
-      decrementMusicCredits();
       
       // Extract URL from result and add to library
       const downloadPrefix = 'Download it here: ';
       const downloadIndex = result.indexOf(downloadPrefix);
       if (downloadIndex !== -1) {
-        const url = result.substring(downloadIndex + downloadPrefix.length);
+        const url = result.substring(downloadIndex + downloadPrefix.length).trim();
         const newMusic: GeneratedMusic = {
           id: crypto.randomUUID(),
           prompt: payload,
@@ -337,6 +373,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           isRead: false,
         };
         addMusicToLibrary(newMusic);
+        decrementMusicCredits();
         
         // Increment song count
         get().incrementSongCount();
@@ -436,29 +473,36 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  checkUsageLimits: () => {
+  checkUsageLimits: (checkingSongGeneration: boolean = false) => {
     const { user, subscription } = get();
+    
+    console.log('[checkUsageLimits] Called with:', { checkingSongGeneration, hasUser: !!user, subscription });
     
     // If premium and needs renewal, show upgrade
     if (subscription.isPremium && subscription.needsRenewal) {
+      console.log('[checkUsageLimits] Premium needs renewal');
       set({ showUpgradeModal: true });
       return false;
     }
     
-    // If not signed in, require login for song generation (messages are free and unlimited)
-    if (!user) {
+    // For song generation specifically, require login
+    if (checkingSongGeneration && !user) {
+      console.log('[checkUsageLimits] Song generation requires login - showing sign in modal');
       set({ showSignInModal: true });
       return false;
     }
     
     // If signed in but not premium, check if they've used their 5 free songs
-    if (!subscription.isPremium) {
+    if (checkingSongGeneration && !subscription.isPremium && user) {
+      console.log('[checkUsageLimits] Checking song count:', subscription.songCount);
       if (subscription.songCount >= 5) {
+        console.log('[checkUsageLimits] Hit 5 song limit - showing upgrade modal');
         set({ showUpgradeModal: true });
         return false;
       }
     }
     
+    console.log('[checkUsageLimits] Passed all checks, allowing action');
     return true;
   },
 

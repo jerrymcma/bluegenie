@@ -4,10 +4,15 @@ import type { UserProfile } from '../config/supabase';
 class SupabaseService {
   // Sign in with Google
   async signInWithGoogle() {
+    // Ensure we have a valid redirect URL
+    const redirectUrl = window.location.origin;
+    console.log('[signInWithGoogle] Using redirect URL:', redirectUrl);
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
+        skipBrowserRedirect: false, // Explicitly redirect after successful auth
       },
     });
     
@@ -16,6 +21,7 @@ class SupabaseService {
       throw error;
     }
     
+    console.log('[signInWithGoogle] OAuth initiated successfully');
     return data;
   }
 
@@ -32,6 +38,21 @@ class SupabaseService {
   async getCurrentUser() {
     const { data: { user } } = await supabase.auth.getUser();
     return user;
+  }
+
+  // Get access token for authenticated requests
+  async getAccessToken(): Promise<string | null> {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting Supabase session:', error);
+        return null;
+      }
+      return data.session?.access_token ?? null;
+    } catch (error) {
+      console.error('Unexpected error getting Supabase access token:', error);
+      return null;
+    }
   }
 
   // Get or create user profile
