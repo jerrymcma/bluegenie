@@ -14,7 +14,7 @@ export function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
         <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-blue-600">Sign in to keep the music going 🎶</h2>
+          <h2 className="text-2xl font-bold text-blue-600">Sign in to Sparki AI</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
@@ -26,11 +26,10 @@ export function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
 
         <div className="text-center mb-6">
           <p className="text-blue-600 text-base mb-4">
-            Sign in with Google to track your <strong>5 free songs</strong> and keep your progress synced.
+            Sign in with Google to keep your conversations, songs, and progress synced across devices.
           </p>
-
           <p className="text-sm text-gray-500">
-            We'll only ask you to upgrade when you're ready for Premium.
+            Your security is protected by Google OAuth and Supabase Auth.
           </p>
         </div>
 
