@@ -1,5 +1,7 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
+const { ensureUserProfile } = require('./_lib/profileHelpers');
+const { STRIPE_MODE, getStripeSecretKey } = require('./_lib/stripeConfig');
+const stripe = require('stripe')(getStripeSecretKey());
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dvrrgfrclkxoseioywek.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -41,88 +43,41 @@ module.exports = async (req, res) => {
 
     const userId = session.metadata?.userId || session.client_reference_id;
     const customerEmail = session.customer_details?.email || session.customer_email;
+    const timestamp = new Date().toISOString();
 
-    let profile = null;
-
-    if (userId) {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId);
-      if (error) {
-        throw error;
-      }
-      profile = data?.[0] || null;
-    }
-
-    if (!profile && customerEmail) {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('email', customerEmail);
-      if (error) {
-        throw error;
-      }
-      profile = data?.[0] || null;
-    }
-
-    if (!profile && userId && customerEmail) {
-      console.warn('No user profile found, creating a new one', {
-        userId,
-        customerEmail,
-      });
-
-      const now = new Date().toISOString();
-      const { data: insertedProfile, error: insertError } = await supabase
-        .from('user_profiles')
-        .insert([
-          {
-            id: userId,
-            email: customerEmail,
-            is_premium: true,
-            message_count: 0,
-            song_count: 0,
-            songs_this_period: 0,
-            subscription_start_date: now,
-            period_start_date: now,
-            created_at: now,
-            updated_at: now,
-          },
-        ])
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error('Failed to auto-create user profile after payment', insertError);
-        return res.status(500).json({
-          error:
-            'Payment received but we could not create your profile automatically. Please contact support with your receipt while we investigate.',
-        });
-      }
-
-      return res.status(200).json({ success: true, profileCreated: true, profile: insertedProfile });
-    }
+    const { profile, created } = await ensureUserProfile(supabase, {
+      userId,
+      email: customerEmail,
+      createOverrides: {
+        is_premium: true,
+        subscription_start_date: timestamp,
+        period_start_date: timestamp,
+        songs_this_period: 0,
+        song_count: 0,
+        message_count: 0,
+        updated_at: timestamp,
+      },
+    });
 
     if (!profile) {
-      console.warn('No user profile found for checkout session', {
+      console.warn('Unable to resolve user profile for completed checkout', {
         userId,
         customerEmail,
       });
       return res.status(500).json({
         error:
-          'Payment received but no matching user profile was found. Please contact support with your receipt while we investigate.',
+          'Payment received but your user profile could not be located automatically. Please contact support so we can finish activating Premium.',
       });
     }
 
-    const now = new Date().toISOString();
     const { error: updateError } = await supabase
       .from('user_profiles')
       .update({
         is_premium: true,
-        subscription_start_date: now,
-        period_start_date: now,
+        subscription_start_date: timestamp,
+        period_start_date: timestamp,
         songs_this_period: 0,
-        updated_at: now,
+        updated_at: timestamp,
       })
       .eq('id', profile.id);
 
@@ -130,9 +85,9 @@ module.exports = async (req, res) => {
       throw updateError;
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, profileCreated: created });
   } catch (error) {
-    console.error('Error confirming checkout:', error);
+    console.error(`Error confirming checkout (${STRIPE_MODE} mode):`, error);
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 };

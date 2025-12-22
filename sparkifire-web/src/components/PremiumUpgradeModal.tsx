@@ -1,4 +1,11 @@
 import { X, Crown, Music4, Sparkles, Check } from 'lucide-react';
+import { PREMIUM_PRICE_LABEL, PREMIUM_BASE_PRICE_USD } from '../config/stripe';
+
+const formatUsd = (amount: number) =>
+  amount % 1 === 0 ? `$${amount.toFixed(0)}` : `$${amount.toFixed(2)}`;
+
+const BASE_PRICE_LABEL = formatUsd(PREMIUM_BASE_PRICE_USD);
+const SHOW_INTRO_PRICING = BASE_PRICE_LABEL !== PREMIUM_PRICE_LABEL;
 
 interface PremiumUpgradeModalProps {
   isOpen: boolean;
@@ -37,13 +44,23 @@ export function PremiumUpgradeModal({
           <h2 className="text-2xl font-bold text-white mb-2">
             {isRenewal ? '🎉 Renew Premium' : '✨ Upgrade to Premium'}
           </h2>
+          {SHOW_INTRO_PRICING && (
+            <p className="text-white/80 text-sm">
+              Introductory price! Normally {BASE_PRICE_LABEL}/month.
+            </p>
+          )}
         </div>
 
         {/* Content */}
         <div className="px-6 py-6">
           <div className="text-center mb-6">
-            <div className="text-4xl font-bold text-blue-600 mb-1">$5</div>
+            <div className="text-4xl font-bold text-blue-600 mb-1">{PREMIUM_PRICE_LABEL}</div>
             <div className="text-sm text-gray-600">per month</div>
+            {SHOW_INTRO_PRICING && (
+              <div className="text-xs text-green-600 font-semibold mt-1">
+                Limited-time introductory pricing
+              </div>
+            )}
           </div>
 
           {/* Features */}
@@ -88,7 +105,9 @@ export function PremiumUpgradeModal({
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-bold text-lg flex items-center justify-center gap-2"
           >
             <Crown className="w-5 h-5" />
-            <span>{isRenewal ? 'Renew for $5' : 'Upgrade for $5'}</span>
+            <span>
+              {isRenewal ? `Renew for ${PREMIUM_PRICE_LABEL}` : `Upgrade for ${PREMIUM_PRICE_LABEL}`}
+            </span>
           </button>
 
           <p className="text-xs text-gray-500 text-center mt-4">

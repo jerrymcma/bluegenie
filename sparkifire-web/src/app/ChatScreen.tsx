@@ -11,6 +11,7 @@ import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
 import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal';
 import { SignInModal } from '../components/SignInModal';
 import { GeneratedMusic } from '../types';
+import { IS_STRIPE_TEST_MODE } from '../config/stripe';
 
 export function ChatScreen() {
   const {
@@ -145,6 +146,11 @@ export function ChatScreen() {
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {IS_STRIPE_TEST_MODE && (
+        <div className="bg-amber-100 text-amber-900 text-center text-sm py-2 px-4 shadow-inner">
+          <strong>Stripe Test Mode:</strong> Use test cards like <code>4242 4242 4242 4242</code>. No real charges will occur.
+        </div>
+      )}
       {/* Header */}
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">

@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { PREMIUM_PRICE_LABEL } from '../config/stripe';
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ export function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
           </p>
           
           <p className="text-blue-600 text-sm">
-            Sign in to upgrade to <strong>Premium</strong> for just <strong>$5/month</strong>:
+            Sign in to upgrade to <strong>Premium</strong> for just <strong>{PREMIUM_PRICE_LABEL}/month</strong>:
           </p>
         </div>
 

@@ -1,8 +1,10 @@
 // Vercel Serverless Function for Stripe Webhook
 // This activates premium status when a user successfully pays
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
+const { getStripeSecretKey, getStripeWebhookSecret, STRIPE_MODE } = require('./_lib/stripeConfig');
+const { ensureUserProfile } = require('./_lib/profileHelpers');
+const stripe = require('stripe')(getStripeSecretKey());
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dvrrgfrclkxoseioywek.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // Need service key for admin access
@@ -10,7 +12,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // Need service k
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Webhook signing secret from Stripe Dashboard
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const endpointSecret = getStripeWebhookSecret();
 
 module.exports = async (req, res) => {
   // Only allow POST requests
@@ -26,7 +28,7 @@ module.exports = async (req, res) => {
     // Verify webhook signature
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error(`Webhook signature verification failed (${STRIPE_MODE} mode):`, err.message);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 
@@ -58,45 +60,53 @@ async function handleCheckoutSessionCompleted(session) {
   console.log('Checkout session completed:', session.id);
   
   const customerEmail = session.customer_email || session.customer_details?.email;
+  const userId = session.metadata?.userId || session.client_reference_id;
   
-  if (!customerEmail) {
-    console.error('No customer email found in session');
+  if (!customerEmail && !userId) {
+    console.error('Unable to resolve customer identity from session payload');
     return;
   }
 
-  console.log('Activating premium for email:', customerEmail);
+  const timestamp = new Date().toISOString();
+  const { profile } = await ensureUserProfile(supabase, {
+    userId,
+    email: customerEmail,
+    createOverrides: {
+      is_premium: true,
+      subscription_start_date: timestamp,
+      period_start_date: timestamp,
+      songs_this_period: 0,
+      song_count: 0,
+      message_count: 0,
+      updated_at: timestamp,
+    },
+  });
 
-  // Find user by email
-  const { data: profiles, error: fetchError } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('email', customerEmail)
-    .single();
-
-  if (fetchError || !profiles) {
-    console.error('User not found for email:', customerEmail, fetchError);
+  if (!profile) {
+    console.error('Stripe webhook could not locate or create user profile', {
+      userId,
+      customerEmail,
+    });
     return;
   }
 
-  // Activate premium
-  const now = new Date().toISOString();
   const { error: updateError } = await supabase
     .from('user_profiles')
     .update({
       is_premium: true,
-      subscription_start_date: now,
-      period_start_date: now,
+      subscription_start_date: timestamp,
+      period_start_date: timestamp,
       songs_this_period: 0,
-      updated_at: now,
+      updated_at: timestamp,
     })
-    .eq('id', profiles.id);
+    .eq('id', profile.id);
 
   if (updateError) {
-    console.error('Error activating premium:', updateError);
+    console.error('Error activating premium from webhook:', updateError);
     return;
   }
 
-  console.log('✅ Premium activated successfully for user:', profiles.id);
+  console.log('✅ Premium activated successfully for user:', profile.id);
 }
 
 async function handleSubscriptionUpdate(subscription) {

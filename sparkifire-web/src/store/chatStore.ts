@@ -16,9 +16,7 @@ const normalizeCount = (value: unknown, fallback = 0): number => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const PREMIUM_PRICE_ID =
-  (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.VITE_STRIPE_PREMIUM_PRICE_ID) ||
-  DEFAULT_PRICE_ID;
+const PREMIUM_PRICE_ID = DEFAULT_PRICE_ID;
 
 export interface ChatState {
   messages: Message[];
