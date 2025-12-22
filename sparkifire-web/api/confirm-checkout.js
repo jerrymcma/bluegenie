@@ -48,24 +48,22 @@ module.exports = async (req, res) => {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('id', userId)
-        .single();
-      if (error && !customerEmail) {
+        .eq('id', userId);
+      if (error) {
         throw error;
       }
-      profile = data || null;
+      profile = data?.[0] || null;
     }
 
     if (!profile && customerEmail) {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('email', customerEmail)
-        .single();
+        .eq('email', customerEmail);
       if (error) {
         throw error;
       }
-      profile = data;
+      profile = data?.[0] || null;
     }
 
     if (!profile) {
