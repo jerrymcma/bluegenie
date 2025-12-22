@@ -55,7 +55,8 @@ export function ChatScreen() {
           alert('🎉 Premium activated! You now have 50 songs per month.');
         } catch (error) {
           console.error('[ChatScreen] Failed to activate premium after checkout', error);
-          alert('Payment completed, but we could not activate Premium automatically. Please contact support.');
+          const message = error instanceof Error ? error.message : JSON.stringify(error);
+          alert(`Payment completed, but we could not activate Premium automatically. Details: ${message}`);
         } finally {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
