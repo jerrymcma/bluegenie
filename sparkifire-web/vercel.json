@@ -2,6 +2,9 @@
   "functions": {
     "api/music.js": {
       "maxDuration": 120
+    },
+    "api/stripe-webhook.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -22,7 +25,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, stripe-signature"
         }
       ]
     }
@@ -31,6 +34,10 @@
     {
       "source": "/api/music",
       "destination": "/api/music.js"
+    },
+    {
+      "source": "/api/stripe-webhook",
+      "destination": "/api/stripe-webhook.js"
     }
   ]
 }

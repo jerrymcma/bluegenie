@@ -5,6 +5,7 @@ import { geminiService } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { musicService } from '../services/musicService';
 import { supabaseService } from '../services/supabaseService';
+import { generatedMusicService } from '../services/generatedMusicService';
 
 interface ChatState {
   messages: Message[];
@@ -39,10 +40,10 @@ interface ChatState {
   generateMusic: (payload: string) => Promise<string | null>;
   decrementMusicCredits: () => void;
   initialize: () => void;
-  addMusicToLibrary: (music: GeneratedMusic) => void;
-  deleteMusicFromLibrary: (id: string) => void;
-  loadMusicLibrary: () => void;
-  markMusicAsRead: (id: string) => void;
+  addMusicToLibrary: (music: GeneratedMusic) => Promise<void>;
+  deleteMusicFromLibrary: (id: string) => Promise<void>;
+  loadMusicLibrary: () => Promise<void>;
+  markMusicAsRead: (id: string) => Promise<void>;
   
   // Subscription actions
   signIn: () => Promise<void>;
@@ -90,6 +91,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ user });
       if (user) {
         get().loadUserProfile();
+        get().loadMusicLibrary(); // Reload music library when user signs in
       }
     });
     
@@ -99,6 +101,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (user) {
         set({ user });
         get().loadUserProfile();
+        get().loadMusicLibrary(); // Load music library for already signed-in users
       }
     }).catch((error) => {
       console.error('[chatStore.initialize] Error checking current user:', error);
@@ -388,36 +391,85 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  addMusicToLibrary: (music: GeneratedMusic) => {
-    const updatedLibrary = [music, ...get().musicLibrary];
-    set({ musicLibrary: updatedLibrary });
-    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
-  },
+  addMusicToLibrary: async (music: GeneratedMusic) => {
+    const { user } = get();
+    if (!user) {
+      console.error('[addMusicToLibrary] No user signed in');
+      return;
+    }
 
-  deleteMusicFromLibrary: (id: string) => {
-    const updatedLibrary = get().musicLibrary.filter((m) => m.id !== id);
-    set({ musicLibrary: updatedLibrary });
-    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
-  },
-
-  loadMusicLibrary: () => {
-    try {
-      const saved = localStorage.getItem('musicLibrary');
-      if (saved) {
-        const library = JSON.parse(saved);
-        set({ musicLibrary: library });
-      }
-    } catch (error) {
-      console.error('Error loading music library:', error);
+    // Save to database
+    const success = await generatedMusicService.addMusic(user.id, music);
+    if (success) {
+      // Update local state
+      const updatedLibrary = [music, ...get().musicLibrary];
+      set({ musicLibrary: updatedLibrary });
+    } else {
+      console.error('[addMusicToLibrary] Failed to save music to database');
     }
   },
 
-  markMusicAsRead: (id: string) => {
-    const updatedLibrary = get().musicLibrary.map((m) =>
-      m.id === id ? { ...m, isRead: true } : m
-    );
-    set({ musicLibrary: updatedLibrary });
-    localStorage.setItem('musicLibrary', JSON.stringify(updatedLibrary));
+  deleteMusicFromLibrary: async (id: string) => {
+    const { user } = get();
+    if (!user) {
+      console.error('[deleteMusicFromLibrary] No user signed in');
+      return;
+    }
+
+    // Delete from database
+    const success = await generatedMusicService.deleteMusic(user.id, id);
+    if (success) {
+      // Update local state
+      const updatedLibrary = get().musicLibrary.filter((m) => m.id !== id);
+      set({ musicLibrary: updatedLibrary });
+    } else {
+      console.error('[deleteMusicFromLibrary] Failed to delete music from database');
+    }
+  },
+
+  loadMusicLibrary: async () => {
+    const { user } = get();
+    if (!user) {
+      // No user signed in, load from localStorage as fallback for backward compatibility
+      try {
+        const saved = localStorage.getItem('musicLibrary');
+        if (saved) {
+          const library = JSON.parse(saved);
+          set({ musicLibrary: library });
+        }
+      } catch (error) {
+        console.error('Error loading music library from localStorage:', error);
+      }
+      return;
+    }
+
+    // Load from database for authenticated users
+    try {
+      const library = await generatedMusicService.getUserMusic(user.id);
+      set({ musicLibrary: library });
+    } catch (error) {
+      console.error('Error loading music library from database:', error);
+    }
+  },
+
+  markMusicAsRead: async (id: string) => {
+    const { user } = get();
+    if (!user) {
+      console.error('[markMusicAsRead] No user signed in');
+      return;
+    }
+
+    // Mark as read in database
+    const success = await generatedMusicService.markAsRead(user.id, id);
+    if (success) {
+      // Update local state
+      const updatedLibrary = get().musicLibrary.map((m) =>
+        m.id === id ? { ...m, isRead: true } : m
+      );
+      set({ musicLibrary: updatedLibrary });
+    } else {
+      console.error('[markMusicAsRead] Failed to mark music as read in database');
+    }
   },
 
   // Subscription functions
@@ -435,7 +487,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       await supabaseService.signOut();
       set({ 
-        user: null, 
+        user: null,
+        musicLibrary: [], // Clear music library on sign out
         subscription: {
           isPremium: false,
           messageCount: 0,
