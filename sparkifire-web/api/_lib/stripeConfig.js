@@ -32,7 +32,7 @@ const getIntroDiscountConfig = () => {
     parsePercent(process.env.STRIPE_INTRO_PERCENT_OFF) ??
     parsePercent(process.env.VITE_STRIPE_INTRO_PERCENT_OFF) ??
     parsePercent(process.env.INTRO_PERCENT_OFF) ??
-    80;
+    0;
   const enabled = percent > 0;
   const couponId = process.env.STRIPE_INTRO_COUPON_ID || 'sparki_intro_one_dollar';
 

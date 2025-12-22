@@ -10,7 +10,7 @@ const parseNumber = (value: unknown, fallback: number) => {
 };
 
 const BASE_PRICE_USD = parseNumber(env?.VITE_STRIPE_BASE_PRICE_USD, 5);
-const INTRO_PERCENT_OFF = parseNumber(env?.VITE_STRIPE_INTRO_PERCENT_OFF, 80);
+const INTRO_PERCENT_OFF = parseNumber(env?.VITE_STRIPE_INTRO_PERCENT_OFF, 0);
 const INTRO_DISCOUNT_ENABLED = INTRO_PERCENT_OFF > 0;
 
 const effectivePrice = INTRO_DISCOUNT_ENABLED
