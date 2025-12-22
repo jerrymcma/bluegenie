@@ -18,7 +18,6 @@ export function ChatScreen() {
     isLoading,
     currentPersonality,
     isSpeaking,
-    musicCredits,
     musicLibrary,
     deleteMusicFromLibrary,
     markMusicAsRead,
@@ -75,6 +74,9 @@ export function ChatScreen() {
 
   const isMusicPersonality = currentPersonality.id === 'music_composer';
   const isSparki = currentPersonality.id === 'default';
+  const songsUsed = Number(subscription.songCount ?? 0);
+  const normalizedSongsUsed = Number.isFinite(songsUsed) ? songsUsed : 0;
+  const freeSongsRemaining = Math.max(0, 5 - normalizedSongsUsed);
 
   const unreadCount = musicLibrary.filter((m) => !m.isRead).length;
   const hasUnreadMusic = unreadCount > 0;
@@ -211,7 +213,9 @@ export function ChatScreen() {
       {isMusicPersonality && (
         <div className="flex-shrink-0 px-4 pb-2 text-center">
           <p className="text-sm text-gray-600 mb-2">
-            {musicCredits} of 5 free songs remaining
+            {subscription.isPremium
+              ? 'Premium music unlocked (50 songs/month)'
+              : `${freeSongsRemaining} of 5 free songs remaining`}
           </p>
           <button
             onClick={() => setShowMusicDialog(true)}

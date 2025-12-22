@@ -12,7 +12,8 @@ class MusicService {
 
   constructor() {
     // Use serverless function endpoint for production, direct API for development
-    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const isProduction = hostname !== 'localhost' && hostname !== '127.0.0.1';
     this.apiUrl = isProduction ? '/api/music' : '/api/music';
   }
 

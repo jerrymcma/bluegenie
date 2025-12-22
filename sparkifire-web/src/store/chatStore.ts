@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, createStore, StateCreator } from 'zustand';
 import { Message, AIPersonality, MessageType, GeneratedMusic, UserSubscription } from '../types';
 import { personalities } from '../data/personalities';
 import { geminiService } from '../services/geminiService';
@@ -7,7 +7,15 @@ import { musicService } from '../services/musicService';
 import { supabaseService } from '../services/supabaseService';
 import { generatedMusicService } from '../services/generatedMusicService';
 
-interface ChatState {
+const normalizeCount = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+export interface ChatState {
   messages: Message[];
   isLoading: boolean;
   currentPersonality: AIPersonality;
@@ -57,7 +65,7 @@ interface ChatState {
   incrementSongCount: () => Promise<void>;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
+const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
   messages: [],
   isLoading: false,
   currentPersonality: personalities.DEFAULT,
@@ -337,15 +345,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // IMPORTANT: Get fresh subscription state after loadUserProfile()
     const { subscription: freshSubscription } = get();
     const { isPremium, songCount } = freshSubscription;
+    const normalizedSongCount = normalizeCount(songCount);
+    
+    console.log('[generateMusic] Checking limits - isPremium:', isPremium, 'songCount:', normalizedSongCount);
     
     // Free tier users (not premium) can only generate 5 songs
-    if (!isPremium && songCount >= 5) {
+    if (!isPremium && normalizedSongCount >= 5) {
       console.log('[generateMusic] Free tier user has hit 5 song limit');
       set({
         showUpgradeModal: true,
       });
       return null;
     }
+    
+    console.log('[generateMusic] Passed song limit check, proceeding...');
     
     // Premium users need to check renewal
     if (isPremium && freshSubscription.needsRenewal) {
@@ -508,23 +521,37 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   loadUserProfile: async () => {
     const user = get().user;
-    if (!user) return;
+    if (!user) {
+      console.log('[loadUserProfile] No user found');
+      return;
+    }
 
+    console.log('[loadUserProfile] Loading profile for user:', user.id);
     const profile = await supabaseService.getUserProfile(user.id, user.email);
+    
     if (profile) {
+      console.log('[loadUserProfile] Profile loaded:', profile);
       const needsRenewal = await supabaseService.checkSubscriptionRenewal(profile);
+      const messageCount = normalizeCount(profile.message_count);
+      const songCount = normalizeCount(profile.song_count);
+      const songsThisPeriod = normalizeCount(profile.songs_this_period);
+      const freeSongsRemaining = profile.is_premium ? 0 : Math.max(0, 5 - songCount);
       
       set({
         subscription: {
           isPremium: profile.is_premium,
-          messageCount: profile.message_count,
-          songCount: profile.song_count,
-          songsThisPeriod: profile.songs_this_period,
+          messageCount,
+          songCount,
+          songsThisPeriod,
           subscriptionStartDate: profile.subscription_start_date,
           periodStartDate: profile.period_start_date,
           needsRenewal,
-        }
+        },
+        musicCredits: profile.is_premium ? 5 : freeSongsRemaining,
       });
+      console.log('[loadUserProfile] Subscription state updated:', get().subscription);
+    } else {
+      console.error('[loadUserProfile] Failed to load or create profile');
     }
   },
 
@@ -549,8 +576,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     // If signed in but not premium, check if they've used their 5 free songs
     if (checkingSongGeneration && !subscription.isPremium && user) {
-      console.log('[checkUsageLimits] Checking song count:', subscription.songCount);
-      if (subscription.songCount >= 5) {
+      const songCount = normalizeCount(subscription.songCount);
+      console.log('[checkUsageLimits] Checking song count:', songCount);
+      if (songCount >= 5) {
         console.log('[checkUsageLimits] Hit 5 song limit - showing upgrade modal');
         set({ showUpgradeModal: true });
         return false;
@@ -567,12 +595,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (user) {
       // Increment in database
       await supabaseService.incrementMessageCount(user.id);
-      set((state) => ({
-        subscription: {
-          ...state.subscription,
-          messageCount: state.subscription.messageCount + 1,
-        }
-      }));
+      set((state) => {
+        const currentMessageCount = normalizeCount(state.subscription.messageCount);
+        return {
+          subscription: {
+            ...state.subscription,
+            messageCount: currentMessageCount + 1,
+          }
+        };
+      });
     } else {
       // Increment in localStorage for anonymous users
       const count = parseInt(localStorage.getItem('anonymousMessageCount') || '0');
@@ -586,13 +617,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (user) {
       // Increment in database
       await supabaseService.incrementSongCount(user.id);
-      set((state) => ({
-        subscription: {
-          ...state.subscription,
-          songCount: state.subscription.songCount + 1,
-          songsThisPeriod: state.subscription.songsThisPeriod + 1,
-        }
-      }));
+      set((state) => {
+        const currentSongCount = normalizeCount(state.subscription.songCount);
+        const currentSongsThisPeriod = normalizeCount(state.subscription.songsThisPeriod);
+        const nextSongCount = currentSongCount + 1;
+        const nextMusicCredits = state.subscription.isPremium
+          ? state.musicCredits
+          : Math.max(0, 5 - nextSongCount);
+        
+        return {
+          subscription: {
+            ...state.subscription,
+            songCount: nextSongCount,
+            songsThisPeriod: currentSongsThisPeriod + 1,
+          },
+          musicCredits: nextMusicCredits,
+        };
+      });
     } else {
       // Increment in localStorage for anonymous users
       const count = parseInt(localStorage.getItem('anonymousSongCount') || '0');
@@ -613,4 +654,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setShowSignInModal: (show: boolean) => {
     set({ showSignInModal: show });
   }
-}));
+});
+
+export const useChatStore = create<ChatState>(chatStoreCreator);
+
+export const createChatStore = () => createStore<ChatState>(chatStoreCreator);
