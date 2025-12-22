@@ -334,7 +334,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     
     // Check usage limits for authenticated users
-    const { isPremium, songCount } = subscription;
+    // IMPORTANT: Get fresh subscription state after loadUserProfile()
+    const { subscription: freshSubscription } = get();
+    const { isPremium, songCount } = freshSubscription;
     
     // Free tier users (not premium) can only generate 5 songs
     if (!isPremium && songCount >= 5) {
@@ -346,7 +348,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     
     // Premium users need to check renewal
-    if (isPremium && subscription.needsRenewal) {
+    if (isPremium && freshSubscription.needsRenewal) {
       console.log('[generateMusic] Premium user subscription needs renewal');
       set({
         showUpgradeModal: true,
