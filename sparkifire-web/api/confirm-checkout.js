@@ -66,6 +66,43 @@ module.exports = async (req, res) => {
       profile = data?.[0] || null;
     }
 
+    if (!profile && userId && customerEmail) {
+      console.warn('No user profile found, creating a new one', {
+        userId,
+        customerEmail,
+      });
+
+      const now = new Date().toISOString();
+      const { data: insertedProfile, error: insertError } = await supabase
+        .from('user_profiles')
+        .insert([
+          {
+            id: userId,
+            email: customerEmail,
+            is_premium: true,
+            message_count: 0,
+            song_count: 0,
+            songs_this_period: 0,
+            subscription_start_date: now,
+            period_start_date: now,
+            created_at: now,
+            updated_at: now,
+          },
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Failed to auto-create user profile after payment', insertError);
+        return res.status(500).json({
+          error:
+            'Payment received but we could not create your profile automatically. Please contact support with your receipt while we investigate.',
+        });
+      }
+
+      return res.status(200).json({ success: true, profileCreated: true, profile: insertedProfile });
+    }
+
     if (!profile) {
       console.warn('No user profile found for checkout session', {
         userId,
