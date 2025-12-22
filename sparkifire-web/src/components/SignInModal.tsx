@@ -14,7 +14,7 @@ export function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
         <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-blue-600">You've Hit Your Free Limit! 🎉</h2>
+          <h2 className="text-2xl font-bold text-blue-600">Sign in to keep the music going 🎶</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
@@ -26,27 +26,12 @@ export function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
 
         <div className="text-center mb-6">
           <p className="text-blue-600 text-base mb-4">
-            You've used your <strong>50 free messages</strong> or <strong>5 free songs</strong>!
+            Sign in with Google to track your <strong>5 free songs</strong> and keep your progress synced.
           </p>
-          
-          <p className="text-blue-600 text-sm">
-            Sign in to upgrade to <strong>Premium</strong> for just <strong>{PREMIUM_PRICE_LABEL}/month</strong>:
-          </p>
-        </div>
 
-        <div className="space-y-3 mb-6 text-sm text-blue-600">
-          <div className="flex items-center gap-2">
-            <span className="text-green-500">✓</span>
-            <span>Unlimited messages with all 11 personalities</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-green-500">✓</span>
-            <span>50 AI-generated songs per month</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-green-500">✓</span>
-            <span>Access to Sparki Ultimate & all features</span>
-          </div>
+          <p className="text-sm text-gray-500">
+            We'll only ask you to upgrade when you're ready for Premium.
+          </p>
         </div>
 
         <button
