@@ -28,10 +28,10 @@ export function ChatScreen() {
     setShowUpgradeModal,
     setShowSignInModal,
     signIn,
-    upgradeToPremium,
+    startPremiumCheckout,
+    confirmPremiumPurchase,
     subscription,
     user,
-    activatePremiumForCurrentUser,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
@@ -45,9 +45,13 @@ export function ChatScreen() {
     // Check for successful payment in URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
+      const sessionId = urlParams.get('session_id');
       (async () => {
         try {
-          await activatePremiumForCurrentUser();
+          if (!sessionId) {
+            throw new Error('Missing session ID from Stripe redirect');
+          }
+          await confirmPremiumPurchase(sessionId);
           alert('🎉 Premium activated! You now have 50 songs per month.');
         } catch (error) {
           console.error('[ChatScreen] Failed to activate premium after checkout', error);
@@ -60,7 +64,7 @@ export function ChatScreen() {
       // Payment was canceled
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [initialize, activatePremiumForCurrentUser]);
+  }, [initialize, confirmPremiumPurchase]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -280,7 +284,7 @@ export function ChatScreen() {
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        onUpgrade={upgradeToPremium}
+        onUpgrade={startPremiumCheckout}
         isRenewal={subscription.needsRenewal}
       />
       {showStartFreshDialog && (

@@ -15,6 +15,10 @@ const normalizeCount = (value: unknown, fallback = 0): number => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const PREMIUM_PRICE_ID =
+  (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.VITE_STRIPE_PREMIUM_PRICE_ID) ||
+  'price_1TjAbhIblGvDq8o69JuMBM1n';
+
 export interface ChatState {
   messages: Message[];
   isLoading: boolean;
@@ -57,13 +61,13 @@ export interface ChatState {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   checkUsageLimits: (checkingSongGeneration?: boolean) => boolean;
-  upgradeToPremium: () => void;
   setShowUpgradeModal: (show: boolean) => void;
   setShowSignInModal: (show: boolean) => void;
   loadUserProfile: () => Promise<void>;
   incrementMessageCount: () => Promise<void>;
   incrementSongCount: () => Promise<void>;
-  activatePremiumForCurrentUser: () => Promise<void>;
+  startPremiumCheckout: () => Promise<void>;
+  confirmPremiumPurchase: (sessionId: string) => Promise<void>;
 }
 
 const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
@@ -642,35 +646,66 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
     }
   },
 
-  activatePremiumForCurrentUser: async () => {
+  startPremiumCheckout: async () => {
+    const { user } = get();
+    if (!user) {
+      console.warn('[startPremiumCheckout] User must sign in before upgrading');
+      set({ showSignInModal: true });
+      return;
+    }
+
     try {
-      let currentUser = get().user;
-      if (!currentUser) {
-        console.warn('[activatePremiumForCurrentUser] No user in state, fetching current session');
-        currentUser = await supabaseService.getCurrentUser();
-        if (!currentUser) {
-          console.error('[activatePremiumForCurrentUser] Unable to find authenticated user');
-          set({ showSignInModal: true });
-          throw new Error('User must be signed in to activate premium');
-        }
-        set({ user: currentUser });
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId: PREMIUM_PRICE_ID,
+          customerEmail: user.email,
+          userId: user.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to start checkout');
       }
 
-      console.log('[activatePremiumForCurrentUser] Activating premium for user:', currentUser.id);
-      await supabaseService.activatePremium(currentUser.id);
-      await get().loadUserProfile();
-      set({ showUpgradeModal: false });
-      console.log('[activatePremiumForCurrentUser] Premium activated and profile reloaded');
+      const data = await response.json();
+      if (!data.url) {
+        throw new Error('Checkout session did not return a redirect URL');
+      }
+
+      window.location.href = data.url;
     } catch (error) {
-      console.error('[activatePremiumForCurrentUser] Failed to activate premium:', error);
-      throw error;
+      console.error('[startPremiumCheckout] Failed to start checkout:', error);
+      alert('Unable to start checkout. Please try again in a moment.');
     }
   },
 
-  upgradeToPremium: () => {
-    // This will be called when Stripe payment succeeds
-    // For now, just open Stripe checkout (we'll implement this next)
-    set({ showUpgradeModal: true });
+  confirmPremiumPurchase: async (sessionId: string) => {
+    try {
+      const response = await fetch('/api/confirm-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to confirm purchase');
+      }
+
+      console.log('[confirmPremiumPurchase] Purchase confirmed, reloading profile');
+      await get().loadUserProfile();
+      set({ showUpgradeModal: false });
+    } catch (error) {
+      console.error('[confirmPremiumPurchase] Failed to confirm purchase:', error);
+      throw error;
+    }
   },
 
   setShowUpgradeModal: (show: boolean) => {

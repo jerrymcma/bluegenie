@@ -1,5 +1,4 @@
 import { X, Crown, Music4, Sparkles, Check } from 'lucide-react';
-import { PAYMENT_LINK_URL } from '../config/stripe';
 
 interface PremiumUpgradeModalProps {
   isOpen: boolean;
@@ -7,11 +6,6 @@ interface PremiumUpgradeModalProps {
   onUpgrade: () => void;
   isRenewal?: boolean;
 }
-
-const handleUpgradeClick = () => {
-  // Redirect to Stripe payment link
-  window.location.href = PAYMENT_LINK_URL;
-};
 
 export function PremiumUpgradeModal({ 
   isOpen, 
@@ -90,7 +84,7 @@ export function PremiumUpgradeModal({
 
           {/* CTA Button */}
           <button
-            onClick={handleUpgradeClick}
+            onClick={onUpgrade}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-bold text-lg flex items-center justify-center gap-2"
           >
             <Crown className="w-5 h-5" />
