@@ -18,3 +18,5 @@ local.properties
 *.keystore
 keystore.properties
 release/
+.vercel/.env.*
+.vercel/output

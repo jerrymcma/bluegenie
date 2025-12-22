@@ -31,6 +31,7 @@ export function ChatScreen() {
     upgradeToPremium,
     subscription,
     user,
+    activatePremiumForCurrentUser,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
@@ -44,16 +45,22 @@ export function ChatScreen() {
     // Check for successful payment in URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
-      // Payment successful! Show success message
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // TODO: Activate premium in Supabase (needs webhook or manual activation)
-      alert('🎉 Payment successful! Your Premium features are being activated...');
+      (async () => {
+        try {
+          await activatePremiumForCurrentUser();
+          alert('🎉 Premium activated! You now have 50 songs per month.');
+        } catch (error) {
+          console.error('[ChatScreen] Failed to activate premium after checkout', error);
+          alert('Payment completed, but we could not activate Premium automatically. Please contact support.');
+        } finally {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      })();
     } else if (urlParams.get('canceled') === 'true') {
       // Payment was canceled
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [initialize]);
+  }, [initialize, activatePremiumForCurrentUser]);
 
   useEffect(() => {
     if (messages.length > 0) {

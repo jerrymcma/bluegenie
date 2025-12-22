@@ -63,6 +63,7 @@ export interface ChatState {
   loadUserProfile: () => Promise<void>;
   incrementMessageCount: () => Promise<void>;
   incrementSongCount: () => Promise<void>;
+  activatePremiumForCurrentUser: () => Promise<void>;
 }
 
 const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
@@ -638,6 +639,31 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       // Increment in localStorage for anonymous users
       const count = parseInt(localStorage.getItem('anonymousSongCount') || '0');
       localStorage.setItem('anonymousSongCount', (count + 1).toString());
+    }
+  },
+
+  activatePremiumForCurrentUser: async () => {
+    try {
+      let currentUser = get().user;
+      if (!currentUser) {
+        console.warn('[activatePremiumForCurrentUser] No user in state, fetching current session');
+        currentUser = await supabaseService.getCurrentUser();
+        if (!currentUser) {
+          console.error('[activatePremiumForCurrentUser] Unable to find authenticated user');
+          set({ showSignInModal: true });
+          throw new Error('User must be signed in to activate premium');
+        }
+        set({ user: currentUser });
+      }
+
+      console.log('[activatePremiumForCurrentUser] Activating premium for user:', currentUser.id);
+      await supabaseService.activatePremium(currentUser.id);
+      await get().loadUserProfile();
+      set({ showUpgradeModal: false });
+      console.log('[activatePremiumForCurrentUser] Premium activated and profile reloaded');
+    } catch (error) {
+      console.error('[activatePremiumForCurrentUser] Failed to activate premium:', error);
+      throw error;
     }
   },
 
