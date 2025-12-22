@@ -67,7 +67,14 @@ module.exports = async (req, res) => {
     }
 
     if (!profile) {
-      return res.status(404).json({ error: 'User profile not found' });
+      console.warn('No user profile found for checkout session', {
+        userId,
+        customerEmail,
+      });
+      return res.status(500).json({
+        error:
+          'Payment received but no matching user profile was found. Please contact support with your receipt while we investigate.',
+      });
     }
 
     const now = new Date().toISOString();
