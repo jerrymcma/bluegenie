@@ -25,7 +25,8 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { sessionId } = req.body || {};
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const { sessionId } = body;
     if (!sessionId) {
       return res.status(400).json({ error: 'sessionId is required' });
     }

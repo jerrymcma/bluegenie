@@ -6,6 +6,7 @@ import { storageService } from '../services/storageService';
 import { musicService } from '../services/musicService';
 import { supabaseService } from '../services/supabaseService';
 import { generatedMusicService } from '../services/generatedMusicService';
+import { PREMIUM_PRICE_ID as DEFAULT_PRICE_ID } from '../config/stripe';
 
 const normalizeCount = (value: unknown, fallback = 0): number => {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -17,7 +18,7 @@ const normalizeCount = (value: unknown, fallback = 0): number => {
 
 const PREMIUM_PRICE_ID =
   (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.VITE_STRIPE_PREMIUM_PRICE_ID) ||
-  'price_1TjAbhIblGvDq8o69JuMBM1n';
+  DEFAULT_PRICE_ID;
 
 export interface ChatState {
   messages: Message[];

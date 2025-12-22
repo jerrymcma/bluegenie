@@ -18,7 +18,8 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { priceId, customerEmail, userId } = req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const { priceId, customerEmail, userId } = body;
 
     if (!priceId) {
       return res.status(400).json({ error: 'Price ID is required' });
