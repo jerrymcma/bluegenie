@@ -4,7 +4,7 @@ import { AIPersonality, ResponseStyle, ConversationPair } from '../types';
 class GeminiService {
   private apiKey: string;
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  private geminiModel = 'gemini-3-flash';
+  private geminiModel = 'gemini-2.5-flash';
 
   constructor() {
     this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
