@@ -4,7 +4,7 @@ import { AIPersonality, ResponseStyle, ConversationPair } from '../types';
 class GeminiService {
   private apiKey: string;
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  private geminiModel = 'gemini-2.5-flash';
+  private geminiModel = 'gemini-3-flash';
 
   constructor() {
     this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -28,7 +28,7 @@ class GeminiService {
       const conversationHistory = this.buildConversationHistory(conversationContext);
       const fullPrompt = `${systemPrompt}\n\n${conversationHistory}\nUser: ${userMessage}\nAssistant:`;
 
-      console.log('Using Gemini 2.5 Flash with integrated grounding for query:', userMessage);
+      console.log('Using Gemini 3 Flash with Google Search grounding for query:', userMessage);
 
       const requestBody = {
         contents: [
