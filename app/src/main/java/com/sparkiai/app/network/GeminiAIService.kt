@@ -76,7 +76,7 @@ class GeminiAIService {
                 "🤖 Using Gemini 2.5 Flash with integrated grounding for query: $userMessage"
             )
 
-            // Create the request body with optional grounding
+            // Create the request body with Google Search grounding
             val jsonBody = JSONObject().apply {
                 put("contents", JSONArray().apply {
                     put(JSONObject().apply {
@@ -96,6 +96,13 @@ class GeminiAIService {
                         "maxOutputTokens",
                         2048
                     ) // Increased to allow longer responses (2048 tokens ≈ 1500-1600 words)
+                })
+
+                // Enable Google Search grounding for real-time information
+                put("tools", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("googleSearch", JSONObject())
+                    })
                 })
             }
 
@@ -408,6 +415,12 @@ class GeminiAIService {
                     put("topK", 40)
                     put("topP", 0.95)
                     put("maxOutputTokens", 2048) // Increased for longer image analysis responses
+                })
+                // Enable Google Search grounding for image analysis
+                put("tools", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("googleSearch", JSONObject())
+                    })
                 })
             }
 
