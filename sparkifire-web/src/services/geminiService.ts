@@ -45,7 +45,12 @@ class GeminiService {
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 2048
-        }
+        },
+        tools: [
+          {
+            googleSearch: {}
+          }
+        ]
       };
 
       try {
@@ -134,7 +139,12 @@ class GeminiService {
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 2048
-        }
+        },
+        tools: [
+          {
+            googleSearch: {}
+          }
+        ]
       };
 
       try {
