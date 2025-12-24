@@ -1,5 +1,8 @@
 {
   "functions": {
+    "api/gemini.js": {
+      "maxDuration": 60
+    },
     "api/music.js": {
       "maxDuration": 120
     },
@@ -31,6 +34,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/gemini",
+      "destination": "/api/gemini.js"
+    },
     {
       "source": "/api/music",
       "destination": "/api/music.js"
