@@ -24,7 +24,21 @@ class GeminiAIService {
     private val apiKey: String = BuildConfig.GEMINI_API_KEY
     private val baseModelUrl: String =
         "https://generativelanguage.googleapis.com/v1beta/models"
-    private val geminiModelName: String = "gemini-3-flash"
+    private val textModelQueue = listOf(
+        "gemini-3.0-flash",  // Latest Gemini 3.0 (Dec 2025)
+        "gemini-3.0-pro",    // Gemini 3.0 Pro
+        "gemini-2.5-flash",  // Fallback to 2.5
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-flash"
+    )
+    private val visionModelQueue = listOf(
+        "gemini-3.0-flash",  // Gemini 3.0 has excellent vision capabilities
+        "gemini-3.0-pro",
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash"
+    )
+    private val jsonMediaType = "application/json".toMediaType()
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -73,87 +87,30 @@ class GeminiAIService {
 
             Log.d(
                 "GeminiAI",
-                "🤖 Using Gemini 3 Flash with Google Search grounding for query: $userMessage"
+                "🤖 Using Gemini multi-model fallback with Google Search grounding for query: $userMessage"
             )
 
-            // Create the request body with Google Search grounding
-            val jsonBody = JSONObject().apply {
-                put("contents", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("parts", JSONArray().apply {
-                            put(JSONObject().apply {
-                                put("text", fullPrompt)
-                            })
-                        })
-                    })
-                })
+            val payload = buildTextRequestPayload(fullPrompt)
+            var lastError: String? = null
 
-                put("generationConfig", JSONObject().apply {
-                    put("temperature", 0.6) // Balanced for both factual and creative queries
-                    put("topK", 40)
-                    put("topP", 0.95)
-                    put(
-                        "maxOutputTokens",
-                        2048
-                    ) // Increased to allow longer responses (2048 tokens ≈ 1500-1600 words)
-                })
-
-                // Enable Google Search grounding for real-time information with Gemini 3 Flash
-                put("tools", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("googleSearch", JSONObject())
-                    })
-                })
-            }
-
-            val url =
-                "$baseModelUrl/$geminiModelName:generateContent?key=$apiKey"
-
-            val request = Request.Builder()
-                .url(url)
-                .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
-                .build()
-
-            val response = client.newCall(request).execute()
-            val responseBody = response.body?.string()
-
-            if (response.isSuccessful && responseBody != null) {
-                val jsonResponse = JSONObject(responseBody)
-
-                val candidates = jsonResponse.optJSONArray("candidates")
-                if (candidates != null && candidates.length() > 0) {
-                    val firstCandidate = candidates.getJSONObject(0)
-                    val content = firstCandidate.optJSONObject("content")
-                    val parts = content?.optJSONArray("parts")
-                    if (parts != null && parts.length() > 0) {
-                        // Concatenate ALL parts, not just the first one
-                        val fullText = StringBuilder()
-                        for (i in 0 until parts.length()) {
-                            val partText = parts.getJSONObject(i).optString("text")
-                            if (partText.isNotBlank()) {
-                                fullText.append(partText)
-                            }
-                        }
-                        val text = fullText.toString()
-                        if (text.isNotBlank()) {
-                            val groundingStatus =
-                                if (jsonResponse.has("groundingMetadata")) " ✅ Grounded" else ""
-                            Log.d(
-                                "GeminiAI",
-                                "✅ Success with model: $geminiModelName$groundingStatus (${parts.length()} parts)"
-                            )
-                            return@withContext text
-                        }
-                    }
+            for (modelName in textModelQueue) {
+                val result = executeGeminiRequest(modelName, payload)
+                if (result != null) {
+                    val (text, grounded) = result
+                    val groundingStatus = if (grounded) " ✅ Grounded" else ""
+                    Log.d(
+                        "GeminiAI",
+                        "✅ Success with model: $modelName$groundingStatus"
+                    )
+                    return@withContext text
                 }
-            } else {
-                Log.w(
-                    "GeminiAI",
-                    "Model $geminiModelName failed (${response.code}): $responseBody"
-                )
+                lastError = "Model $modelName failed to return text"
             }
 
-            Log.e("GeminiAI", "Gemini 3 Flash request failed to produce a usable response")
+            Log.e(
+                "GeminiAI",
+                "All Gemini models failed to return a usable response. Last error: ${lastError ?: "unknown"}"
+            )
             return@withContext "Sorry, I encountered an error. Using demo mode instead."
 
         } catch (e: Exception) {
@@ -416,7 +373,7 @@ class GeminiAIService {
                     put("topP", 0.95)
                     put("maxOutputTokens", 2048) // Increased for longer image analysis responses
                 })
-                // Enable Google Search grounding for image analysis with Gemini 3 Flash
+                // Enable Google Search grounding for image analysis
                 put("tools", JSONArray().apply {
                     put(JSONObject().apply {
                         put("googleSearch", JSONObject())
@@ -424,66 +381,22 @@ class GeminiAIService {
                 })
             }
 
-            val url =
-                "$baseModelUrl/$geminiModelName:generateContent?key=$apiKey"
-
-            val request = Request.Builder()
-                .url(url)
-                .post(
-                    requestBody.toString().toRequestBody("application/json".toMediaType())
-                )
-                .build()
-
-            val response = client.newCall(request).execute()
-            val responseBody = response.body?.string()
-
-            if (response.isSuccessful && responseBody != null) {
-                val jsonResponse = JSONObject(responseBody)
-                val candidates = jsonResponse.optJSONArray("candidates")
-                if (candidates != null && candidates.length() > 0) {
-                    val firstCandidate = candidates.getJSONObject(0)
-                    val content = firstCandidate.optJSONObject("content")
-                    val parts = content?.optJSONArray("parts")
-                    if (parts != null && parts.length() > 0) {
-                        // Concatenate ALL parts for complete image analysis response
-                        val fullText = StringBuilder()
-                        for (i in 0 until parts.length()) {
-                            val partText = parts.getJSONObject(i).optString("text")
-                            if (partText.isNotBlank()) {
-                                fullText.append(partText)
-                            }
-                        }
-                        val text = fullText.toString()
-                        if (text.isNotBlank()) {
-                            Log.d("GeminiAI", "✅ Image analysis complete (${parts.length()} parts)")
-                            return@withContext text
-                        }
-                    }
+            val payload = requestBody.toString()
+            var lastError: String? = null
+            for (modelName in visionModelQueue) {
+                val result = executeGeminiRequest(modelName, payload)
+                if (result != null) {
+                    val (text, _) = result
+                    Log.d("GeminiAI", "✅ Image analysis complete via $modelName")
+                    return@withContext text
                 }
-            } else {
-                Log.w(
-                    "GeminiAI",
-                    "Vision model $geminiModelName failed (${response.code}): $responseBody"
-                )
-                if (response.code == 404) {
-                    Log.e(
-                        "GeminiAI",
-                        "Vision model $geminiModelName not found (404 error). Double-check the Gemini model name or API key permissions."
-                    )
-                } else if (response.code in 400..499) {
-                    Log.e(
-                        "GeminiAI",
-                        "Client error (${response.code}) for vision model $geminiModelName. This typically means a request issue (bad data, quota exceeded, or permission denied)."
-                    )
-                } else if (response.code >= 500) {
-                    Log.e(
-                        "GeminiAI",
-                        "Server error (${response.code}) for vision model $geminiModelName. Try again later or check Gemini API status."
-                    )
-                }
+                lastError = "Vision model $modelName returned no text"
             }
 
-            Log.e("GeminiAI", "Gemini 2.5 Flash image analysis request failed")
+            Log.e(
+                "GeminiAI",
+                "All Gemini vision models failed. Last error: ${lastError ?: "unknown"}"
+            )
             return@withContext "Sorry, I could not analyze that image just now. Please try another image or resend it."
 
         } catch (e: Exception) {
@@ -551,4 +464,90 @@ private fun detectSearchNeedSelective(userMessage: String): Boolean {
         return searchKeywords.any { keyword -> message.contains(keyword) }
     }
     */
+    private fun buildTextRequestPayload(fullPrompt: String): String {
+        val jsonBody = JSONObject().apply {
+            put("contents", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("parts", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("text", fullPrompt)
+                        })
+                    })
+                })
+            })
+
+            put("generationConfig", JSONObject().apply {
+                put("temperature", 0.6)
+                put("topK", 40)
+                put("topP", 0.95)
+                put("maxOutputTokens", 2048)
+            })
+
+            put("tools", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("googleSearch", JSONObject())
+                })
+            })
+        }
+        return jsonBody.toString()
+    }
+
+    private fun executeGeminiRequest(
+        modelName: String,
+        payload: String
+    ): Pair<String, Boolean>? {
+        val url = "$baseModelUrl/$modelName:generateContent?key=$apiKey"
+        val request = Request.Builder()
+            .url(url)
+            .post(payload.toRequestBody(jsonMediaType))
+            .build()
+
+        return client.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string()
+            if (!response.isSuccessful) {
+                Log.w(
+                    "GeminiAI",
+                    "Model $modelName failed (${response.code}): $responseBody"
+                )
+                return@use null
+            }
+
+            val parsed = extractTextAndGrounding(responseBody)
+            if (parsed == null) {
+                Log.w("GeminiAI", "Model $modelName returned empty content")
+            }
+            parsed
+        }
+    }
+
+    private fun extractTextAndGrounding(responseBody: String?): Pair<String, Boolean>? {
+        if (responseBody.isNullOrBlank()) {
+            return null
+        }
+        val jsonResponse = JSONObject(responseBody)
+        val candidates = jsonResponse.optJSONArray("candidates") ?: return null
+        if (candidates.length() == 0) {
+            return null
+        }
+        val firstCandidate = candidates.optJSONObject(0) ?: return null
+        val content = firstCandidate.optJSONObject("content") ?: return null
+        val parts = content.optJSONArray("parts") ?: return null
+        if (parts.length() == 0) {
+            return null
+        }
+        val fullText = StringBuilder()
+        for (i in 0 until parts.length()) {
+            val part = parts.optJSONObject(i)
+            val text = part?.optString("text")
+            if (!text.isNullOrBlank()) {
+                fullText.append(text)
+            }
+        }
+        val text = fullText.toString().trim()
+        if (text.isBlank()) {
+            return null
+        }
+        val grounded = jsonResponse.has("groundingMetadata")
+        return text to grounded
+    }
 }
