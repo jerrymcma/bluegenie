@@ -20,3 +20,5 @@ keystore.properties
 release/
 .vercel/.env.*
 .vercel/output
+# IDE Chat History - contains sensitive data
+.idea/ChatHistory_schema_v4.xml
