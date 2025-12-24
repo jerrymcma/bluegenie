@@ -22,12 +22,12 @@ payload = {
     "contents": [
         {
             "parts": [
-                {"text": "Hello! You are now using Gemini 3.0. Please confirm which model version you are and say hi in one sentence."}
+                {"text": "Hello! You are now using Gemini 2.0 Flash. Please confirm which model version you are and say hi in one sentence."}
             ]
         }
     ]
 }
-url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?{urlencode({'key': key})}"
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?{urlencode({'key': key})}"
 req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
 try:
     with urllib.request.urlopen(req, timeout=20) as resp:

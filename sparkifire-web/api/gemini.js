@@ -3,7 +3,7 @@ const axios = require('axios');
 const DEFAULT_MODEL_LIST =
   process.env.GEMINI_MODEL_LIST ||
   process.env.VITE_GEMINI_MODEL_LIST ||
-  'gemini-3.0-flash,gemini-3.0-pro,gemini-2.5-flash,gemini-1.5-pro-latest,gemini-1.5-flash';
+  'gemini-2.0-flash-exp,gemini-1.5-pro-latest,gemini-1.5-flash';
 
 const getModelQueue = () =>
   DEFAULT_MODEL_LIST.split(',')

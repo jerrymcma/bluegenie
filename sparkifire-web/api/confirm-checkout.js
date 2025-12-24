@@ -1,12 +1,7 @@
-const { createClient } = require('@supabase/supabase-js');
 const { ensureUserProfile } = require('./_lib/profileHelpers');
 const { STRIPE_MODE, getStripeSecretKey } = require('./_lib/stripeConfig');
+const { supabaseAdmin, SUPABASE_SERVICE_KEY } = require('./_lib/supabaseAdmin');
 const stripe = require('stripe')(getStripeSecretKey());
-
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dvrrgfrclkxoseioywek.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -45,7 +40,13 @@ module.exports = async (req, res) => {
     const customerEmail = session.customer_details?.email || session.customer_email;
     const timestamp = new Date().toISOString();
 
-    const { profile, created } = await ensureUserProfile(supabase, {
+    if (!SUPABASE_SERVICE_KEY) {
+      throw new Error(
+        'Server missing Supabase service key. Set SUPABASE_SERVICE_KEY (service_role) in Vercel env to allow Premium activation.'
+      );
+    }
+
+    const { profile, created } = await ensureUserProfile(supabaseAdmin, {
       userId,
       email: customerEmail,
       createOverrides: {
@@ -70,7 +71,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('user_profiles')
       .update({
         is_premium: true,

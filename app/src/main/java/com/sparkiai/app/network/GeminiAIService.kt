@@ -25,15 +25,12 @@ class GeminiAIService {
     private val baseModelUrl: String =
         "https://generativelanguage.googleapis.com/v1beta/models"
     private val textModelQueue = listOf(
-        "gemini-3.0-flash",  // Latest Gemini 3.0 (Dec 2025)
-        "gemini-3.0-pro",    // Gemini 3.0 Pro
-        "gemini-2.5-flash",  // Fallback to 2.5
+        "gemini-2.0-flash-exp",  // Latest Gemini 2.0 Flash Experimental (Dec 2024)
         "gemini-1.5-pro-latest",
         "gemini-1.5-flash"
     )
     private val visionModelQueue = listOf(
-        "gemini-3.0-flash",  // Gemini 3.0 has excellent vision capabilities
-        "gemini-3.0-pro",
+        "gemini-2.0-flash-exp",  // Gemini 2.0 has excellent vision capabilities
         "gemini-1.5-pro-latest",
         "gemini-1.5-pro",
         "gemini-1.5-flash"

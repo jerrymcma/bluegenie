@@ -1,15 +1,10 @@
 // Vercel Serverless Function for Stripe Webhook
 // This activates premium status when a user successfully pays
 
-const { createClient } = require('@supabase/supabase-js');
 const { getStripeSecretKey, getStripeWebhookSecret, STRIPE_MODE } = require('./_lib/stripeConfig');
 const { ensureUserProfile } = require('./_lib/profileHelpers');
+const { supabaseAdmin, SUPABASE_SERVICE_KEY } = require('./_lib/supabaseAdmin');
 const stripe = require('stripe')(getStripeSecretKey());
-
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dvrrgfrclkxoseioywek.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // Need service key for admin access
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Webhook signing secret from Stripe Dashboard
 const endpointSecret = getStripeWebhookSecret();
@@ -68,7 +63,12 @@ async function handleCheckoutSessionCompleted(session) {
   }
 
   const timestamp = new Date().toISOString();
-  const { profile } = await ensureUserProfile(supabase, {
+  if (!SUPABASE_SERVICE_KEY) {
+    console.error('Stripe webhook missing Supabase service key. User profile will not be auto-created.');
+    return;
+  }
+
+  const { profile } = await ensureUserProfile(supabaseAdmin, {
     userId,
     email: customerEmail,
     createOverrides: {
@@ -90,7 +90,7 @@ async function handleCheckoutSessionCompleted(session) {
     return;
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await supabaseAdmin
     .from('user_profiles')
     .update({
       is_premium: true,
