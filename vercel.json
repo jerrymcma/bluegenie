@@ -4,13 +4,13 @@
   "installCommand": "cd sparkifire-web && npm install",
   "framework": null,
   "functions": {
-    "sparkifire-web/api/gemini.js": {
+    "api/gemini.js": {
       "maxDuration": 60
     },
-    "sparkifire-web/api/music.js": {
+    "api/music.js": {
       "maxDuration": 120
     },
-    "sparkifire-web/api/stripe-webhook.js": {
+    "api/stripe-webhook.js": {
       "maxDuration": 30
     }
   },
@@ -40,23 +40,23 @@
   "rewrites": [
     {
       "source": "/api/gemini",
-      "destination": "/sparkifire-web/api/gemini.js"
+      "destination": "/api/gemini.js"
     },
     {
       "source": "/api/music",
-      "destination": "/sparkifire-web/api/music.js"
+      "destination": "/api/music.js"
     },
     {
       "source": "/api/stripe-webhook",
-      "destination": "/sparkifire-web/api/stripe-webhook.js"
+      "destination": "/api/stripe-webhook.js"
     },
     {
       "source": "/api/create-checkout",
-      "destination": "/sparkifire-web/api/create-checkout.js"
+      "destination": "/api/create-checkout.js"
     },
     {
       "source": "/api/confirm-checkout",
-      "destination": "/sparkifire-web/api/confirm-checkout.js"
+      "destination": "/api/confirm-checkout.js"
     }
   ]
 }
