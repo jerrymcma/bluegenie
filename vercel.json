@@ -2,5 +2,61 @@
   "buildCommand": "cd sparkifire-web && npm install && npm run build",
   "outputDirectory": "sparkifire-web/dist",
   "installCommand": "cd sparkifire-web && npm install",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "sparkifire-web/api/gemini.js": {
+      "maxDuration": 60
+    },
+    "sparkifire-web/api/music.js": {
+      "maxDuration": 120
+    },
+    "sparkifire-web/api/stripe-webhook.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, stripe-signature"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/gemini",
+      "destination": "/sparkifire-web/api/gemini.js"
+    },
+    {
+      "source": "/api/music",
+      "destination": "/sparkifire-web/api/music.js"
+    },
+    {
+      "source": "/api/stripe-webhook",
+      "destination": "/sparkifire-web/api/stripe-webhook.js"
+    },
+    {
+      "source": "/api/create-checkout",
+      "destination": "/sparkifire-web/api/create-checkout.js"
+    },
+    {
+      "source": "/api/confirm-checkout",
+      "destination": "/sparkifire-web/api/confirm-checkout.js"
+    }
+  ]
 }
