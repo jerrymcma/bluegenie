@@ -9,7 +9,7 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
-  const { setIsSpeaking } = useChatStore();
+  const { setIsSpeaking, toggleFavorite } = useChatStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,15 +37,26 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     setIsMenuOpen(false);
   };
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
-    alert('Share button clicked!');
-    setIsMenuOpen(false);
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Sparki AI',
+          text: message.content,
+        });
+      } else {
+        await navigator.clipboard.writeText(message.content);
+        console.info('Favorite shared by copying to clipboard.');
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+    } finally {
+      setIsMenuOpen(false);
+    }
   };
 
   const handleFavorite = () => {
-    // TODO: Implement favorite functionality
-    alert('Favorite button clicked!');
+    toggleFavorite(message.id);
     setIsMenuOpen(false);
   };
 
@@ -119,8 +130,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                       onClick={handleFavorite}
                       className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md transition-colors text-left"
                     >
-                      <Bookmark className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm text-gray-700">Favorite Spark</span>
+                      <Bookmark className={`w-4 h-4 ${message.isFavorite ? 'text-amber-500' : 'text-gray-600'}`} />
+                      <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorite Spark'}</span>
                     </button>
                   </div>
                 )}

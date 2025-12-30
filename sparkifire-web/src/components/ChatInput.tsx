@@ -1,14 +1,15 @@
 import { useState, useRef, KeyboardEvent } from 'react';
-import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Zap, Folder } from 'lucide-react';
+import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Zap } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { voiceService } from '../services/voiceService';
 import { MessageType } from '../types';
 
 interface ChatInputProps {
   onStartFresh: () => void;
+  onShowFavorites: () => void;
 }
 
-export function ChatInput({ onStartFresh }: ChatInputProps) {
+export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
   const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
@@ -105,9 +106,9 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
     }
   };
   
-  const handleFolders = () => {
-    // TODO: Implement Folders functionality
-    alert('Folders button clicked!');
+  const handleFavoritesShortcut = () => {
+    setShowImageOptions(false);
+    onShowFavorites();
   };
 
   return (
@@ -159,31 +160,84 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
         {/* Action Buttons */}
         <div className="flex items-center mt-1 gap-3">
           <div className="flex items-center gap-3">
-            <button onClick={handleFolders} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Folders">
-              <Folder className="w-5 h-5" />
-            </button>
             <div className="relative">
-              <button onClick={() => setShowImageOptions(!showImageOptions)} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Add image">
-                <ImageIcon className="w-5 h-5" />
+              <button
+                onClick={() => setShowImageOptions(!showImageOptions)}
+                className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
+                title="Open Sparki tools"
+              >
+                <ImageIcon className="w-6 h-6" />
               </button>
               {showImageOptions && (
-                <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 p-2 space-y-1 min-w-[150px]">
-                  <button onClick={handleCameraClick} className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left">
-                    <Camera className="w-5 h-5 text-gray-600" />
-                    <span className="text-sm text-gray-700">Camera</span>
-                  </button>
-                  <button onClick={handleGalleryClick} className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-left">
-                    <ImageIcon className="w-5 h-5 text-gray-600" />
-                    <span className="text-sm text-gray-700">Gallery</span>
-                  </button>
+                <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 space-y-4 min-w-[220px]">
+                  <div>
+                    <p className="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mb-2">
+                      Add to Chat
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => {
+                          handleCameraClick();
+                          setShowImageOptions(false);
+                        }}
+                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                      >
+                        <Camera className="w-5 h-5 text-blue-600 mb-1" />
+                        <span className="text-xs text-gray-700 font-medium">Camera</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleGalleryClick();
+                          setShowImageOptions(false);
+                        }}
+                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                      >
+                        <ImageIcon className="w-5 h-5 text-blue-600 mb-1" />
+                        <span className="text-xs text-gray-700 font-medium">Gallery</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowImageOptions(false);
+                          onStartFresh();
+                        }}
+                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                      >
+                        <X className="w-5 h-5 text-blue-600 mb-1" />
+                        <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
+                      </button>
+                      <button
+                        onClick={handleFavoritesShortcut}
+                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                      >
+                        <Zap className="w-5 h-5 text-blue-600 mb-1" />
+                        <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-100 pt-3">
+                    <p className="text-[11px] font-semibold text-purple-500 uppercase tracking-wider mb-2">
+                      Library
+                    </p>
+                    <button
+                      onClick={handleFavoritesShortcut}
+                      className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all"
+                    >
+                      <span>Favorite Sparks</span>
+                      <span className="text-lg">✨</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
             <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
-            <button onClick={handleSparkIdea} className="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full transition-colors shadow-md hover:shadow-lg" title="Spark Idea">
-              <Zap className="w-5 h-5" />
+            <button
+              onClick={handleSparkIdea}
+              className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+              title="Sparki Idea"
+            >
+              <Zap className="w-6 h-6" />
             </button>
           </div>
           <button

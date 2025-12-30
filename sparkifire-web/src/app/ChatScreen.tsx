@@ -33,11 +33,14 @@ export function ChatScreen() {
     confirmPremiumPurchase,
     subscription,
     user,
+    favoriteSparks,
+    toggleFavorite,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
   const [showMusicLibrary, setShowMusicLibrary] = useState(false);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -166,14 +169,14 @@ export function ChatScreen() {
                 onClick={() => setShowPersonalitySelector(true)}
                 className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
               >
-                <span className="font-semibold text-sm">Personalities</span>
+                <span className="font-semibold text-sm">AI Models</span>
                 <Sparkles className="w-4 h-4" />
               </button>
             ) : (
               <button
                 onClick={() => setShowPersonalitySelector(true)}
                 className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
-                title="Switch Personality"
+                title="Switch AI Model"
               >
                 <Sparkles className="w-5 h-5" />
               </button>
@@ -247,7 +250,7 @@ export function ChatScreen() {
 
       {/* Input Area */}
       <footer className="flex-shrink-0">
-        <ChatInput onStartFresh={handleStartFresh} />
+        <ChatInput onStartFresh={handleStartFresh} onShowFavorites={() => setShowFavoritesModal(true)} />
         
         {/* Footer with Copyright and Android App Link - Always visible at bottom */}
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40">

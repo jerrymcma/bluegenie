@@ -99,6 +99,8 @@ import coil.request.ImageRequest
 import com.sparkiai.app.R
 import com.sparkiai.app.ui.components.MessageBubble
 import com.sparkiai.app.ui.components.PersonalitySelectorDialog
+import com.sparkiai.app.ui.components.SignInModal
+import com.sparkiai.app.ui.components.PremiumUpgradeModal
 import com.sparkiai.app.ui.components.GenerateMusicButton
 import com.sparkiai.app.ui.components.MusicGenerationDialog
 import com.sparkiai.app.ui.components.MusicLibraryDialog
@@ -110,6 +112,8 @@ import com.sparkiai.app.viewmodel.ChatViewModel
 import com.sparkiai.app.model.Message
 import com.sparkiai.app.model.MessageType
 import com.sparkiai.app.utils.VoiceManager
+import com.sparkiai.app.utils.GoogleSignInManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -125,6 +129,7 @@ fun ChatScreen(
 ) {
     val context = LocalContext.current
     val voiceManager = remember { VoiceManager(context) }
+    val googleSignInManager = remember { GoogleSignInManager(context) }
 
     // Initialize ViewModel with context for memory management
     LaunchedEffect(Unit) {
@@ -138,6 +143,26 @@ fun ChatScreen(
     val recognizedText by voiceManager.recognizedText.collectAsState()
     val currentPersonality by viewModel.currentPersonality.collectAsState()
     val availablePersonalities by viewModel.availablePersonalities.collectAsState()
+    val subscription by viewModel.subscription.collectAsState()
+    val showSignInModal by viewModel.showSignInModal.collectAsState()
+    val showUpgradeModal by viewModel.showUpgradeModal.collectAsState()
+
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        val account = googleSignInManager.handleSignInResult(task)
+        val idToken = account?.idToken
+        if (idToken != null) {
+            viewModel.signInWithGoogle(idToken)
+        } else {
+            Toast.makeText(
+                context,
+                "Unable to sign in. Please try again.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     // Music generation state
     val isMusicGenerating by viewModel.isMusicGenerating.collectAsState()
@@ -766,13 +791,13 @@ fun ChatScreen(
                         // Magic Music Spark shortcut
                         IconButton(
                             onClick = { openMagicMusicSpark(openGenerator = true) },
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(48.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.LibraryMusic,
                                 contentDescription = "Magic Music Spark",
                                 tint = PrimaryBlue,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(32.dp)
                             )
                         }
 
@@ -885,6 +910,11 @@ fun ChatScreen(
         PersonalitySelectorDialog(
             personalities = availablePersonalities,
             currentPersonality = currentPersonality,
+            subscription = subscription,
+            onShowUpgrade = {
+                viewModel.setShowUpgradeModal(true)
+                showPersonalitySelector = false
+            },
             onPersonalitySelected = { personality ->
                 viewModel.changePersonality(personality)
             },
@@ -1184,6 +1214,22 @@ fun ChatScreen(
             }
         }
     }
+
+    SignInModal(
+        isOpen = showSignInModal,
+        onSignIn = {
+            viewModel.setShowSignInModal(false)
+            signInLauncher.launch(googleSignInManager.getSignInIntent())
+        },
+        onDismiss = { viewModel.setShowSignInModal(false) }
+    )
+
+    PremiumUpgradeModal(
+        isOpen = showUpgradeModal,
+        onUpgrade = { viewModel.startPremiumCheckout() },
+        onDismiss = { viewModel.setShowUpgradeModal(false) },
+        isRenewal = subscription.needsRenewal
+    )
 }
 
 private fun resolveDisplayName(context: android.content.Context, uri: Uri): String? {

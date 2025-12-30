@@ -1,5 +1,5 @@
 import { create, createStore, StateCreator } from 'zustand';
-import { Message, AIPersonality, MessageType, GeneratedMusic, UserSubscription } from '../types';
+import { Message, AIPersonality, MessageType, GeneratedMusic, UserSubscription, FavoriteSpark } from '../types';
 import { personalities } from '../data/personalities';
 import { geminiService } from '../services/geminiService';
 import { storageService } from '../services/storageService';
@@ -28,6 +28,7 @@ export interface ChatState {
   musicStatus: string | null;
   musicCredits: number;
   musicLibrary: GeneratedMusic[];
+  favoriteSparks: FavoriteSpark[];
   
   // Subscription state
   user: any | null;
@@ -67,6 +68,7 @@ export interface ChatState {
   incrementSongCount: () => Promise<void>;
   startPremiumCheckout: () => Promise<void>;
   confirmPremiumPurchase: (sessionId: string) => Promise<void>;
+  toggleFavorite: (messageId: string) => void;
 }
 
 const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
@@ -79,6 +81,7 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
   musicStatus: null,
   musicCredits: 5,
   musicLibrary: [],
+  favoriteSparks: [],
   
   // Subscription state
   user: null,
@@ -140,6 +143,9 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       // If there are no saved messages, ensure the state is empty
       set({ messages: [] });
     }
+
+    const favorites = storageService.loadFavorites();
+    set({ favoriteSparks: favorites });
   },
 
   sendMessage: async (
@@ -713,6 +719,50 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
 
   setShowSignInModal: (show: boolean) => {
     set({ showSignInModal: show });
+  },
+
+  toggleFavorite: (messageId: string) => {
+    const { messages, favoriteSparks, currentPersonality } = get();
+
+    let updatedMessages = messages;
+    let updatedFavorites = favoriteSparks;
+
+    const messageIndex = messages.findIndex((msg) => msg.id === messageId);
+
+    if (messageIndex >= 0) {
+      const targetMessage = messages[messageIndex];
+      const nextFavoriteState = !targetMessage.isFavorite;
+
+      updatedMessages = [...messages];
+      updatedMessages[messageIndex] = {
+        ...targetMessage,
+        isFavorite: nextFavoriteState,
+      };
+
+      storageService.saveMessages(currentPersonality.id, updatedMessages);
+
+      if (nextFavoriteState) {
+        const newFavorite: FavoriteSpark = {
+          id: targetMessage.id,
+          content: targetMessage.content,
+          timestamp: targetMessage.timestamp,
+          personalityId: targetMessage.personalityId ?? currentPersonality.id,
+          personalityName: currentPersonality.name,
+        };
+
+        updatedFavorites = [
+          newFavorite,
+          ...favoriteSparks.filter((fav) => fav.id !== targetMessage.id),
+        ];
+      } else {
+        updatedFavorites = favoriteSparks.filter((fav) => fav.id !== targetMessage.id);
+      }
+    } else {
+      updatedFavorites = favoriteSparks.filter((fav) => fav.id !== messageId);
+    }
+
+    storageService.saveFavorites(updatedFavorites);
+    set({ messages: updatedMessages, favoriteSparks: updatedFavorites });
   }
 });
 

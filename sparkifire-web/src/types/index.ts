@@ -13,6 +13,7 @@ export interface Message {
   imageUri?: string;
   messageType: MessageType;
   personalityId?: string;
+  isFavorite?: boolean;
 }
 
 // AI Personality Types
@@ -67,4 +68,12 @@ export interface UserSubscription {
   subscriptionStartDate: string | null;
   periodStartDate: string | null;
   needsRenewal: boolean;
+}
+
+export interface FavoriteSpark {
+  id: string;
+  content: string;
+  personalityId?: string;
+  personalityName?: string;
+  timestamp: number;
 }

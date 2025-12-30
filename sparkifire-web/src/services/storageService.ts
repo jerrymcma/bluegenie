@@ -1,7 +1,8 @@
-import { Message } from '../types';
+import { Message, FavoriteSpark } from '../types';
 
 const STORAGE_KEY_PREFIX = 'sparkifire_messages_';
 const LAST_RESET_KEY_PREFIX = 'sparkifire_last_reset_';
+const FAVORITES_KEY = 'sparkifire_favorites';
 const AUTO_RESET_HOURS = 24;
 
 export class StorageService {
@@ -97,6 +98,26 @@ export class StorageService {
       role: msg.isFromUser ? 'user' as const : 'assistant' as const,
       content: msg.content
     }));
+  }
+
+  loadFavorites(): FavoriteSpark[] {
+    try {
+      const data = localStorage.getItem(FAVORITES_KEY);
+      if (data) {
+        return JSON.parse(data);
+      }
+    } catch (error) {
+      console.error('Error loading favorite sparks:', error);
+    }
+    return [];
+  }
+
+  saveFavorites(favorites: FavoriteSpark[]): void {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    } catch (error) {
+      console.error('Error saving favorite sparks:', error);
+    }
   }
 }
 
