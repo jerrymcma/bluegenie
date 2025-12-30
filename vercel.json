@@ -4,7 +4,7 @@
   "installCommand": "cd sparkifire-web && npm install",
   "framework": null,
   "functions": {
-    "api/gemini.js": {
+    "api/*.js": {
       "maxDuration": 60
     },
     "api/music.js": {
