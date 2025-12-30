@@ -54,7 +54,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -299,6 +298,24 @@ fun ChatScreen(
         }
     }
 
+    fun openMagicMusicSpark(openGenerator: Boolean = false) {
+        val musicPersonality = availablePersonalities.firstOrNull {
+            it.id == "music_composer" || it.name.contains("Magic Music", ignoreCase = true)
+        }
+        musicPersonality?.let {
+            viewModel.changePersonality(it)
+            if (openGenerator) {
+                showMusicGenerationDialog = true
+            }
+            coroutineScope.launch {
+                delay(150)
+                if (messages.isNotEmpty()) {
+                    listState.animateScrollToItem(messages.size - 1)
+                }
+            }
+        } ?: Toast.makeText(context, "Magic Music Spark not available yet", Toast.LENGTH_SHORT).show()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -339,60 +356,25 @@ fun ChatScreen(
                     }
                 }
 
-                // Right side - Personalities Button + Music Button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(0.dp)
+                TextButton(
+                    onClick = { showPersonalitySelector = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                 ) {
-                    TextButton(
-                        onClick = { showPersonalitySelector = true },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(0.dp)
-                        ) {
-                            Text(
-                                text = "Personalities",
-                                fontSize = 13.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "✨",
-                                fontSize = 20.sp
-                            )
-                        }
-                    }
-
-                    // Music Icon Button - Opens Magic Music Spark (only show when NOT on Magic Music Spark)
-                    if (!isMusicComposerActive) {
-                        IconButton(
-                            onClick = {
-                                // Switch to Magic Music Spark personality
-                                val musicPersonality = availablePersonalities.find {
-                                    it.name == "Magic Music Spark"
-                                }
-                                musicPersonality?.let {
-                                    viewModel.changePersonality(it)
-                                    coroutineScope.launch {
-                                        delay(100)
-                                        listState.animateScrollToItem(messages.size)
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .size(40.dp)
-                                .offset(x = (-12).dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MusicNote,
-                                contentDescription = "Magic Music Spark",
-                                tint = Color(0xFFFFD700),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                        Text(
+                            text = "Personalities",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "✨",
+                            fontSize = 20.sp
+                        )
                     }
                 }
             }
@@ -781,14 +763,14 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Favorites button as simple blue folder icon
+                        // Magic Music Spark shortcut
                         IconButton(
-                            onClick = { showFavoritesDialog = true },
+                            onClick = { openMagicMusicSpark(openGenerator = true) },
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Folder,
-                                contentDescription = "Favorite Sparks",
+                                imageVector = Icons.Default.LibraryMusic,
+                                contentDescription = "Magic Music Spark",
                                 tint = PrimaryBlue,
                                 modifier = Modifier.size(26.dp)
                             )
@@ -996,7 +978,8 @@ fun ChatScreen(
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         AttachmentOptionButton(
                             label = "Gallery",
@@ -1009,25 +992,35 @@ fun ChatScreen(
                             ),
                             modifier = Modifier.weight(1f)
                         )
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    Divider(color = PrimaryBlue.copy(alpha = 0.2f))
+                    Text(
+                        text = "Library",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = PrimaryBlue,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         AttachmentOptionButton(
-                            label = "Generate Music",
-                            icon = Icons.Default.LibraryMusic,
+                            label = "Favorite Sparks",
+                            icon = Icons.Default.MenuBook,
                             onClick = {
-                                // Always link this action to Magic Music Spark personality
-                                val magicMusicSpark =
-                                    availablePersonalities.firstOrNull { it.id == "music_composer" }
-                                if (magicMusicSpark != null) {
-                                    viewModel.changePersonality(magicMusicSpark)
-                                }
                                 showAttachmentOptions = false
-                                // Music dialog will appear if generation is available for the personality
-                                showMusicGenerationDialog = true
+                                showFavoritesDialog = true
                             },
                             gradient = Brush.linearGradient(
-                                colors = listOf(Color(0xFF1C53C2), Color(0xFF64B5F6))
+                                colors = listOf(Color(0xFF7E57C2), Color(0xFF9575CD))
                             ),
                             modifier = Modifier.weight(1f)
                         )
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             },
@@ -1392,7 +1385,7 @@ fun AttachmentOptionButton(
     TextButton(
         onClick = onClick,
         modifier = modifier
-            .height(72.dp)
+            .height(64.dp)
             .scale(combinedScale)
             .shadow(elevation = 8.dp, shape = RoundedCornerShape(18.dp), clip = false),
         shape = RoundedCornerShape(18.dp),
@@ -1405,7 +1398,7 @@ fun AttachmentOptionButton(
                 .fillMaxSize()
                 .clip(RoundedCornerShape(18.dp))
                 .background(gradient)
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 10.dp),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -1415,11 +1408,11 @@ fun AttachmentOptionButton(
             ) {
                 val iconModifier = if (iconBorderColor != null) {
                     Modifier
-                        .size(34.dp)
+                        .size(30.dp)
                         .border(BorderStroke(2.dp, iconBorderColor), CircleShape)
                         .padding(4.dp)
                 } else {
-                    Modifier.size(34.dp)
+                    Modifier.size(30.dp)
                 }
                 Icon(
                     imageVector = icon,
@@ -1427,11 +1420,11 @@ fun AttachmentOptionButton(
                     tint = Color.White,
                     modifier = iconModifier
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = label,
                     color = Color.White,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
