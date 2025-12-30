@@ -119,8 +119,8 @@ export function ChatScreen() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'My SparkiFire Music',
-          text: `Check out this music I generated with SparkiFire: ${music.prompt.substring(0, 100)}`,
+          title: 'My Sparki AI Music',
+          text: `Check out this music I generated with Sparki AI: ${music.prompt.substring(0, 100)}`,
           url: music.url,
         });
       } else {
@@ -252,7 +252,7 @@ export function ChatScreen() {
         {/* Footer with Copyright and Android App Link - Always visible at bottom */}
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40">
           <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-gray-600">
-            <span>© 2025 SparkiFire AI. All rights reserved.</span>
+            <span>© 2025 Sparki AI. All rights reserved.</span>
             <span>•</span>
             <a
               href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
