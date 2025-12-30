@@ -258,7 +258,7 @@ export function ChatScreen() {
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
             >
-              Android App
+              Open Android App
             </a>
           </div>
         </div>

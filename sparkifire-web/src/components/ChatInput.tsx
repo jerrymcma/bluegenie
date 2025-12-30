@@ -16,6 +16,10 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
   const [showImageOptions, setShowImageOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const SPARK_IDEA_PROMPT =
+    '✨🔥 Hey Sparki, how about igniting an original Spark Idea! (Press send). 🔥✨';
 
   const handleSend = () => {
     if ((messageText.trim() || selectedImagePreview) && !isLoading) {
@@ -89,8 +93,16 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
   };
   
   const handleSparkIdea = () => {
-    // TODO: Implement Spark Idea functionality
-    alert('Spark Idea button clicked!');
+    setMessageText(SPARK_IDEA_PROMPT);
+
+    // Focus the textarea so the user can immediately send or edit the prompt
+    if (messageInputRef.current) {
+      const input = messageInputRef.current;
+      requestAnimationFrame(() => {
+        input.focus();
+        input.setSelectionRange(SPARK_IDEA_PROMPT.length, SPARK_IDEA_PROMPT.length);
+      });
+    }
   };
   
   const handleFolders = () => {
@@ -134,6 +146,7 @@ export function ChatInput({ onStartFresh }: ChatInputProps) {
 
         {/* Text Input */}
         <textarea
+          ref={messageInputRef}
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
