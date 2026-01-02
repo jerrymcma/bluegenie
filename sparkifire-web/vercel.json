@@ -3,7 +3,7 @@
     "api/gemini.js": {
       "maxDuration": 60
     },
-    "api/music.js": {
+    "api/music-handler.js": {
       "maxDuration": 120
     },
     "api/stripe-webhook.js": {
