@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
         'https://api.replicate.com/v1/models/minimax/music-1.5/predictions',
         {
           input: {
-            lyrics: lyrics || '[Verse]\nLa la la\n[Chorus]\nOh oh oh',
+            lyrics: lyrics || '[Verse]\\nLa la la\\n[Chorus]\\nOh oh oh',
             prompt: prompt || 'Pop, modern production, radio ready'
           }
         },
