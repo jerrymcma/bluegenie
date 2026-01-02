@@ -1,5 +1,5 @@
 import { useState, useRef, KeyboardEvent } from 'react';
-import { Send, Mic, MicOff, Image as ImageIcon, Camera, X } from 'lucide-react';
+import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Plus } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { voiceService } from '../services/voiceService';
 import { MessageType } from '../types';
@@ -166,10 +166,10 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                 <div className="relative">
                     <button
                         onClick={() => setShowImageOptions(!showImageOptions)}
-                        className="w-12 h-12 flex items-center justify-center bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors shadow-md hover:shadow-xl"
+                        className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
                         title="Open Sparki tools"
                     >
-                        <ImageIcon className="w-6 h-6" />
+                        <Plus className="w-5 h-5 text-yellow-300" strokeWidth={3} />
                     </button>
                     {showImageOptions && (
                         <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-500 p-4 space-y-4 min-w-[220px]">
