@@ -125,7 +125,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
               alt="Selected"
               className="w-16 h-16 object-cover rounded-lg"
             />
-            <span className="flex-1 text-sm text-blue-600 font-medium">Image selected</span>
+            <span className="flex-1 text-sm text-blue-500 font-medium">Image selected</span>
             <button
               onClick={() => {
                 setSelectedImagePreview(null);
@@ -141,8 +141,8 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
         {/* Voice Listening Indicator */}
         {isListening && (
           <div className="mb-3 flex items-center justify-center space-x-2 bg-blue-50 p-2 rounded-lg">
-            <Mic className="w-4 h-4 text-blue-600 animate-pulse" />
-            <span className="text-sm text-blue-600 font-medium">Listening...</span>
+            <Mic className="w-4 h-4 text-blue-500 animate-pulse" />
+            <span className="text-sm text-blue-500 font-medium">Listening...</span>
           </div>
         )}
 
@@ -153,7 +153,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Say hello, ask anything..."
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[54px] sm:min-h-[72px] text-blue-600"
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:outline-none focus:border-blue-500 transition-colors min-h-[54px] sm:min-h-[72px] text-blue-500"
           rows={2}
           disabled={isLoading}
         />
@@ -166,31 +166,31 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                 <div className="relative">
                     <button
                         onClick={() => setShowImageOptions(!showImageOptions)}
-                        className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
+                        className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-2xl hover:border-blue-600 transition-colors shadow-md hover:shadow-xl"
                         title="Open Sparki tools"
                     >
                         <ImageIcon className="w-6 h-6" />
                     </button>
                     {showImageOptions && (
-                        <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 space-y-4 min-w-[220px]">
+                        <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-500 p-4 space-y-4 min-w-[220px]">
                           <div>
                             <p className="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mb-2">
                               Add to Chat
                             </p>
                             <div className="grid grid-cols-2 gap-2">
-                              <button onClick={() => { handleCameraClick(); setShowImageOptions(false); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all">
-                                <Camera className="w-5 h-5 text-blue-600 mb-1" />
+                              <button onClick={() => { handleCameraClick(); setShowImageOptions(false); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
+                                <Camera className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Camera</span>
                               </button>
-                              <button onClick={() => { handleGalleryClick(); setShowImageOptions(false); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all">
-                                <ImageIcon className="w-5 h-5 text-blue-600 mb-1" />
+                              <button onClick={() => { handleGalleryClick(); setShowImageOptions(false); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
+                                <ImageIcon className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Gallery</span>
                               </button>
-                              <button onClick={() => { setShowImageOptions(false); onStartFresh(); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all">
-                                <X className="w-5 h-5 text-blue-600 mb-1" />
+                              <button onClick={() => { setShowImageOptions(false); onStartFresh(); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
+                                <X className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
                               </button>
-                              <button onClick={handleFavoritesShortcut} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all">
+                              <button onClick={handleFavoritesShortcut} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
                                 <FlashOnIcon className="w-5 h-5" color="#FFB300" />
                                 <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
                               </button>
@@ -210,14 +210,14 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                 </div>
 
                 {/* Voice Button */}
-                <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+                <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-500 hover:bg-blue-100'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
                     {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
 
                 {/* Spark Idea Button */}
                 <button
                     onClick={handleSparkIdea}
-                    className="w-12 h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+                    className="w-12 h-12 flex items-center justify-center bg-blue-500 rounded-2xl shadow-lg hover:shadow-2xl hover:bg-blue-600 transition-all"
                     title="Sparki Idea"
                 >
                     <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
@@ -228,7 +228,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
             <button
                 onClick={handleSend}
                 disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white px-5 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
                 <Send className="w-5 h-5" />
                 <span className="font-semibold">Send</span>

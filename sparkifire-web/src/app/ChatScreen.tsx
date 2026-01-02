@@ -158,9 +158,9 @@ export function ChatScreen() {
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-blue-600">{currentPersonality.name}</h1>
+            <h1 className="text-2xl font-bold text-blue-500">{currentPersonality.name}</h1>
             {isSpeaking && (
-              <Volume2 className="w-5 h-5 text-blue-600 animate-pulse flex-shrink-0" />
+              <Volume2 className="w-5 h-5 text-blue-500 animate-pulse flex-shrink-0" />
             )}
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
@@ -183,7 +183,7 @@ export function ChatScreen() {
             )}
             <button
               onClick={handleMusicButtonClick}
-              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-200 text-blue-600 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-all shadow-md hover:shadow-lg"
+              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 hover:border-blue-600 transition-all shadow-md hover:shadow-lg"
               title={isSparki ? "Go to Music Sparki" : "Generate Music"}
             >
               <Music4 className="w-5 h-5" />
@@ -259,7 +259,7 @@ export function ChatScreen() {
               href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
+              className="text-blue-500 hover:text-blue-600 font-medium hover:underline"
             >
               Open Android App
             </a>
@@ -304,7 +304,7 @@ export function ChatScreen() {
               <button onClick={() => setShowStartFreshDialog(false)} className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                 Cancel
               </button>
-              <button onClick={confirmStartFresh} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button onClick={confirmStartFresh} className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
                 Confirm
               </button>
             </div>

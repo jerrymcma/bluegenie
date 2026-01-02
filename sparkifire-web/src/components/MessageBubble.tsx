@@ -91,7 +91,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     <div className="flex justify-start mb-4">
       <div className="max-w-[85%]">
         <div className="bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800 rounded-2xl px-4 py-3 shadow-md border border-gray-100">
-          <p className="whitespace-pre-wrap break-words text-blue-600" dangerouslySetInnerHTML={{ __html: message.content }} />
+          <p className="whitespace-pre-wrap break-words text-blue-500" dangerouslySetInnerHTML={{ __html: message.content }} />
           <div className="flex items-center justify-between mt-2">
             <p className="text-xs text-gray-500">{formatTime(message.timestamp)}</p>
             <div className="flex items-center space-x-1">
@@ -100,7 +100,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 className="p-1 hover:bg-white/50 rounded-full transition-colors"
                 title="Read aloud"
               >
-                <Volume2 className="w-4 h-4 text-blue-600" />
+                <Volume2 className="w-4 h-4 text-blue-500" />
               </button>
               <div className="relative" ref={menuRef}>
                 <button
@@ -108,7 +108,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   className="p-1 hover:bg-white/50 rounded-full transition-colors"
                   title="More options"
                 >
-                  <MoreVertical className="w-4 h-4 text-blue-600" />
+                  <MoreVertical className="w-4 h-4 text-blue-500" />
                 </button>
                 {isMenuOpen && (
                   <div className="absolute bottom-full right-0 mb-1 bg-white rounded-lg shadow-xl border border-gray-200 p-1 min-w-[150px] z-10">
