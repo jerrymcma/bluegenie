@@ -1,4 +1,5 @@
 {
+  // Cache-busting comment: 2026-01-01 23:00
   "functions": {
     "api/gemini.js": {
       "maxDuration": 60
