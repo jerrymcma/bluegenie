@@ -159,8 +159,8 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="mt-3 grid grid-cols-4 gap-2 w-full">
-          <div className="relative w-full">
+        <div className="mt-3 grid grid-cols-4 gap-2 relative w-full">
+          <div className="relative">
             <button
               onClick={() => setShowImageOptions(!showImageOptions)}
               className="w-full h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
@@ -251,7 +251,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
           <button
             onClick={handleSend}
             disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white w-full h-12 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
           >
             <Send className="w-5 h-5" />
             <span className="font-medium text-base">Send</span>
@@ -265,3 +265,5 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
     </div>
   );
 }
+
+
