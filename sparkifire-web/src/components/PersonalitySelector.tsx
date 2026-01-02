@@ -36,11 +36,11 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-blue-600">Sparki Ai Models ✨</h2>
+        <div className="relative p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-blue-600 text-center">Sparki Ai Models ✨</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
             <X className="w-6 h-6 text-blue-600" />
           </button>
