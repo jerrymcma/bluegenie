@@ -159,11 +159,11 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-around mt-3">
-          <div className="relative">
+        <div className="mt-3 grid grid-cols-4 gap-2 w-full">
+          <div className="relative w-full">
             <button
               onClick={() => setShowImageOptions(!showImageOptions)}
-              className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
+              className="w-full h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
               title="Open Sparki tools"
             >
               <ImageIcon className="w-6 h-6" />
@@ -229,16 +229,25 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
               </div>
             )}
           </div>
-          <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+
+          <button
+            onClick={handleVoiceToggle}
+            className={`w-full h-12 flex items-center justify-center rounded-2xl transition-colors shadow-md hover:shadow-lg ${
+              isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'
+            }`}
+            title={isListening ? 'Stop listening' : 'Start voice input'}
+          >
             {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
+
           <button
             onClick={handleSparkIdea}
-            className="w-12 h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+            className="w-full h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
             title="Sparki Idea"
           >
-            <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
+            <FlashOnIcon color="#FFD54F" />
           </button>
+
           <button
             onClick={handleSend}
             disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
