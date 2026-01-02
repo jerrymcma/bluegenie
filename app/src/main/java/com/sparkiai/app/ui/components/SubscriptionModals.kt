@@ -287,7 +287,7 @@ fun PremiumUpgradeModal(
                     ) {
                         PremiumFeature(
                             icon = Icons.Default.Stars,
-                            title = "Unlock All 11 Personalities",
+                            title = "Unlock All 11 Ai Models",
                             description = "Including Sparki Ultimate!",
                             color = Color(0xFF2196F3)
                         )

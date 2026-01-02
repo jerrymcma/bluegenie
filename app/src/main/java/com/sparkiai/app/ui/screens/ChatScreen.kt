@@ -391,7 +391,7 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
                         Text(
-                            text = "Personalities",
+                            text = "Ai Models",
                             fontSize = 13.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -1299,7 +1299,7 @@ private fun sendMessage(
 @Composable
 fun WelcomeMessage(
     personalityName: String = "SparkiFire AI",
-    greeting: String = "Hey there! I'm Sparki, your personal assistant. What's on your mind? You can type, use voice input, share images and files, or try a 'Spark idea' for inspiration. Tap the 'Personalities' icon to meet all of the Sparkies...we're glad you're here!"
+    greeting: String = "Hey there! I'm Sparki, your personal assistant. What's on your mind? You can type, use voice input, share images and files, or try a 'Spark idea' for inspiration. Tap the 'Ai Models' icon to meet all of the Sparkies...we're glad you're here!"
 ) {
     Card(
         modifier = Modifier

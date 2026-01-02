@@ -32,7 +32,5 @@ league_spartan.zip
 *.apk
 *.dex
 *.ap_
-.idea/ChatHistory_schema_v3.xml
-.idea/ChatHistory_schema_v4.xml
-.idea/caches/
+.idea/
 .gradle/
