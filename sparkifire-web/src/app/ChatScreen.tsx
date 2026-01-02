@@ -167,7 +167,7 @@ export function ChatScreen() {
             {isSparki ? (
               <button
                 onClick={() => setShowPersonalitySelector(true)}
-                className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-all shadow-lg hover:shadow-xl"
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
               >
                 <span className="font-semibold text-sm">AI Models</span>
                 <Sparkles className="w-4 h-4" />
@@ -175,7 +175,7 @@ export function ChatScreen() {
             ) : (
               <button
                 onClick={() => setShowPersonalitySelector(true)}
-                className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all shadow-lg hover:shadow-xl"
+                className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
                 title="Switch AI Model"
               >
                 <Sparkles className="w-5 h-5" />
@@ -183,7 +183,7 @@ export function ChatScreen() {
             )}
             <button
               onClick={handleMusicButtonClick}
-              className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all shadow-md hover:shadow-lg"
+              className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 hover:border-blue-600 transition-all shadow-md hover:shadow-lg"
               title={isSparki ? "Go to Music Sparki" : "Generate Music"}
             >
               <Music4 className="w-5 h-5" />
@@ -193,14 +193,14 @@ export function ChatScreen() {
                 onClick={() => setShowMusicLibrary(true)}
                 className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-md hover:shadow-lg ${
                   hasUnreadMusic
-                    ? 'bg-blue-600 text-white shadow-lg animate-pulse hover:bg-blue-700'
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                    ? 'bg-purple-600 border-2 border-purple-400 text-white shadow-purple-400 shadow-lg animate-pulse'
+                    : 'bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300'
                 }`}
                 title="Music Library"
               >
                 <Library className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-white text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-blue-600">
+                  <span className="absolute -top-1 -right-1 bg-white text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-purple-600">
                     {unreadCount}
                   </span>
                 )}
