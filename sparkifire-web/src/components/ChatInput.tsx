@@ -1,8 +1,9 @@
 import { useState, useRef, KeyboardEvent } from 'react';
-import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Zap } from 'lucide-react';
+import { Send, Mic, MicOff, Image as ImageIcon, Camera, X } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { voiceService } from '../services/voiceService';
 import { MessageType } from '../types';
+import { FlashOnIcon } from './icons/FlashOnIcon';
 
 interface ChatInputProps {
   onStartFresh: () => void;
@@ -20,7 +21,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const SPARK_IDEA_PROMPT =
-    '✨🔥 Hey Sparki, how about igniting an original Spark Idea! (Press send). 🔥✨';
+    '✨ Hey Sparki, how about igniting an original Spark Idea! (Press send). ✨';
 
   const handleSend = () => {
     if ((messageText.trim() || selectedImagePreview) && !isLoading) {
@@ -158,88 +159,86 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center mt-1 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <button
-                onClick={() => setShowImageOptions(!showImageOptions)}
-                className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
-                title="Open Sparki tools"
-              >
-                <ImageIcon className="w-6 h-6" />
-              </button>
-              {showImageOptions && (
-                <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 space-y-4 min-w-[220px]">
-                  <div>
-                    <p className="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mb-2">
-                      Add to Chat
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => {
-                          handleCameraClick();
-                          setShowImageOptions(false);
-                        }}
-                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                      >
-                        <Camera className="w-5 h-5 text-blue-600 mb-1" />
-                        <span className="text-xs text-gray-700 font-medium">Camera</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleGalleryClick();
-                          setShowImageOptions(false);
-                        }}
-                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                      >
-                        <ImageIcon className="w-5 h-5 text-blue-600 mb-1" />
-                        <span className="text-xs text-gray-700 font-medium">Gallery</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowImageOptions(false);
-                          onStartFresh();
-                        }}
-                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                      >
-                        <X className="w-5 h-5 text-blue-600 mb-1" />
-                        <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
-                      </button>
-                      <button
-                        onClick={handleFavoritesShortcut}
-                        className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                      >
-                        <Zap className="w-5 h-5 text-blue-600 mb-1" />
-                        <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="border-t border-gray-100 pt-3">
-                    <p className="text-[11px] font-semibold text-purple-500 uppercase tracking-wider mb-2">
-                      Library
-                    </p>
+        <div className="flex items-center justify-around mt-3">
+          <div className="relative">
+            <button
+              onClick={() => setShowImageOptions(!showImageOptions)}
+              className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
+              title="Open Sparki tools"
+            >
+              <ImageIcon className="w-6 h-6" />
+            </button>
+            {showImageOptions && (
+              <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 space-y-4 min-w-[220px]">
+                <div>
+                  <p className="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mb-2">
+                    Add to Chat
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        handleCameraClick();
+                        setShowImageOptions(false);
+                      }}
+                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                    >
+                      <Camera className="w-5 h-5 text-blue-600 mb-1" />
+                      <span className="text-xs text-gray-700 font-medium">Camera</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleGalleryClick();
+                        setShowImageOptions(false);
+                      }}
+                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                    >
+                      <ImageIcon className="w-5 h-5 text-blue-600 mb-1" />
+                      <span className="text-xs text-gray-700 font-medium">Gallery</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowImageOptions(false);
+                        onStartFresh();
+                      }}
+                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                    >
+                      <X className="w-5 h-5 text-blue-600 mb-1" />
+                      <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
+                    </button>
                     <button
                       onClick={handleFavoritesShortcut}
-                      className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all"
+                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
                     >
-                      <span>Favorite Sparks</span>
-                      <span className="text-lg">✨</span>
+                      <FlashOnIcon className="w-5 h-5" color="#FFB300" />
+                      <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
                     </button>
                   </div>
                 </div>
-              )}
-            </div>
-            <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
-            <button
-              onClick={handleSparkIdea}
-              className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all"
-              title="Sparki Idea"
-            >
-              <Zap className="w-6 h-6" />
-            </button>
+                <div className="border-t border-gray-100 pt-3">
+                  <p className="text-[11px] font-semibold text-purple-500 uppercase tracking-wider mb-2">
+                    Library
+                  </p>
+                  <button
+                    onClick={handleFavoritesShortcut}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all"
+                  >
+                    <span>Favorite Sparks</span>
+                    <span className="text-lg">✨</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+          <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={handleSparkIdea}
+            className="w-12 h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+            title="Sparki Idea"
+          >
+            <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
+          </button>
           <button
             onClick={handleSend}
             disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
