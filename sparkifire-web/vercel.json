@@ -1,13 +1,18 @@
 {
-  // Cache-busting comment: 2026-01-01 23:00
   "functions": {
     "api/gemini.js": {
       "maxDuration": 60
     },
-    "api/music-handler.js": {
+    "api/music.js": {
       "maxDuration": 120
     },
     "api/stripe-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/create-checkout.js": {
+      "maxDuration": 30
+    },
+    "api/confirm-checkout.js": {
       "maxDuration": 30
     }
   },
@@ -41,7 +46,7 @@
     },
     {
       "source": "/api/music",
-      "destination": "/api/music-handler.js"
+      "destination": "/api/music.js"
     },
     {
       "source": "/api/stripe-webhook",

@@ -36,7 +36,7 @@ class MusicGenerationTracker(context: Context) {
      */
     fun getFreeSongsRemaining(): Int {
         val generated = getSongsGenerated()
-        val limit = FeatureFlags.FreemiumConfig.FREE_SONGS_LIMIT
+        val limit = FeatureFlags.PremiumConfig.FREE_SONGS_LIMIT
         return maxOf(0, limit - generated)
     }
 
@@ -51,7 +51,7 @@ class MusicGenerationTracker(context: Context) {
      * Check if user is in free tier
      */
     fun isInFreeTier(): Boolean {
-        return getSongsGenerated() < FeatureFlags.FreemiumConfig.FREE_SONGS_LIMIT
+        return getSongsGenerated() < FeatureFlags.PremiumConfig.FREE_SONGS_LIMIT
     }
 
     /**
@@ -66,26 +66,20 @@ class MusicGenerationTracker(context: Context) {
      */
     fun shouldShowUpgradePrompt(): Boolean {
         val generated = getSongsGenerated()
-        val promptThreshold = FeatureFlags.FreemiumConfig.SHOW_UPGRADE_PROMPT_AT
-        val limit = FeatureFlags.FreemiumConfig.FREE_SONGS_LIMIT
+        val promptThreshold = 4 // Show at 4/5 songs
+        val limit = FeatureFlags.PremiumConfig.FREE_SONGS_LIMIT
 
         return generated >= promptThreshold && generated < limit &&
-                FeatureFlags.FreemiumConfig.SHOW_FREE_SONGS_COUNTER
+                FeatureFlags.PremiumConfig.SHOW_FREE_SONGS_COUNTER
     }
 
     /**
      * Check if user can generate music
-     * Returns true if:
-     * - In free tier, OR
-     * - Payment setup allowed without payment
+     * Returns true if in free tier
+     * Note: This tracker is deprecated - use SupabaseService subscription checks instead
      */
     fun canGenerateMusic(): Boolean {
-        if (isInFreeTier()) {
-            return true
-        }
-
-        // After free tier, check if generation is allowed without payment
-        return FeatureFlags.FreemiumConfig.ALLOW_FREE_TIER_WITHOUT_PAYMENT || hasPaymentSetup()
+        return isInFreeTier()
     }
 
     /**
@@ -96,14 +90,6 @@ class MusicGenerationTracker(context: Context) {
         prefs.edit().apply {
             putInt(KEY_SONGS_GENERATED, currentCount + 1)
             putLong(KEY_LAST_GENERATION_TIME, System.currentTimeMillis())
-
-            // Track cost if beyond free tier
-            if (!isInFreeTier()) {
-                val currentCost = getTotalCostCents()
-                val costPerSong = FeatureFlags.FreemiumConfig.COST_PER_SONG_CENTS
-                putInt(KEY_TOTAL_COST_CENTS, currentCost + costPerSong)
-            }
-
             apply()
         }
     }
@@ -126,13 +112,10 @@ class MusicGenerationTracker(context: Context) {
 
     /**
      * Get cost for next generation
+     * Always returns 0 (no pay-as-you-go anymore)
      */
     fun getNextGenerationCost(): Int {
-        return if (isInFreeTier()) {
-            0
-        } else {
-            FeatureFlags.FreemiumConfig.COST_PER_SONG_CENTS
-        }
+        return 0
     }
 
     /**

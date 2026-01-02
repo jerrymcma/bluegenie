@@ -61,27 +61,28 @@ object FeatureFlags {
     }
 
     /**
-     * 💰 Freemium Model Configuration
-     * Users get free songs, then pay-as-you-go
+     * 💰 Premium Subscription Model Configuration
+     * Matches Web App monetization:
+     * - 5 free songs with Google login
+     * - $5/month Premium: 50 songs + all personalities unlocked
      */
-    object FreemiumConfig {
-        // Number of free songs per user (30-60 second songs)
+    object PremiumConfig {
+        // Number of free songs per user (requires Google sign-in)
         const val FREE_SONGS_LIMIT = 5
 
-        // Cost per song after free tier (in cents) - ~$0.015 per song
-        const val COST_PER_SONG_CENTS = 2  // $0.02 per song (pay-as-you-go)
+        // Premium subscription details
+        const val PREMIUM_SONGS_PER_PERIOD = 50
+        const val PREMIUM_PERIOD_DAYS = 30
+        const val PREMIUM_PRICE_USD = 5.00
 
         // Show remaining free songs counter
         const val SHOW_FREE_SONGS_COUNTER = true
 
-        // Show cost estimate before generation
-        const val SHOW_COST_BEFORE_GENERATION = true
+        // Require sign-in for song generation (to track free songs)
+        const val REQUIRE_SIGNIN_FOR_SONGS = true
 
-        // Allow generation without payment setup (will block after free tier)
-        const val ALLOW_FREE_TIER_WITHOUT_PAYMENT = true
-
-        // Show upgrade prompt when approaching limit
-        const val SHOW_UPGRADE_PROMPT_AT = 4  // Show prompt at 4/5 songs used
+        // Free personalities (available without premium)
+        val FREE_PERSONALITIES = setOf("default", "music_composer")
     }
 
     /**

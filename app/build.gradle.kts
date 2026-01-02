@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -23,8 +24,8 @@ android {
         applicationId = "com.sparkiai.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 30
-        versionName = "2.9.1"
+        versionCode = 31
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -59,11 +60,48 @@ android {
             "\"${localProperties.getProperty("SUNO_API_KEY", "")}\""
         )
 
-        // Google OAuth Client ID
+        // Google OAuth Client IDs
+        val googleClientId = localProperties.getProperty("GOOGLE_CLIENT_ID", "")
+        val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: googleClientId
+
+        // Android Client ID - for Google Play Services
         buildConfigField(
             "String",
             "GOOGLE_CLIENT_ID",
-            "\"${localProperties.getProperty("GOOGLE_CLIENT_ID", "")}\""
+            "\"$googleClientId\""
+        )
+        
+        // Web Client ID - for Supabase ID token authentication
+        buildConfigField(
+            "String",
+            "GOOGLE_WEB_CLIENT_ID",
+            "\"$googleWebClientId\""
+        )
+
+        // Supabase Configuration
+        buildConfigField(
+            "String",
+            "SUPABASE_URL",
+            "\"${localProperties.getProperty("SUPABASE_URL", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "SUPABASE_ANON_KEY",
+            "\"${localProperties.getProperty("SUPABASE_ANON_KEY", "")}\""
+        )
+
+        // Stripe Configuration
+        buildConfigField(
+            "String",
+            "STRIPE_PUBLISHABLE_KEY",
+            "\"${localProperties.getProperty("STRIPE_PUBLISHABLE_KEY", "")}\""
+        )
+        
+        // Web app URL for Stripe checkout
+        buildConfigField(
+            "String",
+            "WEB_APP_URL",
+            "\"${localProperties.getProperty("WEB_APP_URL", "https://sparkiai.vercel.app")}\""
         )
     }
 
@@ -96,7 +134,7 @@ android {
         }
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix = ".debug"  // Commented out - must match Google OAuth package name
             versionNameSuffix = "-debug"
         }
     }
@@ -153,6 +191,12 @@ dependencies {
     // Google Auth for Vertex AI
     implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
     implementation("com.google.auth:google-auth-library-credentials:1.23.0")
+
+    // Supabase for user management and subscription tracking
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.3")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.3")
+    implementation("io.ktor:ktor-client-android:2.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // Networking
     implementation(libs.retrofit)

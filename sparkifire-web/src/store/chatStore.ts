@@ -18,6 +18,11 @@ const normalizeCount = (value: unknown, fallback = 0): number => {
 
 const PREMIUM_PRICE_ID = DEFAULT_PRICE_ID;
 
+const ensureFavoriteFlag = (message: Message): Message => ({
+  ...message,
+  isFavorite: message.isFavorite ?? false,
+});
+
 export interface ChatState {
   messages: Message[];
   isLoading: boolean;
@@ -122,7 +127,7 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       console.error('[chatStore.initialize] Error checking current user:', error);
     });
     const { currentPersonality } = get();
-    const savedMessages = storageService.loadMessages(currentPersonality.id);
+    const savedMessages = storageService.loadMessages(currentPersonality.id).map(ensureFavoriteFlag);
     
     // Check for auto-reset
     if (storageService.shouldAutoReset(currentPersonality.id)) {
@@ -133,7 +138,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         isFromUser: false,
         timestamp: Date.now(),
         messageType: MessageType.TEXT,
-        personalityId: currentPersonality.id
+        personalityId: currentPersonality.id,
+        isFavorite: false
       };
       set({ messages: [autoResetMessage] });
       storageService.saveMessages(currentPersonality.id, [autoResetMessage]);
@@ -169,7 +175,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         isFromUser: false,
         timestamp: Date.now(),
         messageType: MessageType.TEXT,
-        personalityId: currentPersonality.id
+        personalityId: currentPersonality.id,
+        isFavorite: false
       };
       set({ messages: [autoResetMessage] });
       storageService.saveMessages(currentPersonality.id, [autoResetMessage]);
@@ -183,7 +190,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       timestamp: Date.now(),
       imageUri: imagePreview,
       messageType,
-      personalityId: currentPersonality.id
+      personalityId: currentPersonality.id,
+      isFavorite: false
     };
 
     const updatedMessages = [...get().messages, userMessage];
@@ -221,8 +229,9 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         content: aiResponse,
         isFromUser: false,
         timestamp: Date.now(),
-        messageType: MessageType.TEXT,
-        personalityId: currentPersonality.id
+      messageType: MessageType.TEXT,
+      personalityId: currentPersonality.id,
+      isFavorite: false
       };
 
       const finalMessages = [...updatedMessages, aiMessage];
@@ -242,7 +251,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         isFromUser: false,
         timestamp: Date.now(),
         messageType: MessageType.TEXT,
-        personalityId: currentPersonality.id
+        personalityId: currentPersonality.id,
+        isFavorite: false
       };
 
       const finalMessages = [...updatedMessages, errorMessage];
@@ -259,7 +269,7 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
     storageService.saveMessages(currentPersonality.id, messages);
 
     // Load new personality's conversation
-    const savedMessages = storageService.loadMessages(personality.id);
+    const savedMessages = storageService.loadMessages(personality.id).map(ensureFavoriteFlag);
     
     if (savedMessages.length > 0) {
       set({ currentPersonality: personality, messages: savedMessages });
@@ -271,7 +281,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         isFromUser: false,
         timestamp: Date.now(),
         messageType: MessageType.TEXT,
-        personalityId: personality.id
+        personalityId: personality.id,
+        isFavorite: false
       };
       set({ currentPersonality: personality, messages: [greetingMessage] });
       storageService.saveMessages(personality.id, [greetingMessage]);
@@ -294,7 +305,8 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       isFromUser: false,
       timestamp: Date.now(),
       messageType: MessageType.TEXT,
-      personalityId: currentPersonality.id
+      personalityId: currentPersonality.id,
+      isFavorite: false
     };
     
     set({ messages: [greetingMessage] });

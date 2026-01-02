@@ -4,13 +4,19 @@
   "installCommand": "cd sparkifire-web && npm install",
   "framework": null,
   "functions": {
-    "api/*.js": {
+    "api/gemini.js": {
       "maxDuration": 60
     },
     "api/music.js": {
       "maxDuration": 120
     },
     "api/stripe-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/create-checkout.js": {
+      "maxDuration": 30
+    },
+    "api/confirm-checkout.js": {
       "maxDuration": 30
     }
   },

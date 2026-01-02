@@ -14,27 +14,44 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sparkiai.app.ui.screens.ChatScreen
-import com.sparkiai.app.ui.theme.SparkiFireTheme
+import com.sparkiai.app.ui.theme.SparkiAITheme
+import com.sparkiai.app.viewmodel.ChatViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 
 class MainActivity : ComponentActivity() {
+    
+    // Store ViewModel reference to check premium status on resume
+    private var chatViewModel: ChatViewModel? = null
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SparkiFireTheme {
+            SparkiAITheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SparkiFireApp()
+                    SparkiAIApp { viewModel ->
+                        chatViewModel = viewModel
+                    }
                 }
             }
         }
     }
+    
+    override fun onResume() {
+        super.onResume()
+        // Check if user completed Stripe payment
+        chatViewModel?.onAppResume()
+    }
 }
 
 @Composable
-fun SparkiFireApp() {
+fun SparkiAIApp(onViewModelCreated: (ChatViewModel) -> Unit = {}) {
     val navController = rememberNavController()
 
     NavHost(
@@ -43,15 +60,22 @@ fun SparkiFireApp() {
         modifier = Modifier.fillMaxSize()
     ) {
         composable("chat") {
-            ChatScreen()
+            val viewModel: ChatViewModel = viewModel()
+            
+            // Notify MainActivity that ViewModel is created
+            androidx.compose.runtime.LaunchedEffect(viewModel) {
+                onViewModelCreated(viewModel)
+            }
+            
+            ChatScreen(viewModel = viewModel)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun SparkiFireAppPreview() {
-    SparkiFireTheme {
-        SparkiFireApp()
+fun SparkiAIAppPreview() {
+    SparkiAITheme {
+        SparkiAIApp()
     }
 }

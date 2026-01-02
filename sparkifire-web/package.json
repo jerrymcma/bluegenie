@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "Web-based version of SparkiFire AI - Your intelligent AI assistant with multiple personalities",
+  "description": "Web-based version of Sparki AI - Your intelligent AI assistant with multiple personalities",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",

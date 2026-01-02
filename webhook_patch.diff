@@ -1,0 +1,17 @@
+*** Begin Patch
+*** Update File: sparkifire-web/api/stripe-webhook.js
+@@
+-// IMPORTANT: Disable body parsing for Stripe webhooks
+-// Vercel needs the raw body to verify signatures
+-module.exports = async (req, res) => {
++// IMPORTANT: Disable body parsing for Stripe webhooks
++// Vercel needs the raw body to verify signatures
++module.exports.config = {
++  api: {
++    bodyParser: false,
++  },
++};
++
++module.exports = async (req, res) => {
+*** End Patch
+

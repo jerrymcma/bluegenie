@@ -154,19 +154,19 @@ fun GenerateMusicButton(
 }
 
 /**
- * Music Usage Stats Display
+ * Music Usage Stats Display - Premium Subscription Model
  */
 @Composable
 fun MusicUsageStatsCard(
     stats: MusicUsageStats,
     modifier: Modifier = Modifier
 ) {
-    if (!FeatureFlags.FreemiumConfig.SHOW_FREE_SONGS_COUNTER) {
+    if (!FeatureFlags.PremiumConfig.SHOW_FREE_SONGS_COUNTER) {
         return
     }
 
     Card(
-        modifier = modifier.fillMaxWidth(0.78f),
+        modifier = modifier.wrapContentWidth(),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -175,74 +175,23 @@ fun MusicUsageStatsCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .wrapContentWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                if (stats.isInFreeTier) {
-                    Text(
-                        text = "${stats.freeRemaining} of ${FeatureFlags.FreemiumConfig.FREE_SONGS_LIMIT} Free Songs",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryBlue,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            // Simple display: just show song count
+            Text(
+                text = if (stats.isInFreeTier) {
+                    "${stats.freeRemaining} of ${FeatureFlags.PremiumConfig.FREE_SONGS_LIMIT} Free Songs"
                 } else {
-                    Text(
-                        text = "💰 Pay-As-You-Go",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE91E63)
-                    )
-                    Text(
-                        text = "Total songs: ${stats.totalGenerated} • Cost: ${stats.totalCostFormatted}",
-                        fontSize = 11.sp,
-                        color = Color.DarkGray
-                    )
-                }
-            }
-
-            // Next generation cost (paid tier only)
-            if (!stats.isInFreeTier) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = PrimaryBlue
-                ) {
-                    Text(
-                        text = stats.nextGenerationCostFormatted,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        // Show upgrade prompt if approaching limit
-        if (stats.shouldShowUpgrade) {
-            Divider(color = Color(0xFFE91E63).copy(alpha = 0.15f), thickness = 1.dp)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "⚠️",
-                    fontSize = 20.sp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Almost out of free songs! Next generations will cost $0.06 each.",
-                    fontSize = 11.sp,
-                    color = Color(0xFFD84315),
-                    fontWeight = FontWeight.Medium
-                )
-            }
+                    "${stats.totalGenerated} songs generated"
+                },
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryBlue,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -277,19 +226,6 @@ fun MusicGenerationDialog(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                stats?.let {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (!it.isInFreeTier) {
-                        Text(
-                            text = "💰 Cost: ${it.nextGenerationCostFormatted} per song",
-                            fontSize = 14.sp,
-                            color = Color(0xFFFFB74D),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
             }
         },
         text = {

@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Sparki Fire"
+rootProject.name = "Sparki AI"
 include(":app")

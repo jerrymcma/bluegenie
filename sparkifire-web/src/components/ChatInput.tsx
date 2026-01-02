@@ -228,10 +228,10 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
             <button
                 onClick={handleSend}
                 disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+                className="flex-1 flex items-center justify-center gap-3 bg-blue-600 text-white px-6 py-4 rounded-2xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
-                <Send className="w-5 h-5" />
-                <span className="font-medium text-base">Send</span>
+                <Send className="w-6 h-6" />
+                <span className="font-bold text-lg">Send</span>
             </button>
         </div>
 

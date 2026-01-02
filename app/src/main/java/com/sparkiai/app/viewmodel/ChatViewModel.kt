@@ -13,7 +13,9 @@ import com.sparkiai.app.model.GeneratedMusic
 import com.sparkiai.app.model.Message
 import com.sparkiai.app.model.MessageType
 import com.sparkiai.app.model.ResponseStyle
+import com.sparkiai.app.model.UserSubscription
 import com.sparkiai.app.network.LyriaService
+import com.sparkiai.app.network.SupabaseService
 import com.sparkiai.app.network.MusicGenerationResult
 import com.sparkiai.app.network.ReplicateService
 import com.sparkiai.app.network.SunoService
@@ -23,7 +25,9 @@ import com.sparkiai.app.utils.MusicGenerationTracker
 import com.sparkiai.app.utils.MusicLibraryManager
 import com.sparkiai.app.utils.MusicUsageStats
 import com.sparkiai.app.utils.MusicPlayer
+import com.sparkiai.app.utils.StripeCheckoutHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,6 +83,18 @@ class ChatViewModel(
     private val _isMusicPlaying = MutableStateFlow(false)
     val isMusicPlaying: StateFlow<Boolean> = _isMusicPlaying.asStateFlow()
 
+    // Subscription state
+    private var supabaseService: SupabaseService? = null
+    
+    private val _subscription = MutableStateFlow(UserSubscription())
+    val subscription: StateFlow<UserSubscription> = _subscription.asStateFlow()
+    
+    private val _showSignInModal = MutableStateFlow(false)
+    val showSignInModal: StateFlow<Boolean> = _showSignInModal.asStateFlow()
+    
+    private val _showUpgradeModal = MutableStateFlow(false)
+    val showUpgradeModal: StateFlow<Boolean> = _showUpgradeModal.asStateFlow()
+
     /**
      * Initialize the ChatViewModel with a context for memory management and music features
      */
@@ -89,6 +105,14 @@ class ChatViewModel(
             musicTracker = MusicGenerationTracker(context)
             musicPlayer = MusicPlayer(context)
             applicationContext = context.applicationContext
+            
+            // Initialize Supabase service for subscription management
+            supabaseService = SupabaseService(context)
+            
+            // Check if user is already signed in
+            viewModelScope.launch {
+                checkExistingSignIn()
+            }
 
             // Suno service doesn't require initialization
 
@@ -411,8 +435,23 @@ class ChatViewModel(
             return
         }
 
-        if (!canGenerateMusic()) {
-            addSystemMessage("You've used all 5 free songs! Each additional song costs ~$0.02. 🎵")
+        // Check if user is signed in (required for tracking free songs)
+        if (supabaseService?.isSignedIn() != true) {
+            _showSignInModal.value = true
+            return
+        }
+
+        // Check subscription limits
+        val sub = _subscription.value
+        if (!sub.isPremium && sub.songCount >= 5) {
+            // Free tier user has used all 5 songs
+            _showUpgradeModal.value = true
+            return
+        }
+
+        if (sub.isPremium && sub.needsRenewal) {
+            // Premium user needs to renew
+            _showUpgradeModal.value = true
             return
         }
 
@@ -482,15 +521,30 @@ class ChatViewModel(
                         musicTracker?.recordGeneration()
                         updateMusicUsageStats()
                         loadMusicLibrary()
+                        
+                        // Increment song count in Supabase
+                        supabaseService?.getCurrentUserId()?.let { userId ->
+                            viewModelScope.launch {
+                                supabaseService?.incrementSongCount(userId)
+                                // Reload subscription to update song count
+                                reloadUserProfile()
+                            }
+                        }
 
                         // Remove generating message and add success message
                         _messages.value = _messages.value.dropLast(1)
 
-                        val stats = musicTracker?.getUsageStats()
-                        val costInfo = if (stats?.isInFreeTier == true) {
-                            "This was FREE! You have ${stats.freeRemaining} free songs remaining. 🎉"
+                        val sub = _subscription.value
+                        val costInfo = if (!sub.isPremium) {
+                            val remaining = 5 - sub.songCount
+                            if (remaining > 0) {
+                                "This was FREE! You have $remaining free songs remaining. 🎉"
+                            } else {
+                                "Upgrade to Premium for 50 songs per month! 👑"
+                            }
                         } else {
-                            "Cost: ~$0.01-0.05 per generation (pay-as-you-go) 💰"
+                            val remaining = 50 - sub.songsThisPeriod
+                            "Premium: $remaining of 50 songs remaining this month. 👑"
                         }
 
                         val successMessage = Message(
@@ -975,5 +1029,253 @@ class ChatViewModel(
 
     private suspend fun generateWithLyria(finalPrompt: String): MusicGenerationResult {
         return getLyriaMusic(finalPrompt)
+    }
+
+    // ============ SUBSCRIPTION MANAGEMENT METHODS ============
+
+    /**
+     * Check if user is already signed in on app start
+     */
+    private suspend fun checkExistingSignIn() {
+        val userId = supabaseService?.getCurrentUserId()
+        val email = supabaseService?.getCurrentUserEmail()
+        
+        if (userId != null && email != null) {
+            Log.d("ChatViewModel", "Found existing sign-in: $email")
+            reloadUserProfile()
+        }
+    }
+
+    /**
+     * Sign in with Google using ID token
+     */
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            Log.d("ChatViewModel", "🔐 Starting Google sign-in with token")
+            
+            val result = supabaseService?.signInWithGoogle(idToken)
+            result?.onSuccess {
+                Log.d("ChatViewModel", "✅ Successfully signed in with Google")
+                
+                // Load user profile first (before closing modal or showing message)
+                delay(500) // Brief delay to ensure Supabase session is ready
+                reloadUserProfile()
+                
+                // Now close modal
+                _showSignInModal.value = false
+                
+                // Show success message (counter will show song count)
+                val sub = _subscription.value
+                
+                if (sub.isPremium) {
+                    addSystemMessage("✅ Signed in successfully! Welcome back, Premium member! 👑")
+                } else {
+                    addSystemMessage("✅ Signed in successfully! You're ready to generate music. 🎉")
+                }
+            }?.onFailure { error ->
+                Log.e("ChatViewModel", "❌ Failed to sign in with Google: ${error.message}", error)
+                
+                // Provide user-friendly error message
+                val userMessage = when {
+                    error.message?.contains("invalid", ignoreCase = true) == true -> 
+                        "❌ Configuration Error\n\n" +
+                        "Your Android app needs to be registered in Google Cloud Console.\n\n" +
+                        "Please contact support or try again later."
+                    error.message?.contains("network", ignoreCase = true) == true -> 
+                        "❌ Network Error\n\n" +
+                        "Please check your internet connection and try again."
+                    else -> 
+                        "❌ Sign In Failed\n\n" +
+                        "${error.message}\n\n" +
+                        "Please try again or check your internet connection."
+                }
+                
+                addSystemMessage(userMessage)
+            }
+        }
+    }
+
+    /**
+     * Sign out current user
+     */
+    fun signOut() {
+        viewModelScope.launch {
+            val result = supabaseService?.signOut()
+            result?.onSuccess {
+                _subscription.value = UserSubscription()
+                addSystemMessage("Signed out successfully.")
+            }
+        }
+    }
+
+    /**
+     * Reload user profile from Supabase
+     */
+    private suspend fun reloadUserProfile() {
+        val userId = supabaseService?.getCurrentUserId() ?: return
+        val email = supabaseService?.getCurrentUserEmail() ?: return
+        
+        val result = supabaseService?.getUserProfile(userId, email)
+        result?.onSuccess { profile ->
+            val subscription = supabaseService?.buildSubscription(profile)
+            if (subscription != null) {
+                _subscription.value = subscription
+                Log.d("ChatViewModel", "Loaded profile: isPremium=${subscription.isPremium}, songs=${subscription.songCount}")
+            }
+        }?.onFailure { error ->
+            Log.e("ChatViewModel", "Failed to load user profile", error)
+        }
+    }
+
+    /**
+     * Start premium checkout process
+     * Opens Stripe checkout in browser
+     */
+    fun startPremiumCheckout() {
+        val context = applicationContext
+        val userId = supabaseService?.getCurrentUserId()
+        val email = supabaseService?.getCurrentUserEmail()
+        
+        Log.d("ChatViewModel", "🛒 Starting premium checkout")
+        Log.d("ChatViewModel", "   Context: ${if (context != null) "✓" else "✗"}")
+        Log.d("ChatViewModel", "   User ID: ${userId ?: "null"}")
+        Log.d("ChatViewModel", "   Email: ${email ?: "null"}")
+        
+        if (userId == null || email == null) {
+            Log.e("ChatViewModel", "❌ User not signed in, showing sign-in modal")
+            _showSignInModal.value = true
+            return
+        }
+        
+        if (context == null) {
+            Log.e("ChatViewModel", "❌ Cannot start checkout: context is null")
+            addSystemMessage("❌ Unable to open checkout. Please restart the app and try again.")
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                Log.d("ChatViewModel", "📱 Initiating Stripe checkout...")
+                
+                // Close the upgrade modal first
+                _showUpgradeModal.value = false
+                
+                // Show loading message in chat
+                addSystemMessage("Opening payment page... 💳")
+                
+                // Show toast for immediate feedback
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Connecting to payment server...",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+                
+                // Open Stripe checkout in browser
+                StripeCheckoutHelper.openCheckout(context, userId, email)
+                
+                Log.d("ChatViewModel", "✅ Stripe checkout opened for user: $email")
+                
+                // Add success message
+                addSystemMessage("✅ Payment page opened! Complete your purchase in the browser, then return to the app.")
+                
+                // Show success toast
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Opening browser...",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+                
+                // Set flag to check premium status when user returns
+                checkPremiumOnResume = true
+                
+            } catch (e: Exception) {
+                Log.e("ChatViewModel", "❌ Failed to open Stripe checkout: ${e.message}", e)
+                
+                // Show user-friendly error message
+                val userMessage = when {
+                    e.message?.contains("network", ignoreCase = true) == true ||
+                    e.message?.contains("connect", ignoreCase = true) == true ->
+                        "❌ Network Error\n\nCannot connect to payment server.\n\nPlease check your internet connection and try again."
+                    
+                    e.message?.contains("browser", ignoreCase = true) == true ->
+                        "❌ Browser Not Found\n\nNo web browser app is installed.\n\nPlease install a browser (Chrome, Firefox, etc.) and try again."
+                    
+                    e.message?.contains("timeout", ignoreCase = true) == true ->
+                        "❌ Connection Timeout\n\nThe request took too long.\n\nPlease check your internet connection and try again."
+                    
+                    else ->
+                        "❌ Payment Error\n\n${e.message}\n\nPlease try again or contact support if the issue persists."
+                }
+                
+                addSystemMessage(userMessage)
+                
+                // Show error toast
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Failed to open checkout: ${e.message?.take(50)}",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+                
+                // Re-open the modal so they can try again
+                _showUpgradeModal.value = true
+            }
+        }
+    }
+    
+    // Flag to check premium status when app resumes
+    private var checkPremiumOnResume = false
+    
+    /**
+     * Call this from Activity.onResume() to check premium status after payment
+     */
+    fun onAppResume() {
+        if (checkPremiumOnResume) {
+            checkPremiumOnResume = false
+            viewModelScope.launch {
+                delay(500) // Brief delay to ensure webhook has processed
+                checkPremiumStatus()
+            }
+        }
+    }
+
+    /**
+     * Check premium status after payment
+     */
+    suspend fun checkPremiumStatus() {
+        reloadUserProfile()
+    }
+
+    /**
+     * Set show sign-in modal
+     */
+    fun setShowSignInModal(show: Boolean) {
+        _showSignInModal.value = show
+    }
+
+    /**
+     * Set show upgrade modal
+     */
+    fun setShowUpgradeModal(show: Boolean) {
+        _showUpgradeModal.value = show
+    }
+
+    /**
+     * Get current user ID
+     */
+    fun getCurrentUserId(): String? {
+        return supabaseService?.getCurrentUserId()
+    }
+
+    /**
+     * Get current user email
+     */
+    fun getCurrentUserEmail(): String? {
+        return supabaseService?.getCurrentUserEmail()
     }
 }

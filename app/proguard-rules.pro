@@ -99,6 +99,10 @@
 # Keep VoiceManager and related classes
 -keep class com.sparkiai.app.utils.** { *; }
 
+# Keep SLF4J bindings for Supabase/ktor logging
+-dontwarn org.slf4j.**
+-keep class org.slf4j.** { *; }
+
 # Android Components
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application

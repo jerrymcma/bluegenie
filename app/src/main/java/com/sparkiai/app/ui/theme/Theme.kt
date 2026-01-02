@@ -36,7 +36,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun SparkiFireTheme(
+fun SparkiAITheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

@@ -39,6 +39,7 @@ export interface AIPersonality {
   greeting: string;
   responseStyle: ResponseStyle;
   color: string;
+  iconImage?: string;
 }
 
 // Conversation Context

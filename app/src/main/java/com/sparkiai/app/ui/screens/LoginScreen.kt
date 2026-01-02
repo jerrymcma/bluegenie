@@ -101,7 +101,7 @@ fun LoginScreen(
             // App Logo/Icon
             Image(
                 painter = painterResource(id = R.mipmap.ic_launcher),
-                contentDescription = "SparkiFire Logo",
+                contentDescription = "Sparki AI Logo",
                 modifier = Modifier
                     .size(120.dp)
                     .clip(RoundedCornerShape(24.dp))
@@ -111,7 +111,7 @@ fun LoginScreen(
 
             // App Title
             Text(
-                text = "SparkiFire",
+                text = "Sparki AI",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

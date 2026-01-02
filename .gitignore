@@ -22,3 +22,17 @@ release/
 .vercel/output
 # IDE Chat History - contains sensitive data
 .idea/ChatHistory_schema_v4.xml
+# Large binary files
+*.zip
+SparkApp.zip
+league_spartan.zip
+
+# Build artifacts and databases
+*.db
+*.apk
+*.dex
+*.ap_
+.idea/ChatHistory_schema_v3.xml
+.idea/ChatHistory_schema_v4.xml
+.idea/caches/
+.gradle/
