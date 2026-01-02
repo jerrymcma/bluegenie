@@ -392,7 +392,7 @@ fun ChatScreen(
                     ) {
                         Text(
                             text = "Ai Models",
-                            fontSize = 13.sp,
+                            fontSize = 15.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )

@@ -28,6 +28,7 @@ import com.sparkiai.app.model.UserSubscription
 
 // Free personalities available without premium
 private val FREE_PERSONALITIES = setOf("default", "music_composer")
+private val SELECTED_MODEL_COLOR = Color(0xFF4CAF50)
 
 @Composable
 fun PersonalitySelectorDialog(
@@ -40,10 +41,10 @@ fun PersonalitySelectorDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF505050), // Darker gray background for better contrast
+        containerColor = Color(0xFF2A2A2A),
         title = {
             Text(
-                text = "Choose AI Personality",
+                text = "Sparki Ai Models",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.White,
@@ -58,15 +59,6 @@ fun PersonalitySelectorDialog(
                     .heightIn(max = 500.dp)
                     .offset(y = (-8).dp)
             ) {
-                Text(
-                    text = "Select the traits for your AI",
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.9f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
                 val shouldPromptUpgrade = !subscription.isPremium
 
                 LazyColumn(
@@ -82,10 +74,10 @@ fun PersonalitySelectorDialog(
                             isSelected = personality.id == currentPersonality.id,
                             isLocked = isLocked,
                             onClick = {
-                                if (shouldPromptUpgrade) {
-                                    onShowUpgrade()
-                                }
                                 if (isLocked) {
+                                    if (shouldPromptUpgrade) {
+                                        onShowUpgrade()
+                                    }
                                     return@PersonalityCard
                                 }
                                 onPersonalitySelected(personality)
@@ -126,8 +118,8 @@ fun PersonalityCard(
             },
         colors = CardDefaults.cardColors(
             containerColor = when {
-                isLocked -> Color(0xFFF5F5F5)
-                isSelected -> Color(personality.color).copy(alpha = 0.2f)
+                isLocked -> Color(0xFFE0E0E0)
+                isSelected -> SELECTED_MODEL_COLOR.copy(alpha = 0.2f)
                 else -> MaterialTheme.colorScheme.surface
             }
         ),
@@ -136,7 +128,7 @@ fun PersonalityCard(
         ),
         shape = RoundedCornerShape(12.dp),
         border = when {
-            isSelected -> androidx.compose.foundation.BorderStroke(2.dp, Color(personality.color))
+            isSelected -> androidx.compose.foundation.BorderStroke(2.dp, SELECTED_MODEL_COLOR)
             isLocked -> androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
             else -> null
         }
@@ -219,7 +211,7 @@ fun PersonalityCard(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Selected",
-                            tint = Color(personality.color),
+                            tint = SELECTED_MODEL_COLOR,
                             modifier = Modifier.size(28.dp)
                         )
                     }
