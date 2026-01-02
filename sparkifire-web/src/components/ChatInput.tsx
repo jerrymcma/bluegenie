@@ -159,93 +159,34 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
         />
 
         {/* Action Buttons */}
-        <div className="mt-3 grid grid-cols-4 gap-2 relative w-full">
-          <div className="relative">
-            <button
-              onClick={() => setShowImageOptions(!showImageOptions)}
-              className="w-full h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
-              title="Open Sparki tools"
-            >
-              <ImageIcon className="w-6 h-6" />
-            </button>
-            {showImageOptions && (
-              <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 space-y-4 min-w-[220px]">
-                <div>
-                  <p className="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mb-2">
-                    Add to Chat
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
+        <div className="mt-3 flex justify-between items-center space-x-3 relative w-full">
+                  <div className="relative flex-1">
                     <button
-                      onClick={() => {
-                        handleCameraClick();
-                        setShowImageOptions(false);
-                      }}
-                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
+                      onClick={() => setShowImageOptions(!showImageOptions)}
+                      className="w-full h-12 flex items-center justify-center bg-white border-2 border-blue-100 text-blue-600 rounded-2xl hover:border-blue-300 transition-colors shadow-md hover:shadow-xl"
+                      title="Open Sparki tools"
                     >
-                      <Camera className="w-5 h-5 text-blue-600 mb-1" />
-                      <span className="text-xs text-gray-700 font-medium">Camera</span>
+                      <ImageIcon className="w-6 h-6" />
                     </button>
-                    <button
-                      onClick={() => {
-                        handleGalleryClick();
-                        setShowImageOptions(false);
-                      }}
-                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                    >
-                      <ImageIcon className="w-5 h-5 text-blue-600 mb-1" />
-                      <span className="text-xs text-gray-700 font-medium">Gallery</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowImageOptions(false);
-                        onStartFresh();
-                      }}
-                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                    >
-                      <X className="w-5 h-5 text-blue-600 mb-1" />
-                      <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
-                    </button>
-                    <button
-                      onClick={handleFavoritesShortcut}
-                      className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-400 hover:shadow-lg transition-all"
-                    >
-                      <FlashOnIcon className="w-5 h-5" color="#FFB300" />
-                      <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
-                    </button>
+        // ... existing code ...
                   </div>
-                </div>
-                <div className="border-t border-gray-100 pt-3">
-                  <p className="text-[11px] font-semibold text-purple-500 uppercase tracking-wider mb-2">
-                    Library
-                  </p>
+
                   <button
-                    onClick={handleFavoritesShortcut}
-                    className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all"
+                    onClick={handleVoiceToggle}
+                    className={`flex-1 h-12 flex items-center justify-center rounded-2xl transition-colors shadow-md hover:shadow-lg ${
+                      isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'
+                    }`}
+                    title={isListening ? 'Stop listening' : 'Start voice input'}
                   >
-                    <span>Favorite Sparks</span>
-                    <span className="text-lg">✨</span>
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                   </button>
-                </div>
-              </div>
-            )}
-          </div>
 
-          <button
-            onClick={handleVoiceToggle}
-            className={`w-full h-12 flex items-center justify-center rounded-2xl transition-colors shadow-md hover:shadow-lg ${
-              isListening ? 'bg-red-100 text-red-500' : 'text-blue-600 hover:bg-blue-50'
-            }`}
-            title={isListening ? 'Stop listening' : 'Start voice input'}
-          >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </button>
-
-          <button
-            onClick={handleSparkIdea}
-            className="w-full h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
-            title="Sparki Idea"
-          >
-            <FlashOnIcon color="#FFD54F" />
+                  <button
+                    onClick={handleSparkIdea}
+                    className="flex-1 h-12 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+                    title="Sparki Idea"
+                  >
+                    <FlashOnIcon color="#FFD54F" />
           </button>
 
           <button
