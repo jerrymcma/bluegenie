@@ -24,8 +24,8 @@ android {
         applicationId = "com.sparkiai.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 31
-        versionName = "3.0.0"
+        versionCode = 34
+        versionName = "3.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -14,13 +14,16 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +67,8 @@ import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Stop
@@ -204,6 +209,7 @@ fun ChatScreen(
     // Music generation dialogs
     var showMusicGenerationDialog by remember { mutableStateOf(false) }
     var showMusicLibraryDialog by remember { mutableStateOf(false) }
+    var suppressAutoMusicDialog by remember { mutableStateOf(false) }
 
     val favoriteMessages = remember(messages) { messages.filter { it.isBookmarked } }
 
@@ -294,7 +300,7 @@ fun ChatScreen(
         }
     }
 
-    val sparkSnippet = " Inspire me with a Spark Idea!"
+    val sparkSnippet = " Inspire me with a Spark Idea! ✨ (Press Send)"
 
     var lastLibraryCount by remember { mutableStateOf(0) }
     var highlightMusicLibrary by remember { mutableStateOf(false) }
@@ -370,6 +376,12 @@ fun ChatScreen(
                         color = Color.White,
                         fontSize = 20.sp
                     )
+                    Image(
+                        painter = painterResource(id = R.drawable.sparkles_icon),
+                        contentDescription = "Sparkles",
+                        modifier = Modifier.size(32.dp),
+                        contentScale = ContentScale.Fit
+                    )
                     if (isSpeaking) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
@@ -396,9 +408,11 @@ fun ChatScreen(
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "✨",
-                            fontSize = 20.sp
+                        Image(
+                            painter = painterResource(id = R.drawable.sparkles_icon),
+                            contentDescription = "Sparkles",
+                            modifier = Modifier.size(28.dp),
+                            contentScale = ContentScale.Fit
                         )
                     }
                 }
@@ -539,13 +553,14 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
+                    .padding(vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Usage stats card
                 musicUsageStats?.let { stats ->
                     MusicUsageStatsCard(
                         stats = stats,
                         modifier = Modifier
-                            .padding(bottom = 4.dp)
                             .align(Alignment.CenterHorizontally)
                     )
                 }
@@ -556,7 +571,6 @@ fun ChatScreen(
                     enabled = viewModel.canGenerateMusic(),
                     isGenerating = isMusicGenerating,
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
                         .align(Alignment.CenterHorizontally)
                 )
             }
@@ -751,26 +765,60 @@ fun ChatScreen(
                 }
 
                 // Text Field - Full Width
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Say hello to Sparki, ask anything...") },
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Default
+                val textFieldInteractionSource = remember { MutableInteractionSource() }
+                val isTextFieldFocused by textFieldInteractionSource.collectIsFocusedAsState()
+                val infiniteTransition = rememberInfiniteTransition(label = "textFieldGlow")
+                val glowAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.3f,
+                    targetValue = 0.3f,
+                    animationSpec = infiniteRepeatable(
+                        animation = keyframes {
+                            durationMillis = 1000
+                            0.3f at 0 using LinearEasing
+                            1f at 120 using LinearEasing
+                            0.3f at 200 using LinearEasing
+                            0.9f at 320 using LinearEasing
+                            0.3f at 400 using LinearEasing
+                            0.3f at 1000 using LinearEasing
+                        },
+                        repeatMode = RepeatMode.Restart
                     ),
-                    keyboardActions = KeyboardActions.Default,
-                    minLines = 2,
-                    maxLines = 5,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedTextColor = PrimaryBlue,
-                        unfocusedTextColor = PrimaryBlue
-                    )
+                    label = "glowPulse"
                 )
+                
+                val borderColor = if (isTextFieldFocused) PrimaryBlue else PrimaryBlue.copy(alpha = glowAlpha)
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = 2.dp,
+                            color = borderColor,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                ) {
+                    OutlinedTextField(
+                        value = messageText,
+                        onValueChange = { messageText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Say hello to Sparki, ask anything...") },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Default
+                        ),
+                        keyboardActions = KeyboardActions.Default,
+                        minLines = 2,
+                        maxLines = 5,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = PrimaryBlue,
+                            unfocusedTextColor = PrimaryBlue
+                        ),
+                        interactionSource = textFieldInteractionSource
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -790,15 +838,23 @@ fun ChatScreen(
                     ) {
                         // Magic Music Spark shortcut
                         IconButton(
-                            onClick = { openMagicMusicSpark(openGenerator = true) },
-                            modifier = Modifier.size(48.dp)
+                            onClick = { openMagicMusicSpark(openGenerator = false) },
+                            modifier = Modifier.size(48.dp),
+                            colors = IconButtonDefaults.iconButtonColors(contentColor = Color.Transparent)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.LibraryMusic,
-                                contentDescription = "Magic Music Spark",
-                                tint = PrimaryBlue,
-                                modifier = Modifier.size(32.dp)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(color = PrimaryBlue, shape = CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MusicNote,
+                                    contentDescription = "Magic Music Spark",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
                         }
 
                         // Plus button (Add attachment)
@@ -950,11 +1006,14 @@ fun ChatScreen(
     if (showAttachmentOptions) {
         AlertDialog(
             onDismissRequest = { showAttachmentOptions = false },
+            containerColor = Color(0xFF03467D),
             title = {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Add to Chat",
                         fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -984,13 +1043,13 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         AttachmentOptionButton(
-                            label = "File",
-                            icon = Icons.Outlined.Folder,
+                            label = "Images",
+                            icon = Icons.Default.PhotoLibrary,
                             onClick = {
-                                filePickerLauncher.launch(arrayOf("*/*"))
+                                galleryLauncher.launch("image/*")
                             },
                             gradient = Brush.linearGradient(
-                                colors = listOf(Color(0xFF2196F3), Color(0xFF64B5F6))
+                                colors = listOf(Color(0xFFE65100), Color(0xFFFF9800))
                             ),
                             modifier = Modifier.weight(1f)
                         )
@@ -1001,36 +1060,18 @@ fun ChatScreen(
                                 cameraLauncher.launch(photoUri)
                             },
                             gradient = Brush.linearGradient(
-                                colors = listOf(Color(0xFF00BCD4), Color(0xFF1DE9B6))
+                                colors = listOf(Color(0xFFD45200), Color(0xFFD45200))
                             ),
                             modifier = Modifier.weight(1f)
                         )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AttachmentOptionButton(
-                            label = "Gallery",
-                            icon = Icons.Default.PhotoLibrary,
-                            onClick = {
-                                galleryLauncher.launch("image/*")
-                            },
-                            gradient = Brush.linearGradient(
-                                colors = listOf(Color(0xFFFF9800), Color(0xFFFFB74D))
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
                     }
 
                     Divider(color = PrimaryBlue.copy(alpha = 0.2f))
                     Text(
                         text = "Library",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = PrimaryBlue,
+                        fontSize = 18.sp,
+                        color = Color.White,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -1039,6 +1080,18 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         AttachmentOptionButton(
+                            label = "Magic Music",
+                            icon = Icons.Default.LibraryMusic,
+                            onClick = {
+                                showAttachmentOptions = false
+                                openMagicMusicSpark(openGenerator = false)
+                            },
+                            gradient = Brush.linearGradient(
+                                colors = listOf(PrimaryBlue, PrimaryBlue)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        AttachmentOptionButton(
                             label = "Favorite Sparks",
                             icon = Icons.Default.MenuBook,
                             onClick = {
@@ -1046,11 +1099,10 @@ fun ChatScreen(
                                 showFavoritesDialog = true
                             },
                             gradient = Brush.linearGradient(
-                                colors = listOf(Color(0xFF7E57C2), Color(0xFF9575CD))
+                                colors = listOf(Color(0xFF1565C0), Color(0xFF1565C0))
                             ),
                             modifier = Modifier.weight(1f)
                         )
-                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             },
@@ -1316,10 +1368,9 @@ fun WelcomeMessage(
                     text = "Welcome!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextOnAIMessage
-                )
+                    color = TextOnAIMessage)
                 Spacer(modifier = Modifier.width(6.dp))
-                PulsatingFireEmoji()
+                PulsatingSparklesEmoji()
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -1330,37 +1381,37 @@ fun WelcomeMessage(
         }
     }
 }
-
+// ADD THIS NEW FUNCTION IN THE SAME SPOT
 @Composable
-private fun PulsatingFireEmoji(
+private fun PulsatingSparklesEmoji(
     fontSize: TextUnit = 24.sp,
     tint: Color = TextOnAIMessage
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "welcome-fire")
+    val infiniteTransition = rememberInfiniteTransition(label = "welcome-sparkle")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "fire-scale"
+        label = "sparkle-scale"
     )
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.8f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "fire-alpha"
+        label = "sparkle-alpha"
     )
 
     Text(
-        text = "🔥",
-        fontSize = 24.sp,
+        text = "✨",
+        fontSize = fontSize,
         modifier = Modifier.scale(scale),
-        color = TextOnAIMessage.copy(alpha = alpha)
+        color = tint.copy(alpha = alpha)
     )
 }
 
@@ -1390,7 +1441,7 @@ fun TypingIndicator() {
                 modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                PulsatingFireEmoji(fontSize = 28.sp, tint = PrimaryBlue)
+                PulsatingSparklesEmoji(fontSize = 28.sp, tint = PrimaryBlue)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Sparki is thinking",
@@ -1470,7 +1521,7 @@ fun AttachmentOptionButton(
                 Text(
                     text = label,
                     color = Color.White,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

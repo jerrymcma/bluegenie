@@ -23,6 +23,13 @@ import com.sparkiai.app.R
 import com.sparkiai.app.utils.GoogleSignInManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.foundation.text.ClickableText
+
 private const val TAG = "LoginScreen"
 
 @Composable
@@ -181,12 +188,50 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = "By signing in, you agree to our Terms of Service and Privacy Policy",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
+            val uriHandler = LocalUriHandler.current
+            val annotatedString = buildAnnotatedString {
+                append("By signing in, you agree to our ")
+                
+                pushStringAnnotation(tag = "terms", annotation = "https://sparkiai.app/terms")
+                withStyle(style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    fontWeight = FontWeight.Medium
+                )) {
+                    append("Terms of Service")
+                }
+                pop()
+                
+                append(" and ")
+                
+                pushStringAnnotation(tag = "privacy", annotation = "https://sparkiai.app/privacy")
+                withStyle(style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    fontWeight = FontWeight.Medium
+                )) {
+                    append("Privacy Policy")
+                }
+                pop()
+            }
+
+            ClickableText(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onClick = { offset ->
+                    annotatedString.getStringAnnotations(tag = "terms", start = offset, end = offset)
+                        .firstOrNull()?.let { annotation ->
+                            uriHandler.openUri(annotation.item)
+                        }
+                    annotatedString.getStringAnnotations(tag = "privacy", start = offset, end = offset)
+                        .firstOrNull()?.let { annotation ->
+                            uriHandler.openUri(annotation.item)
+                        }
+                }
             )
         }
     }

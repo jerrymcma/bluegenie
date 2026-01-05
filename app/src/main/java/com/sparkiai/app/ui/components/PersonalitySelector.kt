@@ -1,5 +1,6 @@
 package com.sparkiai.app.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,12 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sparkiai.app.R
 import com.sparkiai.app.model.AIPersonality
 import com.sparkiai.app.model.UserSubscription
+import com.sparkiai.app.ui.theme.PrimaryBlue
 
 // Free personalities available without premium
 private val FREE_PERSONALITIES = setOf("default", "music_composer")
@@ -41,7 +46,7 @@ fun PersonalitySelectorDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF2A2A2A),
+        containerColor = Color(0xFF0A2D7A),
         title = {
             Text(
                 text = "Sparki Ai Models",
@@ -117,11 +122,7 @@ fun PersonalityCard(
                 onClick()
             },
         colors = CardDefaults.cardColors(
-            containerColor = when {
-                isLocked -> Color(0xFFE0E0E0)
-                isSelected -> SELECTED_MODEL_COLOR.copy(alpha = 0.2f)
-                else -> MaterialTheme.colorScheme.surface
-            }
+            containerColor = Color(0xFF0F52BA)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isSelected) 4.dp else 2.dp
@@ -129,7 +130,6 @@ fun PersonalityCard(
         shape = RoundedCornerShape(12.dp),
         border = when {
             isSelected -> androidx.compose.foundation.BorderStroke(2.dp, SELECTED_MODEL_COLOR)
-            isLocked -> androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
             else -> null
         }
     ) {
@@ -147,12 +147,56 @@ fun PersonalityCard(
                         .offset(y = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = personality.icon,
-                        fontSize = if (personality.id == "ultimate") 44.sp else 36.sp,
-                        textAlign = TextAlign.Center,
-                        color = if (isLocked) Color.Gray.copy(alpha = 0.5f) else Color.Unspecified
-                    )
+                    when {
+                        personality.id == "default" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.sparkles_icon2),
+                                contentDescription = "Sparki",
+                                modifier = Modifier.size(56.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        personality.id == "music_composer" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.music_notes),
+                                contentDescription = "Music",
+                                modifier = Modifier.size(56.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        personality.id == "professional" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.sparki_pro_icon),
+                                contentDescription = "Sparki Pro",
+                                modifier = Modifier.size(56.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        personality.id == "creative" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.creative_spark),
+                                contentDescription = "Creative Spark",
+                                modifier = Modifier.size(56.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        personality.id == "ultimate" -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.ultimate_sparkles),
+                                contentDescription = "Ultimate",
+                                modifier = Modifier.size(93.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        else -> {
+                            Text(
+                                text = personality.icon,
+                                fontSize = 36.sp,
+                                textAlign = TextAlign.Center,
+                                color = if (isLocked) Color.Gray.copy(alpha = 0.5f) else Color.Unspecified
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -164,21 +208,13 @@ fun PersonalityCard(
                         text = personality.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = if (isLocked) {
-                            Color.Gray
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = personality.description,
                         fontSize = 13.sp,
-                        color = if (isLocked) {
-                            Color.Gray.copy(alpha = 0.7f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        }
+                        color = Color.White.copy(alpha = 0.85f)
                     )
                 }
 

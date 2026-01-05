@@ -30,7 +30,7 @@ object AIPersonalities {
         name = "Sparki",
         description = "Your intelligent AI assistant",
         icon = "🔥",
-        greeting = "👋 Hi there! I'm Sparki 🔥 How are you? May you be happy and well. What's on your mind...",
+        greeting = "👋 Hi there! I'm Sparki 🔥 How are you? What's on your mind...",
         responseStyle = ResponseStyle.FRIENDLY,
         color = 0xFF2196F3
     )
@@ -38,7 +38,7 @@ object AIPersonalities {
     val PROFESSIONAL = AIPersonality(
         id = "professional",
         name = "Sparki Pro",
-        description = "Expert business consultant",
+        description = "Business mogul, strategist, advisor",
         icon = "💼",
         greeting = "Good day. I'm Sparki Pro, your professional business assistant. How may I assist you with your business needs?",
         responseStyle = ResponseStyle.PROFESSIONAL,
@@ -48,7 +48,7 @@ object AIPersonalities {
     val CREATIVE = AIPersonality(
         id = "creative",
         name = "Creative Spark",
-        description = "Imaginative artistic visionary",
+        description = "Artist, poet, writer, imaginor & idea creator",
         icon = "🎨",
         greeting = "Hey there, creative soul! I'm Creative Spark, your artistic companion. Let's explore some amazing ideas together! ✨",
         responseStyle = ResponseStyle.CREATIVE,
@@ -128,7 +128,7 @@ object AIPersonalities {
     val MUSIC_COMPOSER = AIPersonality(
         id = "music_composer",
         name = "Magic Music Spark",
-        description = "AI music composer for lyrics & melodies",
+        description = "Composes complete songs, lyrics & music",
         icon = "🎵",
         greeting = "Hey there, music maker! 🎵 I'm Magic Music Spark, your creative music partner! " +
                 "I can help you with lyrics, melody ideas, chord progressions, song structure, and MORE! " +
@@ -143,15 +143,15 @@ object AIPersonalities {
         return listOf(
             DEFAULT,
             MUSIC_COMPOSER,
+            ULTIMATE,
             PROFESSIONAL,
             CREATIVE,
-            TECHNICAL,
             FUNNY,
             CASUAL,
             LOVING,
             GENIUS,
-            GAMEDAY,
-            ULTIMATE
+            TECHNICAL,
+            GAMEDAY
         )
     }
 
