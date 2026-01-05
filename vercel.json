@@ -63,6 +63,14 @@
     {
       "source": "/api/confirm-checkout",
       "destination": "/api/confirm-checkout.js"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
     }
   ]
 }
