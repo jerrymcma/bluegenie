@@ -1,6 +1,6 @@
 {
   "buildCommand": "cd sparkifire-web && npm install && npm run build",
-  "outputDirectory": "sparkifire-web/dist",
+  "outputDirectory": "dist",
   "installCommand": "cd sparkifire-web && npm install",
   "framework": null,
   "functions": {
