@@ -1,23 +1,22 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "cd sparkifire-web && npm install && npm run build",
+  "outputDirectory": "sparkifire-web/dist",
+  "installCommand": "cd sparkifire-web && npm install",
   "framework": null,
-  "rootDirectory": "sparkifire-web",
   "functions": {
-    "api/gemini.js": {
+    "sparkifire-web/api/gemini.js": {
       "maxDuration": 60
     },
-    "api/music.js": {
+    "sparkifire-web/api/music.js": {
       "maxDuration": 120
     },
-    "api/stripe-webhook.js": {
+    "sparkifire-web/api/stripe-webhook.js": {
       "maxDuration": 30
     },
-    "api/create-checkout.js": {
+    "sparkifire-web/api/create-checkout.js": {
       "maxDuration": 30
     },
-    "api/confirm-checkout.js": {
+    "sparkifire-web/api/confirm-checkout.js": {
       "maxDuration": 30
     }
   },
