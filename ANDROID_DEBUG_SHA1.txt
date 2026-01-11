@@ -1,0 +1,12 @@
+SHA-1 Fingerprint for Debug Build:
+4A:54:C8:78:1C:05:BA:AE:16:5F:A6:62:27:DF:0B:0F:57:D8:B8:46
+
+Package Name:
+com.sparkiai.app
+
+Instructions:
+1. Go to Google Cloud Console (APIs & Services > Credentials).
+2. Create or Edit the "Android" OAuth Client.
+3. Ensure the Package Name is "com.sparkiai.app".
+4. Ensure the SHA-1 Certificate Fingerprint matches the one above exactly.
+5. Save.

@@ -1,0 +1,12 @@
+SHA-1 Fingerprints for SparkiFire Android
+
+1. DEBUG Build (Running from Android Studio):
+SHA1: 4A:54:C8:78:1C:05:BA:AE:16:5F:A6:62:27:DF:0B:0F:57:D8:B8:46
+
+2. RELEASE Build (Signed APK/AAB):
+SHA1: 0A:69:33:3B:5A:AA:24:CA:49:BD:C5:75:8F:CE:35:72:BD:5A:02:FF
+
+INSTRUCTIONS:
+- If you are testing via Android Studio (Run button), ensure the DEBUG SHA-1 is registered in Google Cloud Console.
+- If you are installing the signed release APK, ensure the RELEASE SHA-1 is registered.
+- If Google Cloud says "Already exists", it means that specific SHA-1 is already used by another client in the list. Find it and ensure the package name is "com.sparkiai.app".
