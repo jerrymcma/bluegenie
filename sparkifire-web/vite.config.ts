@@ -14,7 +14,7 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     open: true,
-    strictPort: false
+    strictPort: true
   },
   define: {
     'process.env.VITE_CLAUDE_API_KEY': JSON.stringify(process.env.VITE_CLAUDE_API_KEY || ''),
