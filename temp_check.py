@@ -5,7 +5,7 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import urlencode
 
-config_path = Path('sparkifire-web/.env')
+config_path = Path('bluegenie-web/.env')
 key = os.environ.get('GEMINI_API_KEY') or os.environ.get('VITE_GEMINI_API_KEY')
 
 if not key and config_path.exists():
@@ -16,7 +16,7 @@ if not key and config_path.exists():
             break
 
 if not key:
-    raise SystemExit('No Gemini API key found in environment or sparkifire-web/.env')
+    raise SystemExit('No Gemini API key found in environment or bluegenie-web/.env')
 
 payload = {
     "contents": [

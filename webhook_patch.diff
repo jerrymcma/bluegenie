@@ -1,5 +1,5 @@
 *** Begin Patch
-*** Update File: sparkifire-web/api/stripe-webhook.js
+*** Update File: bluegenie-web/api/stripe-webhook.js
 @@
 -// IMPORTANT: Disable body parsing for Stripe webhooks
 -// Vercel needs the raw body to verify signatures

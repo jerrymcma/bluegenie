@@ -1,4 +1,4 @@
-const handler = require('../sparkifire-web/api/gemini.js');
+const handler = require('../bluegenie-web/api/gemini.js');
 
 module.exports = handler;
 

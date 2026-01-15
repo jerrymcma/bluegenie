@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd sparkifire-web && npm install && npm run build",
-  "outputDirectory": "sparkifire-web/dist",
-  "installCommand": "cd sparkifire-web && npm install",
+  "buildCommand": "cd bluegenie-web && npm install && npm run build",
+  "outputDirectory": "bluegenie-web/dist",
+  "installCommand": "cd bluegenie-web && npm install",
   "framework": null,
   "functions": {
     "api/gemini.js": {

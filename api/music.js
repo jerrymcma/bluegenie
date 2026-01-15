@@ -1,4 +1,4 @@
-const handler = require('../sparkifire-web/api/music.js');
+const handler = require('../bluegenie-web/api/music.js');
 
 module.exports = handler;
 

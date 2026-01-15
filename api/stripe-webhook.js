@@ -1,4 +1,4 @@
-const handler = require('../sparkifire-web/api/stripe-webhook.js');
+const handler = require('../bluegenie-web/api/stripe-webhook.js');
 
 module.exports = handler;
 

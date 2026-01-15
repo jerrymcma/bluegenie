@@ -4,7 +4,7 @@
 
 ### 1. 🎵 Music Generation Error: "Cannot reach Replicate"
 
-**Cause:** Missing `.env` file in `sparkifire-web/` directory.
+**Cause:** Missing `.env` file in `bluegenie-web/` directory.
 
 **Fix:** Created `.env` file with your Replicate API key from `local.properties`.
 
@@ -16,17 +16,17 @@
 
 ## What I Changed
 
-1. ✅ **Created:** `sparkifire-web/.env` with all API keys
-2. ✅ **Created:** `sparkifire-web/.env.example` as template
-3. ✅ **Updated:** `sparkifire-web/src/services/geminiService.ts`
+1. ✅ **Created:** `bluegenie-web/.env` with all API keys
+2. ✅ **Created:** `bluegenie-web/.env.example` as template
+3. ✅ **Updated:** `bluegenie-web/src/services/geminiService.ts`
     - Line 7: Changed `gemini-3-pro` → `gemini-1.5-pro`
     - Line 84: Removed "demo mode" error message
-4. ✅ **Built:** Fresh production build in `sparkifire-web/dist/`
+4. ✅ **Built:** Fresh production build in `bluegenie-web/dist/`
 
 ## Test Locally Right Now
 
 ```powershell
-cd sparkifire-web
+cd bluegenie-web
 npm run preview
 ```
 
@@ -40,14 +40,14 @@ Then open http://localhost:4173 and test:
 ### Option 1: Vercel CLI (Fastest)
 
 ```powershell
-cd sparkifire-web
+cd bluegenie-web
 vercel --prod
 ```
 
 ### Option 2: Vercel Dashboard
 
 1. Go to https://vercel.com/dashboard
-2. Open your **sparkifire-web** project
+2. Open your **bluegenie-web** project
 3. Go to **Settings** → **Environment Variables**
 4. Add these (use your actual keys from local.properties):
    - `VITE_GEMINI_API_KEY` = `your-gemini-api-key`
@@ -68,18 +68,18 @@ Visit https://sparkiai.app and verify:
 
 **Created:**
 
-- `sparkifire-web/.env` (with API keys - DO NOT commit to Git)
-- `sparkifire-web/.env.example` (safe to commit)
+- `bluegenie-web/.env` (with API keys - DO NOT commit to Git)
+- `bluegenie-web/.env.example` (safe to commit)
 - `FIXED_WEB_APP_ISSUES.md` (detailed documentation)
 - `DEPLOY_FIXES_TO_SPARKIAI_APP.md` (deployment guide)
 
 **Modified:**
 
-- `sparkifire-web/src/services/geminiService.ts` (fixed model name)
+- `bluegenie-web/src/services/geminiService.ts` (fixed model name)
 
 **Built:**
 
-- `sparkifire-web/dist/` (production build ready to deploy)
+- `bluegenie-web/dist/` (production build ready to deploy)
 
 ## ⚠️ Important Security Note
 
@@ -89,11 +89,11 @@ If using Git:
 
 ```bash
 # Add .env to .gitignore (should already be there)
-echo ".env" >> sparkifire-web/.gitignore
+echo ".env" >> bluegenie-web/.gitignore
 
 # Commit other changes (NOT .env)
-git add sparkifire-web/src/services/geminiService.ts
-git add sparkifire-web/.env.example
+git add bluegenie-web/src/services/geminiService.ts
+git add bluegenie-web/.env.example
 git commit -m "Fix: Update to Gemini 1.5 Pro and add Replicate support"
 git push
 ```
@@ -104,13 +104,13 @@ In Vercel, set environment variables through the dashboard instead.
 
 1. **Test locally** (optional but recommended):
    ```powershell
-   cd sparkifire-web
+   cd bluegenie-web
    npm run preview
    ```
 
 2. **Deploy to production:**
    ```powershell
-   cd sparkifire-web
+   cd bluegenie-web
    vercel --prod
    ```
    OR use Vercel dashboard method above.
@@ -124,7 +124,7 @@ In Vercel, set environment variables through the dashboard instead.
 
 - **Detailed info:** See `FIXED_WEB_APP_ISSUES.md`
 - **Deployment guide:** See `DEPLOY_FIXES_TO_SPARKIAI_APP.md`
-- **Test locally first:** `cd sparkifire-web && npm run preview`
+- **Test locally first:** `cd bluegenie-web && npm run preview`
 
 ---
 

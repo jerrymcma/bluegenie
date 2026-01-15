@@ -1,4 +1,4 @@
-const handler = require('../sparkifire-web/api/create-checkout.js');
+const handler = require('../bluegenie-web/api/create-checkout.js');
 
 module.exports = handler;
 
