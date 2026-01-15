@@ -163,6 +163,15 @@ export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatI
         <div className="flex items-center mt-3 gap-3">
             {/* Left-side icon buttons */}
             <div className="flex items-center gap-3">
+                {/* Music Button on left */}
+                <button
+                    onClick={onMusicClick}
+                    className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
+                    title="Generate Music"
+                >
+                    <Music4 className="w-5 h-5" />
+                </button>
+
                 {/* Image/Tools Button with Popover */}
                 <div className="relative">
                     <button
@@ -224,14 +233,6 @@ export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatI
                     <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
                 </button>
 
-                {/* Music Button moved here */}
-                <button
-                    onClick={onMusicClick}
-                    className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-2xl hover:bg-blue-50 hover:border-blue-600 transition-all shadow-md hover:shadow-lg"
-                    title="Generate Music"
-                >
-                    <Music4 className="w-6 h-6" />
-                </button>
             </div>
 
             {/* Send Button */}
