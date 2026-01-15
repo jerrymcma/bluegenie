@@ -21,7 +21,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.sparkiai.app"
+        applicationId = "com.bluegenie.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 44

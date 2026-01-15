@@ -51,8 +51,8 @@ ChatViewModel:    Email: [email@example.com]
 ChatViewModel: 📱 Initiating Stripe checkout...
 StripeCheckout: 🛒 Creating Stripe checkout session for user: [uuid]
 StripeCheckout:    Email: [email@example.com]
-StripeCheckout:    Web App URL: https://sparkiai.app
-StripeCheckout: 🌐 Calling API: https://sparkiai.app/api/create-checkout
+StripeCheckout:    Web App URL: https://bluegeniemagic.com
+StripeCheckout: 🌐 Calling API: https://bluegeniemagic.com/api/create-checkout
 StripeCheckout:    userId: [uuid]
 StripeCheckout:    customerEmail: [email@example.com]
 StripeCheckout: 📤 Request body: {"userId":"...","customerEmail":"..."}
@@ -141,7 +141,7 @@ $body = @{
     customerEmail = "test@example.com"
 } | ConvertTo-Json
 
-$response = Invoke-WebRequest -Uri "https://sparkiai.app/api/create-checkout" `
+$response = Invoke-WebRequest -Uri "https://bluegeniemagic.com/api/create-checkout" `
     -Method POST `
     -Headers @{"Content-Type"="application/json"} `
     -Body $body `
@@ -159,7 +159,7 @@ Response: {"url":"https://checkout.stripe.com/c/pay/cs_test_..."}
 
 ### 7. Test on Web App (for comparison)
 
-1. Open https://sparkiai.app in browser
+1. Open https://bluegeniemagic.com in browser
 2. Sign in with same Google account
 3. Try to upgrade to premium
 4. Verify it works on web
@@ -219,13 +219,13 @@ If testing on real device:
 Go through this checklist if checkout isn't working:
 
 1. **Configuration**
-   - [ ] `WEB_APP_URL` in `local.properties` is `https://sparkiai.app`
+   - [ ] `WEB_APP_URL` in `local.properties` is `https://bluegeniemagic.com`
    - [ ] Gradle sync completed successfully
    - [ ] App has been rebuilt after changing configuration
 
 2. **Network**
    - [ ] Device has internet connection
-   - [ ] Can open https://sparkiai.app in device browser
+   - [ ] Can open https://bluegeniemagic.com in device browser
    - [ ] No VPN or firewall blocking requests
    - [ ] Not behind corporate proxy
 
@@ -264,12 +264,12 @@ If you've gone through all the steps and it still doesn't work:
 
 3. **Try simple tests**:
    - Does browser open when clicking a link in chat?
-   - Can you open https://sparkiai.app manually in browser?
+   - Can you open https://bluegeniemagic.com manually in browser?
    - Does Google Sign-In work?
    - Can you generate free songs?
 
 4. **Compare with web**:
-   - Open https://sparkiai.app in device browser
+   - Open https://bluegeniemagic.com in device browser
    - Try upgrade flow on web
    - Check browser console for errors
    - Compare network requests
@@ -286,7 +286,7 @@ Before diving deep into debugging, try these quick fixes:
    ```
 
 2. **Clear App Data**
-   - Settings > Apps > SparkiFire
+   - Settings > Apps > Blue Genie
    - Storage > Clear Storage
    - Cache > Clear Cache
    - Restart app and sign in again

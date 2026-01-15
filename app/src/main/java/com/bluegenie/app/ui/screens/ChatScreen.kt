@@ -292,7 +292,7 @@ fun ChatScreen(
         }
     }
 
-    val sparkSnippet = "✨ Hey Blue Genie ✨💜, let's summon a Genius Genie Idea ✨ with your magic lamp! ✨💜"
+    val sparkSnippet = "✨ Hey Blue Genie ✨🔮, let's summon a Genius Genie Idea ✨ with your crystal ball! ✨🔮"
 
     var lastLibraryCount by remember { mutableIntStateOf(0) }
     var highlightMusicLibrary by remember { mutableStateOf(false) }
@@ -424,9 +424,9 @@ fun ChatScreen(
                         },
                         onFavoriteClick = { messageId ->
                             if (message.isBookmarked) {
-                                Toast.makeText(context, "Removed from Favorite Rubs", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Removed from Favorites", Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(context, "Saved to Favorite Rubs", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Saved to Favorites", Toast.LENGTH_SHORT).show()
                             }
                             viewModel.toggleFavorite(messageId)
                         },
@@ -1175,7 +1175,7 @@ fun ChatScreen(
                             modifier = Modifier.weight(1f)
                         )
                         AttachmentOptionButton(
-                            label = "Favorite Rubs",
+                            label = "Favorites",
                             icon = Icons.AutoMirrored.Filled.MenuBook,
                             onClick = {
                                 showAttachmentOptions = false
@@ -1287,7 +1287,7 @@ fun ChatScreen(
                 ) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "🪔 Favorite Rubs 🧞",
+                        text = "✨🔮 Favorites 🧞",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
@@ -1479,7 +1479,7 @@ fun WelcomeMessage(
                     fontWeight = FontWeight.Bold,
                     color = TextOnAIMessage)
                 Spacer(modifier = Modifier.width(6.dp))
-                PulsatingLampIcon()
+                PulsatingCrystalBallIcon()
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -1491,8 +1491,8 @@ fun WelcomeMessage(
     }
 }
 @Composable
-private fun PulsatingLampIcon() {
-    val infiniteTransition = rememberInfiniteTransition(label = "welcome-lamp")
+private fun PulsatingCrystalBallIcon() {
+    val infiniteTransition = rememberInfiniteTransition(label = "welcome-crystal-ball")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.15f,
@@ -1500,7 +1500,7 @@ private fun PulsatingLampIcon() {
             animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "lamp-scale"
+        label = "crystal-ball-scale"
     )
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.85f,
@@ -1509,12 +1509,12 @@ private fun PulsatingLampIcon() {
             animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "lamp-alpha"
+        label = "crystal-ball-alpha"
     )
 
     Image(
-        painter = painterResource(id = R.drawable.lamp_icon),
-        contentDescription = "Lamp",
+        painter = painterResource(id = R.drawable.crystal_ball_icon),
+        contentDescription = "Crystal Ball",
         modifier = Modifier
             .size(28.dp)
             .scale(scale)
@@ -1660,4 +1660,3 @@ fun AttachmentOptionButton(
         }
     }
 }
-

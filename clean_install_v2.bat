@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 echo ========================================
-echo      SparkiFire Clean Install Tool v2
+echo      Blue Genie Clean Install Tool v2
 echo ========================================
 
 echo.
@@ -32,7 +32,7 @@ echo.
 echo 2. Uninstalling Old Version...
 echo ----------------------------------------
 echo (It is okay if this fails if the app is not installed)
-"%ADB_PATH%" uninstall com.sparkiai.app
+"%ADB_PATH%" uninstall com.bluegenie.app
 
 echo.
 echo 3. Cleaning Project...
@@ -71,7 +71,7 @@ if %ERRORLEVEL% EQU 0 (
     echo ========================================
     echo.
     echo Please open the app on your phone.
-    echo You should see "Welcome to Sparki AI (v1.6)!"
+    echo You should see "Welcome to Blue Genie (v1.6)!"
 ) else (
     echo.
     echo [ERROR] Installation failed.

@@ -1,4 +1,4 @@
-# SparkiFire iOS - Quick Start Checklist 🚀
+# Blue Genie iOS - Quick Start Checklist 🚀
 
 **Purpose:** Action items for Android team and iOS developer  
 **Timeline:** 4-6 weeks to launch
@@ -64,7 +64,7 @@
 - [ ] **Clone Android repository**
   ```bash
   git clone [REPOSITORY_URL]
-  cd SparkiFire
+  cd BlueGenie
   ```
 
 - [ ] **Study Android codebase**
@@ -87,13 +87,13 @@
     - Minimum iOS: 16.0
 
 - [ ] **Configure project settings**
-    - Bundle ID: `com.sparkiai.sparkifire.ios`
+    - Bundle ID: `com.bluegenie.bluegenie.ios`
     - Team: Your Apple Developer Account
     - Deployment target: iOS 16.0+
 
 - [ ] **Set up folder structure**
   ```
-  SparkiFire-iOS/
+  BlueGenie-iOS/
   ├── Models/
   ├── ViewModels/
   ├── Views/
@@ -282,7 +282,7 @@
 #### Day 16-17: Personality System
 
 - [ ] **Complete all 6 personalities**
-    - SparkiFire (default)
+    - Blue Genie (default)
     - Alex Pro (professional)
     - Luna Creative (artistic)
     - Code Master (technical)
@@ -509,7 +509,7 @@
     - Keep under character limits
 
 - [ ] **Prepare metadata**
-    - App name: "SparkiFire AI"
+    - App name: "Blue Genie AI"
     - Subtitle (30 chars)
     - Keywords
     - Category: Productivity or Utilities
@@ -529,8 +529,7 @@
     - Archive build in Xcode
     - Validate
     - Upload to App Store Connect
-
-- [ ] **Complete App Store listing**
+    - Complete App Store listing
     - Screenshots
     - Description
     - Privacy policy URL
@@ -539,6 +538,7 @@
 - [ ] **Submit for review**
     - Answer questions
     - Wait for review (1-3 days)
+    - Fix any problems
 
 - [ ] **Monitor submission**
     - Check for issues
@@ -696,6 +696,6 @@ Week 3:
 
 ---
 
-**Let's build SparkiFire for iOS! 🚀🔥**
+**Let's build Blue Genie for iOS! 🚀🔥**
 
 Questions? Contact the Android development team or refer to the comprehensive guides.

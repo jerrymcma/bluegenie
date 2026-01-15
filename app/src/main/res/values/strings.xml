@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Blue Genie AI</string>
+    <string name="app_name">Blue Genie</string>
     <string name="welcome_title">Welcome to Blue Genie (v1.6)! ✨</string>
     <string name="welcome_message">I\'m here to help you with any questions or tasks you have. How can I assist you today?</string>
     <string name="message_hint">Type your message...</string>

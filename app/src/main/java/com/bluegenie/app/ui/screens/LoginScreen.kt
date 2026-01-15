@@ -24,6 +24,7 @@ import com.bluegenie.app.utils.GoogleSignInManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
@@ -107,7 +108,7 @@ fun LoginScreen(
         ) {
             // App Logo/Icon
             Image(
-                painter = painterResource(id = R.mipmap.ic_launcher),
+                painter = painterResource(id = R.drawable.bluegenie_logo),
                 contentDescription = "Blue Genie Logo",
                 modifier = Modifier
                     .size(120.dp)
@@ -118,7 +119,7 @@ fun LoginScreen(
 
             // App Title
             Text(
-                text = "Blue Genie",
+                text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -236,4 +237,3 @@ fun LoginScreen(
         }
     }
 }
-

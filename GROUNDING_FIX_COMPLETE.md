@@ -30,7 +30,7 @@ instead"
 
 ## Changes Made
 
-### File: `app/src/main/java/com/sparkiai/app/network/GeminiAIService.kt`
+### File: `app/src/main/java/com/bluegenie/app/network/GeminiAIService.kt`
 
 **OLD Syntax (Incorrect):**
 
@@ -105,7 +105,7 @@ APK: app-debug.apk
 
 ### Test the App:
 
-1. **Open SparkiFire app** on your device (RFCY60NVM3N)
+1. **Open Blue Genie app** on your device (RFCY60NVM3N)
 2. **Ask:** "Who is US President today Nov 16 2025?"
 3. **Expected Response:** Should mention **Donald Trump** (correct answer)
 4. **Should NOT say:**
@@ -214,7 +214,7 @@ Android Studio's built-in terminal already has JAVA_HOME set.
 ### Device Info:
 
 - **Device ID:** RFCY60NVM3N
-- **App Package:** com.sparkiai.app.debug
+- **App Package:** com.bluegenie.app.debug
 - **APK Location:** `app/build/outputs/apk/debug/app-debug.apk`
 
 ### Commands:

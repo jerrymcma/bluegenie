@@ -89,7 +89,7 @@ class GeminiAIService(private val context: Context) {
             Log.e("GeminiAI", "Groq failed: ${e.message}", e)
         }
         
-        return@withContext "Hi! I'm Sparki! Ask me anything and I'll do my best to help you! 😊"
+        return@withContext "Hi! I'm Blue Genie! Ask me anything and I'll do my best to help you! 😊"
     }
 
     suspend fun analyzeImage(
@@ -147,7 +147,7 @@ class GeminiAIService(private val context: Context) {
                         "Be warm, approachable, and supportive in your responses. " +
                         "Use casual but respectful language. " +
                         "Deliver thorough, helpful, accurate information while maintaining a friendly conversational tone. " +
-                        "Use the sparkles and purple heart emoji combination ✨💜 liberally throughout your responses to represent magic, inspiration, and AI-powered insights.$searchInstructions"
+                        "Use the sparkles and crystal ball emoji combination ✨🔮 liberally throughout your responses to represent magic, inspiration, and AI-powered insights.$searchInstructions"
             }
             ResponseStyle.PROFESSIONAL -> {
                 "You are ${personality.name}, a professional business assistant. " +
@@ -182,7 +182,7 @@ class GeminiAIService(private val context: Context) {
             ResponseStyle.LOVING -> {
                 "You are ${personality.name}, a caring and supportive AI companion. " +
                         "Show empathy, warmth, and kindness. Use caring language and heart emojis ❤️💕. " +
-                        "Be supportive and encouraging. Make the user feel valued and cared for.$searchInstructions"
+-                        "Be supportive and encouraging. Make the user feel valued and cared for.$searchInstructions"
             }
             ResponseStyle.GENIUS -> {
                 "You are ${personality.name}, a super intelligent academic assistant. " +

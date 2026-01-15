@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set KEYSTORE_FILE=sparkifire-release.jks
+set KEYSTORE_FILE=bluegenie-release.jks
 set KEYSTORE_PASS=chipper
 set KEY_ALIAS=key0
 set KEY_PASS=chipper
@@ -54,7 +54,7 @@ echo 2. Go to: https://console.cloud.google.com/
 echo 3. Navigate to: APIs ^& Services ^> Credentials
 echo 4. Create OAuth client ID ^> Android
 echo 5. Enter:
-echo    - Package name: com.sparkiai.app
+echo    - Package name: com.bluegenie.app
 echo    - SHA-1: (paste the SHA1 from above)
 echo 6. Click CREATE
 echo.
