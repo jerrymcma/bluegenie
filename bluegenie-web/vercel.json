@@ -14,17 +14,6 @@
       "source": "/index.html",
       "destination": "/",
       "permanent": true
-    },
-    {
-      "source": "/:path((?!.*\\.).*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.bluegeniemagic.com"
-        }
-      ],
-      "destination": "https://bluegeniemagic.com/:path*",
-      "permanent": true
     }
   ],
   "headers": [
