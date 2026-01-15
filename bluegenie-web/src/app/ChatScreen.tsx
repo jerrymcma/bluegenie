@@ -156,7 +156,7 @@ export function ChatScreen() {
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-blue-500 flex items-center gap-2">
               <span className="truncate">{currentPersonality.name}</span>
-              <span aria-hidden="true">🔮✨</span>
+              <span aria-hidden="true" className="text-xl leading-none">🔮✨</span>
             </h1>
             {isSpeaking && (
               <Volume2 className="w-5 h-5 text-blue-500 animate-pulse flex-shrink-0" />
