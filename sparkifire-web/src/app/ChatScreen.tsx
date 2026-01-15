@@ -99,7 +99,7 @@ export function ChatScreen() {
 
   const handleMusicButtonClick = () => {
     if (isSparki) {
-      // Switch to Magic Music Sparki personality
+      // Switch to Magic Music Blue Genie personality
       import('../data/personalities').then(({ personalities }) => {
         const musicSparki = personalities.MUSIC;
         if (musicSparki) {
@@ -122,8 +122,8 @@ export function ChatScreen() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'My Sparki AI Music',
-          text: `Check out this music I generated with Sparki AI: ${music.prompt.substring(0, 100)}`,
+          title: 'My Blue Genie AI Music',
+          text: `Check out this music I generated with Blue Genie AI: ${music.prompt.substring(0, 100)}`,
           url: music.url,
         });
       } else {
@@ -162,6 +162,13 @@ export function ChatScreen() {
             {isSpeaking && (
               <Volume2 className="w-5 h-5 text-blue-500 animate-pulse flex-shrink-0" />
             )}
+            <video
+              autoPlay
+              loop
+              muted
+              className="w-6 h-6 flex-shrink-0"
+              src="/sparkles.mp4"
+            />
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
             {isSparki ? (
@@ -184,7 +191,7 @@ export function ChatScreen() {
             <button
               onClick={handleMusicButtonClick}
               className="w-10 h-10 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 hover:border-blue-600 transition-all shadow-md hover:shadow-lg"
-              title={isSparki ? "Go to Music Sparki" : "Generate Music"}
+              title={isSparki ? "Go to Music Genie" : "Generate Music"}
             >
               <Music4 className="w-5 h-5" />
             </button>

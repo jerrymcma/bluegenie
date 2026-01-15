@@ -1,7 +1,8 @@
 @echo off
 setlocal
+cd /d "%~dp0"
 echo ========================================
-echo      SparkiFire Build Fix & Diagnose
+echo      SparkiFire Build Fix ^& Diagnose
 echo ========================================
 
 echo.
@@ -28,7 +29,14 @@ echo.
 
 echo 2. Cleaning Project...
 echo ----------------------------------------
-call gradlew clean
+if exist gradlew.bat (
+    echo [OK] Found gradlew.bat
+) else (
+    echo [ERROR] gradlew.bat not found in %CD%
+    goto :Error
+)
+
+call gradlew.bat clean
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo [ERROR] Clean failed!
@@ -38,7 +46,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo 3. Building Debug APK...
 echo ----------------------------------------
-call gradlew assembleDebug
+call gradlew.bat assembleDebug
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo [ERROR] Build failed!
@@ -53,7 +61,7 @@ echo.
 echo Please run the app on your device now.
 echo.
 echo If you have a device connected, I will try to install it...
-call gradlew installDebug
+call gradlew.bat installDebug
 echo.
 pause
 exit /b 0

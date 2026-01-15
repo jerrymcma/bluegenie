@@ -1,8 +1,8 @@
 @echo off
 setlocal
 
-REM Set correct JAVA_HOME
-set "JAVA_HOME=C:\Program Files\Java\jdk-21.0.9+10"
+REM Set correct JAVA_HOME (using short path to avoid + sign issues)
+set "JAVA_HOME=C:\PROGRA~1\Java\JDK-21~1.9_1"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 
 echo Building SparkiFire AAB...

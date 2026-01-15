@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 android {
@@ -17,15 +17,15 @@ android {
         }
     }
 
-    namespace = "com.sparkiai.app"
+    namespace = "com.bluegenie.app"
     compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sparkiai.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 34
-        versionName = "3.2.0"
+        versionCode = 44
+        versionName = "44.0.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -58,6 +58,13 @@ android {
             "String",
             "SUNO_API_KEY",
             "\"${localProperties.getProperty("SUNO_API_KEY", "")}\""
+        )
+
+        // Groq API Key for LLM responses
+        buildConfigField(
+            "String",
+            "GROQ_API_KEY",
+            "\"${localProperties.getProperty("GROQ_API_KEY", "")}\""
         )
 
         // Google OAuth Client IDs
@@ -101,7 +108,7 @@ android {
         buildConfigField(
             "String",
             "WEB_APP_URL",
-            "\"${localProperties.getProperty("WEB_APP_URL", "https://sparkiai.vercel.app")}\""
+            "\"${localProperties.getProperty("WEB_APP_URL", "https://bluegeniemagic.com")}\""
         )
     }
 
@@ -134,16 +141,17 @@ android {
         }
         debug {
             isMinifyEnabled = false
-            // applicationIdSuffix = ".debug"  // Commented out - must match Google OAuth package name
+            // applicationIdSuffix = ".debug"  // Comment out - must match Google OAuth package name
             versionNameSuffix = "-debug"
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -185,6 +193,9 @@ dependencies {
     // Navigation Compose
     implementation(libs.navigation.compose)
 
+    // Google AI Client SDK for Gemini
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
@@ -207,6 +218,7 @@ dependencies {
 
     // Image loading
     implementation(libs.coil.compose)
+    implementation("io.coil-kt:coil-gif:2.7.0")
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

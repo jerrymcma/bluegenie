@@ -41,7 +41,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Sparki AI',
+          title: 'Blue Genie AI',
           text: message.content,
         });
       } else {
@@ -131,7 +131,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                       className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md transition-colors text-left"
                     >
                       <Bookmark className={`w-4 h-4 ${message.isFavorite ? 'text-amber-500' : 'text-gray-600'}`} />
-                      <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorite Spark'}</span>
+                      <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorite Genie Rub'}</span>
                     </button>
                   </div>
                 )}

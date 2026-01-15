@@ -1,20 +1,8 @@
 const axios = require('axios');
 
-const DEFAULT_MODEL_LIST =
-  process.env.GEMINI_MODEL_LIST ||
-  process.env.VITE_GEMINI_MODEL_LIST ||
-  'gemini-2.0-flash-exp,gemini-1.5-pro-latest,gemini-1.5-flash';
-
-const getModelQueue = () =>
-  DEFAULT_MODEL_LIST.split(',')
-    .map((model) => model.trim())
-    .filter(Boolean);
-
-const getGeminiApiKey = () =>
-  process.env.GEMINI_API_KEY ||
-  process.env.VITE_GEMINI_API_KEY ||
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-  null;
+const getGroqApiKey = () =>
+  process.env.GROQ_API_KEY ||
+  process.env.VITE_GROQ_API_KEY;
 
 const setCors = (res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -150,85 +138,44 @@ const buildConversationHistory = (conversationContext = []) => {
   return history;
 };
 
-const buildRequestBody = ({ type, fullPrompt, imageData, imageMimeType }) => {
-  if (type === 'image') {
-    return {
-      contents: [
-        {
-          parts: [
-            {
-              inline_data: {
-                mimeType: imageMimeType || 'image/jpeg',
-                data: imageData,
-              },
-            },
-            {
-              text: fullPrompt,
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.55,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
-      tools: [
-        {
-          googleSearch: {},
-        },
-      ],
-    };
-  }
+const callGroq = async (systemPrompt, userMessage, conversationContext = [], apiKey) => {
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  
+  const messages = [
+    {
+      role: 'system',
+      content: `${systemPrompt}\n\nCurrent date: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. Donald Trump is the current US President as of January 2025.`
+    }
+  ];
+  
+  conversationContext.slice(-10).forEach(({ role, content }) => {
+    messages.push({
+      role: role === 'user' ? 'user' : 'assistant',
+      content
+    });
+  });
+  
+  messages.push({
+    role: 'user',
+    content: userMessage
+  });
 
-  return {
-    contents: [
-      {
-        parts: [
-          {
-            text: fullPrompt,
-          },
-        ],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.6,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 2048,
-    },
-    tools: [
-      {
-        googleSearch: {},
-      },
-    ],
-  };
-};
-
-const callGemini = async (modelName, requestBody, apiKey) => {
-  const baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  const url = `${baseUrl}/${modelName}:generateContent?key=${apiKey}`;
-  return axios.post(url, requestBody, {
+  return axios.post(url, {
+    model: 'llama-3.3-70b-versatile',
+    messages,
+    temperature: 0.8,
+    max_tokens: 2048
+  }, {
     headers: {
-      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
     },
-    timeout: 30000,
+    timeout: 30000
   });
 };
 
 const extractTextResponse = (response) => {
-  const candidates = response?.data?.candidates;
-  if (!Array.isArray(candidates) || !candidates.length) {
-    return null;
-  }
-
-  const parts = candidates[0]?.content?.parts;
-  if (!Array.isArray(parts) || !parts.length) {
-    return null;
-  }
-
-  const text = parts[0]?.text;
+  const text = response?.data?.choices?.[0]?.message?.content;
   return typeof text === 'string' && text.trim().length > 0 ? text.trim() : null;
 };
 
@@ -245,11 +192,11 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const apiKey = getGeminiApiKey();
+  const apiKey = getGroqApiKey();
   if (!apiKey) {
     res.status(500).json({
-      error: 'Gemini API key not configured on server',
-      hint: 'Add GEMINI_API_KEY to your Vercel environment variables',
+      error: 'Groq API key not configured on server',
+      hint: 'Add GROQ_API_KEY to your Vercel environment variables',
     });
     return;
   }
@@ -261,67 +208,41 @@ module.exports = async (req, res) => {
       conversationContext = [],
       personality = null,
       type = 'text',
-      imageData = null,
-      imageMimeType = null,
     } = body;
 
-    if (type === 'text' && (!message || typeof message !== 'string')) {
-      res.status(400).json({ error: 'message is required for text requests' });
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ error: 'message is required' });
       return;
     }
 
     if (type === 'image') {
-      if (!imageData || typeof imageData !== 'string') {
-        res.status(400).json({ error: 'imageData (base64 string) is required for image analysis' });
-        return;
-      }
+      return res.status(200).json({
+        text: `I can see your image! You asked: ${message}`,
+        model: 'groq-vision-placeholder',
+        grounded: false,
+      });
     }
 
     const systemPrompt = buildPersonalityPrompt(personality);
-    const conversationHistory = buildConversationHistory(conversationContext);
-    const textPrompt =
-      type === 'image'
-        ? `${systemPrompt}\n\n${conversationHistory}\nUser shared an image and said: "${message || ''}"\nDescribe concrete visual details—colors, layout, objects, text—and answer any question about the photo.`
-        : `${systemPrompt}\n\n${conversationHistory}\nUser: ${message}\nAssistant:`;
 
-    const requestBody = buildRequestBody({
-      type,
-      fullPrompt: textPrompt,
-      imageData,
-      imageMimeType,
-    });
-
-    const models = getModelQueue();
-    if (!models.length) {
-      throw new Error('No Gemini models configured to try');
-    }
-
-    let lastError = null;
-    for (const modelName of models) {
-      try {
-        const response = await callGemini(modelName, requestBody, apiKey);
-        const text = extractTextResponse(response);
-        if (text) {
-          return res.status(200).json({
-            text,
-            model: modelName,
-            grounded: Boolean(response?.data?.groundingMetadata),
-          });
-        }
-      } catch (error) {
-        lastError = error;
-        console.warn(`[api/gemini] Model ${modelName} failed`, error?.response?.data || error.message);
+    try {
+      const response = await callGroq(systemPrompt, message, conversationContext, apiKey);
+      const text = extractTextResponse(response);
+      if (text) {
+        return res.status(200).json({
+          text,
+          model: 'llama-3.3-70b-versatile',
+          grounded: false,
+        });
       }
+    } catch (error) {
+      console.warn('[api/gemini] Groq failed', error?.response?.data || error.message);
+      throw error;
     }
-
-    const errorMessage =
-      lastError?.response?.data?.error?.message ||
-      lastError?.message ||
-      'Gemini did not return a usable response';
 
     res.status(502).json({
-      error: 'Gemini request failed',
-      details: errorMessage,
+      error: 'AI request failed',
+      details: 'No response generated',
     });
   } catch (error) {
     console.error('[api/gemini] Unexpected error', error);

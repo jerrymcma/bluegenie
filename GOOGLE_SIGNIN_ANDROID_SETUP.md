@@ -18,7 +18,7 @@ cd C:\Users\Jerry\AndroidStudioProjects\SparkiFire
 
 Look for the **SHA-1** under `Variant: debug`. Copy it. It looks like:
 ```
-SHA1: A1:B2:C3:D4:E5:F6:...
+SHA1: 4A:54:C8:78:1C:05:BA:AE:16:5F:A6:62:27:DF:0B:0F:57:D8:B8:46
 ```
 
 ### For Release Build (when you publish to Play Store)

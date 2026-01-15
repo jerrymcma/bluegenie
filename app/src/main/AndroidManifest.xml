@@ -17,6 +17,10 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
+    <!-- Explicitly remove permissions that might be added by dependencies -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -38,11 +42,11 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/blue_genie_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/blue_genie_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SparkiAI"
+        android:theme="@style/Theme.BlueGenie"
         android:networkSecurityConfig="@xml/network_security_config">
         <provider
             android:name="androidx.core.content.FileProvider"

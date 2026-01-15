@@ -77,8 +77,8 @@ module.exports = async (req, res) => {
       ],
       customer_email: customerEmail,
       client_reference_id: userId, // Store user ID to activate premium after payment
-      success_url: `${req.headers.origin || 'https://sparkiai.app'}?session_id={CHECKOUT_SESSION_ID}&success=true`,
-      cancel_url: `${req.headers.origin || 'https://sparkiai.app'}?canceled=true`,
+      success_url: `${req.headers.origin || 'https://bluegeniemagic.com'}?session_id={CHECKOUT_SESSION_ID}&success=true`,
+      cancel_url: `${req.headers.origin || 'https://bluegeniemagic.com'}?canceled=true`,
       metadata: {
         userId,
         stripeMode: STRIPE_MODE,

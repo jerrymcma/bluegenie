@@ -70,7 +70,7 @@ export function PremiumUpgradeModal({
                 <Sparkles className="w-4 h-4 text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="text-blue-600 font-semibold leading-tight">Unlock All 11 Personalities</p>
+                <p className="text-blue-600 font-semibold leading-tight">Unlock all 11 Sparki Ai Models</p>
                 <p className="text-sm text-blue-600">Including Sparki Ultimate!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -82,7 +82,7 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">50 Songs per Month</p>
-                <p className="text-sm text-blue-600">Sparki-generated music!</p>
+                <p className="text-sm text-blue-600">Sparki-Generated Music!</p>
               </div>
               <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
             </div>
@@ -93,9 +93,9 @@ export function PremiumUpgradeModal({
               </div>
               <div className="flex-1">
                 <p className="text-blue-600 font-semibold">Unlimited Messages</p>
-                <p className="text-sm text-blue-600">Chat as much as you want!</p>
+                <p className="text-sm text-blue-600">Premium Chat Memory and Conversation!</p>
               </div>
-              <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+              <Check className="w-9 h-9 text-green-500 flex-shrink-0" />
             </div>
           </div>
 
@@ -104,9 +104,9 @@ export function PremiumUpgradeModal({
             onClick={onUpgrade}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-bold text-lg flex items-center justify-center gap-2"
           >
-            <Crown className="w-5 h-5" />
+            <Crown className="w-7 h-7" />
             <span>
-              {isRenewal ? `Renew for ${PREMIUM_PRICE_LABEL}` : `Upgrade for ${PREMIUM_PRICE_LABEL}`}
+              {isRenewal ? `Renew for ${PREMIUM_PRICE_LABEL}` : `Upgrade`}
             </span>
           </button>
 

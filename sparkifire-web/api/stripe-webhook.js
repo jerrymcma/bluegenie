@@ -162,6 +162,44 @@ async function handleSubscriptionUpdate(subscription) {
 
 async function handleSubscriptionDeleted(subscription) {
   console.log('Subscription deleted:', subscription.id);
-  // Handle subscription cancellation if needed
-  // You might want to deactivate premium here
+  const customerId = subscription.customer;
+
+  if (!customerId) {
+    console.error('❌ Missing customer ID in subscription deleted event');
+    return;
+  }
+
+  try {
+    const { data: user, error: fetchError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single();
+
+    if (fetchError || !user) {
+      console.error('❌ Error fetching user profile by stripe_customer_id:', fetchError);
+      throw new Error('User profile not found for stripe_customer_id: ' + customerId);
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        is_premium: false,
+        songs_this_period: 0,
+        subscription_status: 'canceled',
+        subscription_end_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('❌ Error deactivating premium status:', updateError);
+      throw updateError;
+    }
+
+    console.log('✅ Premium deactivated successfully for user:', user.id);
+  } catch (error) {
+    console.error('❌ Error in handleSubscriptionDeleted:', error);
+    throw error;
+  }
 }

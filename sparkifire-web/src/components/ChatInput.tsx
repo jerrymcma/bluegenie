@@ -11,7 +11,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
-  const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
+  const { sendMessage, isLoading, isListening, setIsListening } from useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -21,7 +21,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const SPARK_IDEA_PROMPT =
-    '✨ Hey Sparki, how about igniting an original Spark Idea! (Press send). ✨';
+    "👋 Hey Blue Genie ✨🔮, how's about creating a Genius Genie ✨🔮 idea with your crystal ball  ✨🔮 ✨✨ (Press send)";
 
   const handleSend = () => {
     if ((messageText.trim() || selectedImagePreview) && !isLoading) {
@@ -167,7 +167,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                     <button
                         onClick={() => setShowImageOptions(!showImageOptions)}
                         className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
-                        title="Open Sparki tools"
+                        title="Open Blue Genie tools"
                     >
                         <Plus className="w-5 h-5 text-yellow-300" strokeWidth={3} />
                     </button>
@@ -192,7 +192,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                               </button>
                               <button onClick={handleFavoritesShortcut} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
                                 <FlashOnIcon className="w-5 h-5" color="#FFB300" />
-                                <span className="text-xs text-gray-700 font-medium">Favorite Sparks</span>
+                                <span className="text-xs text-gray-700 font-medium">Favorite Genie Rubs</span>
                               </button>
                             </div>
                           </div>
@@ -201,7 +201,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                               Library
                             </p>
                             <button onClick={handleFavoritesShortcut} className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all">
-                              <span>Favorite Sparks</span>
+                              <span>Favorite Genie Rubs</span>
                               <span className="text-lg">✨</span>
                             </button>
                           </div>
@@ -218,7 +218,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                 <button
                     onClick={handleSparkIdea}
                     className="w-12 h-12 flex items-center justify-center bg-blue-500 rounded-2xl shadow-lg hover:shadow-2xl hover:bg-blue-600 transition-all"
-                    title="Sparki Idea"
+                    title="Blue Genie Idea"
                 >
                     <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
                 </button>

@@ -9,7 +9,7 @@ echo.
 
 cd /d C:\Users\Jerry\AndroidStudioProjects\SparkiFire
 
-call gradlew clean bundleRelease
+call gradlew clean bundleRelease --stacktrace
 
 if %ERRORLEVEL% EQU 0 (
     echo.

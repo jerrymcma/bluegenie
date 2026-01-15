@@ -21,7 +21,7 @@
 -renamesourcefileattribute SourceFile
 
 # Keep BuildConfig
--keep class com.sparkiai.app.BuildConfig { *; }
+-keep class com.bluegenie.app.BuildConfig { *; }
 
 # Retrofit
 -keepattributes Signature, InnerClasses, EnclosingMethod
@@ -59,10 +59,10 @@
 -keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
 
 # Keep all model classes
--keep class com.sparkiai.app.model.** { *; }
--keep class com.sparkiai.app.network.** { *; }
--keep class com.sparkiai.app.repository.** { *; }
--keep class com.sparkiai.app.viewmodel.** { *; }
+-keep class com.bluegenie.app.model.** { *; }
+-keep class com.bluegenie.app.network.** { *; }
+-keep class com.bluegenie.app.repository.** { *; }
+-keep class com.bluegenie.app.viewmodel.** { *; }
 
 # OkHttp
 -dontwarn okhttp3.**
@@ -97,7 +97,7 @@
 -dontwarn androidx.lifecycle.**
 
 # Keep VoiceManager and related classes
--keep class com.sparkiai.app.utils.** { *; }
+-keep class com.bluegenie.app.utils.** { *; }
 
 # Keep SLF4J bindings for Supabase/ktor logging
 -dontwarn org.slf4j.**
