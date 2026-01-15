@@ -4,10 +4,10 @@ import { AIPersonality, ResponseStyle } from '../types';
 export const personalities: Record<string, AIPersonality> = {
   DEFAULT: {
     id: 'default',
-    name: 'Sparki',
+    name: 'Blue Genie',
     description: 'Your intelligent AI assistant',
-    icon: '🔥',
-    greeting: "👋 Hi there! I'm Sparki <span style='font-size: 1.2em;'>✨✨</span> How are you? May you be happy and well. What's on your mind...",
+    icon: '🔮',
+    greeting: "👋 Hi there! I'm Blue Genie 🔮✨✨ How are you? I'm glad you're here! ⭐️",
     responseStyle: ResponseStyle.FRIENDLY,
     color: '#2196F3'
   },
