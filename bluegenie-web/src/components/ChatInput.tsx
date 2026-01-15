@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
-import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Plus } from 'lucide-react';
+import { Send, Mic, MicOff, Image as ImageIcon, Camera, X, Plus, Music4 } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { voiceService } from '../services/voiceService';
 import { MessageType } from '../types';
@@ -8,9 +8,10 @@ import { FlashOnIcon } from './icons/FlashOnIcon';
 interface ChatInputProps {
   onStartFresh: () => void;
   onShowFavorites: () => void;
+  onMusicClick: () => void;
 }
 
-export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
+export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatInputProps) {
   const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
@@ -222,13 +223,22 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                 >
                     <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
                 </button>
+
+                {/* Music Button moved here */}
+                <button
+                    onClick={onMusicClick}
+                    className="w-12 h-12 flex items-center justify-center bg-white border-2 border-blue-500 text-blue-500 rounded-2xl hover:bg-blue-50 hover:border-blue-600 transition-all shadow-md hover:shadow-lg"
+                    title="Generate Music"
+                >
+                    <Music4 className="w-6 h-6" />
+                </button>
             </div>
 
             {/* Send Button */}
             <button
                 onClick={handleSend}
                 disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white px-5 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+                className="min-w-[110px] flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
                 <Send className="w-5 h-5" />
                 <span className="font-semibold">Send</span>
