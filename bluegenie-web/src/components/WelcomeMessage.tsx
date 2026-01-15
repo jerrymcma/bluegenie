@@ -3,12 +3,12 @@ interface WelcomeMessageProps {
   greeting: string;
 }
 
-export function WelcomeMessage({ greeting }: WelcomeMessageProps) {
+export function WelcomeMessage({ personalityName, greeting }: WelcomeMessageProps) {
   return (
     <div className="flex justify-center mb-4 px-4">
       <div className="max-w-2xl w-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-gray-100">
-        <h2 className="text-xl font-bold text-blue-600 mb-3">Welcome! ⭐️</h2>
-        <p className="text-blue-600 mb-3 text-base">👋 Hi there! I'm Blue Genie 🔮✨✨ How are you? I'm glad you're here! ⭐️</p>
+        <h2 className="text-xl font-bold text-blue-600 mb-3">Welcome, {personalityName}! ⭐️</h2>
+        <p className="text-blue-600 mb-3 text-base">{greeting}</p>
         <p className="text-blue-600 mb-3 text-base">You can enjoy 10 Blue Genie 🔮 models, generate songs with Magic Music 🎵✨, and smash that lightening bolt button to generate a Genius Genie idea 🔮✨! What's on your mind... ✨</p>
       </div>
     </div>

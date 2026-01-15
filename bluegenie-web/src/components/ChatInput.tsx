@@ -160,9 +160,9 @@ export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatI
         />
 
         {/* Action Buttons */}
-        <div className="flex items-center mt-3 gap-3">
+        <div className="flex items-center mt-3 gap-2">
             {/* Left-side icon buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
                 {/* Music Button on left */}
                 <button
                     onClick={onMusicClick}
@@ -239,7 +239,7 @@ export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatI
             <button
                 onClick={handleSend}
                 disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-                className="min-w-[110px] flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+                className="min-w-[110px] flex items-center justify-center gap-2 bg-blue-500 text-white pl-4 pr-6 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
                 <Send className="w-5 h-5" />
                 <span className="font-semibold">Send</span>
