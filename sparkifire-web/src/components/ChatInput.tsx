@@ -11,7 +11,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
-  const { sendMessage, isLoading, isListening, setIsListening } from useChatStore();
+  const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -21,7 +21,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const SPARK_IDEA_PROMPT =
-    "👋 Hey Blue Genie ✨🔮, how's about creating a Genius Genie ✨🔮 idea with your crystal ball  ✨🔮 ✨✨ (Press send)";
+    "👋 Hey Blue Genie ✨🔮, how\\'s about creating a Genius Genie ✨🔮 idea with your crystal ball  ✨🔮 ✨✨ (Press send)";
 
   const handleSend = () => {
     if ((messageText.trim() || selectedImagePreview) && !isLoading) {
@@ -186,7 +186,7 @@ export function ChatInput({ onStartFresh, onShowFavorites }: ChatInputProps) {
                                 <ImageIcon className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Gallery</span>
                               </button>
-                              <button onClick={() => { setShowImageOptions(false); onStartFresh(); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
+                              <button onClick={() => { setShowImageOptions(false); onStartFresh(); }} className.tsx="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
                                 <X className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
                               </button>
