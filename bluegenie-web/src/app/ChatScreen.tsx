@@ -172,7 +172,7 @@ export function ChatScreen() {
                 onClick={() => setShowPersonalitySelector(true)}
                 className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
               >
-                <span className="font-semibold text-sm">Ai Models</span>
+                <span className="font-semibold text-sm">Models</span>
                 <Sparkles className="w-4 h-4" />
               </button>
             ) : (
