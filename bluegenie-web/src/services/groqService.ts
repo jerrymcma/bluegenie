@@ -1,0 +1,64 @@
+import axios from 'axios';
+import { AIPersonality, ConversationPair } from '../types';
+
+interface GroqApiResponse {
+  text?: string;
+  model?: string;
+  error?: string;
+}
+
+class GroqService {
+  private apiEndpoint: string;
+
+  constructor() {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    this.apiEndpoint = isLocalhost ? '/api/groq' : '/api/groq';
+  }
+
+  isConfigured(): boolean {
+    return true;
+  }
+
+  async generateResponse(
+    userMessage: string,
+    personality: AIPersonality | null,
+    conversationContext: ConversationPair[] = []
+  ): Promise<string> {
+    try {
+      const response = await axios.post<GroqApiResponse>(
+        this.apiEndpoint,
+        {
+          type: 'text',
+          message: userMessage,
+          personality,
+          conversationContext
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 35000
+        }
+      );
+
+      const text = response.data?.text;
+      if (text && text.trim().length > 0) {
+        const modelName = response.data?.model ? ` ${response.data.model}` : '';
+        console.log(`[GroqService] Success via${modelName}`);
+        return text.trim();
+      }
+
+      throw new Error(response.data?.error || 'Groq did not return a usable response');
+
+    } catch (error) {
+      console.error('Groq service error (server proxy):', error);
+      if (error instanceof Error) {
+        return `Sorry, I encountered an error: ${error.message}`;
+      }
+      return 'Sorry, I encountered an unexpected error generating a response.';
+    }
+  }
+}
+
+export const groqService = new GroqService();

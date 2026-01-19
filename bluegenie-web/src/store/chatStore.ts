@@ -1,23 +1,9 @@
-import { create, createStore, StateCreator } from 'zustand';
-import type { User } from '@supabase/supabase-js';
-import { Message, AIPersonality, MessageType, GeneratedMusic, UserSubscription, FavoriteSpark } from '../types';
+import { create } from 'zustand';
+import { Message, AIPersonality, MessageType, FavoriteSpark } from '../types';
 import { personalities } from '../data/personalities';
-import { geminiService } from '../services/geminiService';
+import { groqService } from '../services/groqService';
 import { storageService } from '../services/storageService';
 import { musicService } from '../services/musicService';
-import { supabaseService } from '../services/supabaseService';
-import { generatedMusicService } from '../services/generatedMusicService';
-import { PREMIUM_PRICE_ID as DEFAULT_PRICE_ID } from '../config/stripe';
-
-const normalizeCount = (value: unknown, fallback = 0): number => {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value;
-  }
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const PREMIUM_PRICE_ID = DEFAULT_PRICE_ID;
 
 const ensureFavoriteFlag = (message: Message): Message => ({
   ...message,
@@ -32,17 +18,8 @@ export interface ChatState {
   isSpeaking: boolean;
   isGeneratingMusic: boolean;
   musicStatus: string | null;
-  musicCredits: number;
-  musicLibrary: GeneratedMusic[];
   favoriteSparks: FavoriteSpark[];
   
-  // Subscription state
-  user: User | null;
-  subscription: UserSubscription;
-  showUpgradeModal: boolean;
-  showSignInModal: boolean;
-  
-  // Actions
   sendMessage: (
     content: string,
     imagePreview?: string,
@@ -56,28 +33,11 @@ export interface ChatState {
   setIsSpeaking: (isSpeaking: boolean) => void;
   setMusicStatus: (status: string | null) => void;
   generateMusic: (payload: string) => Promise<string | null>;
-  decrementMusicCredits: () => void;
   initialize: () => void;
-  addMusicToLibrary: (music: GeneratedMusic) => Promise<void>;
-  deleteMusicFromLibrary: (id: string) => Promise<void>;
-  loadMusicLibrary: () => Promise<void>;
-  markMusicAsRead: (id: string) => Promise<void>;
-  
-  // Subscription actions
-  signIn: () => Promise<void>;
-  signOut: () => Promise<void>;
-  checkUsageLimits: (checkingSongGeneration?: boolean) => boolean;
-  setShowUpgradeModal: (show: boolean) => void;
-  setShowSignInModal: (show: boolean) => void;
-  loadUserProfile: () => Promise<void>;
-  incrementMessageCount: () => Promise<void>;
-  incrementSongCount: () => Promise<void>;
-  startPremiumCheckout: () => Promise<void>;
-  confirmPremiumPurchase: (sessionId: string) => Promise<void>;
   toggleFavorite: (messageId: string) => void;
 }
 
-const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
+export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
   currentPersonality: personalities.DEFAULT,
@@ -85,48 +45,9 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
   isSpeaking: false,
   isGeneratingMusic: false,
   musicStatus: null,
-  musicCredits: 5,
-  musicLibrary: [],
   favoriteSparks: [],
-  
-  // Subscription state
-  user: null,
-  subscription: {
-    isPremium: false,
-    messageCount: 0,
-    songCount: 0,
-    songsThisPeriod: 0,
-    subscriptionStartDate: null,
-    periodStartDate: null,
-    needsRenewal: false,
-  },
-  showUpgradeModal: false,
-  showSignInModal: false,
 
   initialize: () => {
-    get().loadMusicLibrary();
-    
-    // Set up auth listener
-    supabaseService.onAuthStateChange((user) => {
-      console.log('[chatStore.initialize] Auth state changed:', { hasUser: !!user, userId: user?.id });
-      set({ user });
-      if (user) {
-        get().loadUserProfile();
-        get().loadMusicLibrary(); // Reload music library when user signs in
-      }
-    });
-    
-    // Check if user is already signed in
-    supabaseService.getCurrentUser().then((user) => {
-      console.log('[chatStore.initialize] Checked current user:', { hasUser: !!user, userId: user?.id });
-      if (user) {
-        set({ user });
-        get().loadUserProfile();
-        get().loadMusicLibrary(); // Load music library for already signed-in users
-      }
-    }).catch((error) => {
-      console.error('[chatStore.initialize] Error checking current user:', error);
-    });
     const { currentPersonality } = get();
     const savedMessages = storageService.loadMessages(currentPersonality.id).map(ensureFavoriteFlag);
     
@@ -147,7 +68,6 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
     } else if (savedMessages.length > 0) {
       set({ messages: savedMessages });
     } else {
-      // If there are no saved messages, ensure the state is empty
       set({ messages: [] });
     }
 
@@ -203,26 +123,12 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
       // Get conversation context
       const conversationContext = storageService.getConversationContext(currentPersonality.id);
 
-      // Get AI response
-      let aiResponse: string;
-      if (messageType === MessageType.IMAGE || messageType === MessageType.TEXT_WITH_IMAGE) {
-        if (!imageFile) {
-          aiResponse = 'I could not access the photo you attached. Please try sending the image again.';
-        } else {
-          aiResponse = await geminiService.analyzeImage(
-            content,
-            imageFile,
-            currentPersonality,
-            conversationContext
-          );
-        }
-      } else {
-        aiResponse = await geminiService.generateResponse(
-          content,
-          currentPersonality,
-          conversationContext
-        );
-      }
+      // Get AI response using Groq service
+      const aiResponse = await groqService.generateResponse(
+        content,
+        currentPersonality,
+        conversationContext
+      );
 
       // Add AI message
       const aiMessage: Message = {
@@ -230,25 +136,20 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
         content: aiResponse,
         isFromUser: false,
         timestamp: Date.now(),
-      messageType: MessageType.TEXT,
-      personalityId: currentPersonality.id,
-      isFavorite: false
+        messageType: MessageType.TEXT,
+        personalityId: currentPersonality.id,
+        isFavorite: false
       };
 
       const finalMessages = [...updatedMessages, aiMessage];
       set({ messages: finalMessages, isLoading: false });
       storageService.saveMessages(currentPersonality.id, finalMessages);
 
-      // Increment message count (counts the user message)
-      get().incrementMessageCount();
-
     } catch (error) {
       console.error('Error getting AI response:', error);
       const errorMessage: Message = {
         id: crypto.randomUUID(),
-        content: error instanceof Error && error.message === 'Missing image data for analysis'
-          ? 'I could not access the photo you attached. Please try sending the image again.'
-          : 'Sorry, I encountered an error while processing your request. Please try again.',
+        content: 'Sorry, I encountered an error while processing your request. Please try again.',
         isFromUser: false,
         timestamp: Date.now(),
         messageType: MessageType.TEXT,
@@ -314,471 +215,70 @@ const chatStoreCreator: StateCreator<ChatState> = (set, get) => ({
     storageService.saveMessages(currentPersonality.id, [greetingMessage]);
   },
 
-  setIsListening: (isListening: boolean) => {
-    set({ isListening });
-  },
+  setIsListening: (isListening: boolean) => set({ isListening }),
+  setIsSpeaking: (isSpeaking: boolean) => set({ isSpeaking }),
+  setMusicStatus: (status: string | null) => set({ musicStatus: status }),
 
-  setIsSpeaking: (isSpeaking: boolean) => {
-    set({ isSpeaking });
-  },
-
-  setMusicStatus: (status: string | null) => {
-    set({ musicStatus: status });
-  },
-
-  decrementMusicCredits: () => {
-    set((state) => ({ musicCredits: Math.max(0, state.musicCredits - 1) }));
-  },
-
-  generateMusic: async (payload: string) => {
-    const { isGeneratingMusic, decrementMusicCredits, addMusicToLibrary, user } = get();
-
-    if (isGeneratingMusic) {
-      return null;
-    }
-    
-    // CRITICAL: Check for valid access token FIRST before anything else
-    // This is the ultimate gate - if there's no token, nothing happens
-    const accessToken = await supabaseService.getAccessToken();
-    if (!accessToken) {
-      console.warn('[generateMusic] No access token - user must sign in');
-      set({
-        showSignInModal: true,
-      });
-      return null;
-    }
-    
-    // CRITICAL: Verify user state is in sync with session
-    if (!user) {
-      console.warn('[generateMusic] User state not in sync - reloading from session');
-      const currentUser = await supabaseService.getCurrentUser();
-      if (!currentUser) {
-        console.error('[generateMusic] No user found in session');
-        set({
-          showSignInModal: true,
-        });
-        return null;
-      }
-      // User exists, update state
-      set({ user: currentUser });
-      await get().loadUserProfile();
-    }
-    
-    // Check usage limits for authenticated users
-    // IMPORTANT: Get fresh subscription state after loadUserProfile()
-    const { subscription: freshSubscription } = get();
-    const { isPremium, songCount } = freshSubscription;
-    const normalizedSongCount = normalizeCount(songCount);
-    
-    console.log('[generateMusic] Checking limits - isPremium:', isPremium, 'songCount:', normalizedSongCount);
-    
-    // Free tier users (not premium) can only generate 5 songs
-    if (!isPremium && normalizedSongCount >= 5) {
-      console.log('[generateMusic] Free tier user has hit 5 song limit');
-      set({
-        showUpgradeModal: true,
-      });
-      return null;
-    }
-    
-    console.log('[generateMusic] Passed song limit check, proceeding...');
-    
-    // Premium users need to check renewal
-    if (isPremium && freshSubscription.needsRenewal) {
-      console.log('[generateMusic] Premium user subscription needs renewal');
-      set({
-        showUpgradeModal: true,
-      });
-      return null;
-    }
-
-    set({ isGeneratingMusic: true, musicStatus: '✨ Generating your music... ✨' });
+  generateMusic: async (payload: string): Promise<string | null> => {
+    set({ isGeneratingMusic: true, musicStatus: 'Starting music generation...' });
 
     try {
-      const result = await musicService.generateClip(payload, accessToken);
-      set({ musicStatus: result, isGeneratingMusic: false });
+      // No auth required - completely free
+      const result = await musicService.generateClip(payload, 'free');
       
-      // Extract URL from result and add to library
-      const downloadPrefix = 'Download it here: ';
-      const downloadIndex = result.indexOf(downloadPrefix);
-      if (downloadIndex !== -1) {
-        const url = result.substring(downloadIndex + downloadPrefix.length).trim();
-        const newMusic: GeneratedMusic = {
-          id: crypto.randomUUID(),
-          prompt: payload,
-          url: url,
-          durationSeconds: 58,
-          timestamp: Date.now(),
-          isFreeTier: true,
-          costCents: 0,
-          isRead: false,
-        };
-        addMusicToLibrary(newMusic);
-        decrementMusicCredits();
-        
-        // Increment song count
-        get().incrementSongCount();
-      }
-      
+      set({ 
+        isGeneratingMusic: false, 
+        musicStatus: null 
+      });
+
       return result;
     } catch (error) {
-      console.error('generateMusic error', error);
-      const fallback = 'Sorry, I could not reach the music service right now. Please try again later.';
-      set({ musicStatus: fallback, isGeneratingMusic: false });
-      return fallback;
-    }
-  },
-
-  addMusicToLibrary: async (music: GeneratedMusic) => {
-    const { user } = get();
-    if (!user) {
-      console.error('[addMusicToLibrary] No user signed in');
-      return;
-    }
-
-    // Save to database
-    const success = await generatedMusicService.addMusic(user.id, music);
-    if (success) {
-      // Update local state
-      const updatedLibrary = [music, ...get().musicLibrary];
-      set({ musicLibrary: updatedLibrary });
-    } else {
-      console.error('[addMusicToLibrary] Failed to save music to database');
-    }
-  },
-
-  deleteMusicFromLibrary: async (id: string) => {
-    const { user } = get();
-    if (!user) {
-      console.error('[deleteMusicFromLibrary] No user signed in');
-      return;
-    }
-
-    // Delete from database
-    const success = await generatedMusicService.deleteMusic(user.id, id);
-    if (success) {
-      // Update local state
-      const updatedLibrary = get().musicLibrary.filter((m) => m.id !== id);
-      set({ musicLibrary: updatedLibrary });
-    } else {
-      console.error('[deleteMusicFromLibrary] Failed to delete music from database');
-    }
-  },
-
-  loadMusicLibrary: async () => {
-    const { user } = get();
-    if (!user) {
-      // No user signed in, load from localStorage as fallback for backward compatibility
-      try {
-        const saved = localStorage.getItem('musicLibrary');
-        if (saved) {
-          const library = JSON.parse(saved);
-          set({ musicLibrary: library });
-        }
-      } catch (error) {
-        console.error('Error loading music library from localStorage:', error);
-      }
-      return;
-    }
-
-    // Load from database for authenticated users
-    try {
-      const library = await generatedMusicService.getUserMusic(user.id);
-      set({ musicLibrary: library });
-    } catch (error) {
-      console.error('Error loading music library from database:', error);
-    }
-  },
-
-  markMusicAsRead: async (id: string) => {
-    const { user } = get();
-    if (!user) {
-      console.error('[markMusicAsRead] No user signed in');
-      return;
-    }
-
-    // Mark as read in database
-    const success = await generatedMusicService.markAsRead(user.id, id);
-    if (success) {
-      // Update local state
-      const updatedLibrary = get().musicLibrary.map((m) =>
-        m.id === id ? { ...m, isRead: true } : m
-      );
-      set({ musicLibrary: updatedLibrary });
-    } else {
-      console.error('[markMusicAsRead] Failed to mark music as read in database');
-    }
-  },
-
-  // Subscription functions
-  signIn: async () => {
-    try {
-      await supabaseService.signInWithGoogle();
-      set({ showSignInModal: false });
-    } catch (error) {
-      console.error('Sign in error:', error);
-      alert('Failed to sign in. Please try again.');
-    }
-  },
-
-  signOut: async () => {
-    try {
-      await supabaseService.signOut();
+      console.error('[generateMusic] Error:', error);
       set({ 
-        user: null,
-        musicLibrary: [], // Clear music library on sign out
-        subscription: {
-          isPremium: false,
-          messageCount: 0,
-          songCount: 0,
-          songsThisPeriod: 0,
-          subscriptionStartDate: null,
-          periodStartDate: null,
-          needsRenewal: false,
-        }
+        isGeneratingMusic: false, 
+        musicStatus: null 
       });
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  },
-
-  loadUserProfile: async () => {
-    const user = get().user;
-    if (!user) {
-      console.log('[loadUserProfile] No user found');
-      return;
-    }
-
-    console.log('[loadUserProfile] Loading profile for user:', user.id);
-    const profile = await supabaseService.getUserProfile(user.id, user.email);
-    
-    if (profile) {
-      console.log('[loadUserProfile] Profile loaded:', profile);
-      const needsRenewal = await supabaseService.checkSubscriptionRenewal(profile);
-      const messageCount = normalizeCount(profile.message_count);
-      const songCount = normalizeCount(profile.song_count);
-      const songsThisPeriod = normalizeCount(profile.songs_this_period);
-      const freeSongsRemaining = profile.is_premium ? 0 : Math.max(0, 5 - songCount);
       
-      set({
-        subscription: {
-          isPremium: profile.is_premium,
-          messageCount,
-          songCount,
-          songsThisPeriod,
-          subscriptionStartDate: profile.subscription_start_date,
-          periodStartDate: profile.period_start_date,
-          needsRenewal,
-        },
-        musicCredits: profile.is_premium ? 5 : freeSongsRemaining,
-      });
-      console.log('[loadUserProfile] Subscription state updated:', get().subscription);
-    } else {
-      console.error('[loadUserProfile] Failed to load or create profile');
+      return 'Sorry, music generation failed. Please try again.';
     }
-  },
-
-  checkUsageLimits: (checkingSongGeneration: boolean = false) => {
-    const { user, subscription } = get();
-    
-    console.log('[checkUsageLimits] Called with:', { checkingSongGeneration, hasUser: !!user, subscription });
-    
-    // If premium and needs renewal, show upgrade
-    if (subscription.isPremium && subscription.needsRenewal) {
-      console.log('[checkUsageLimits] Premium needs renewal');
-      set({ showUpgradeModal: true });
-      return false;
-    }
-    
-    // For song generation specifically, require login
-    if (checkingSongGeneration && !user) {
-      console.log('[checkUsageLimits] Song generation requires login - showing sign in modal');
-      set({ showSignInModal: true });
-      return false;
-    }
-    
-    // If signed in but not premium, check if they've used their 5 free songs
-    if (checkingSongGeneration && !subscription.isPremium && user) {
-      const songCount = normalizeCount(subscription.songCount);
-      console.log('[checkUsageLimits] Checking song count:', songCount);
-      if (songCount >= 5) {
-        console.log('[checkUsageLimits] Hit 5 song limit - showing upgrade modal');
-        set({ showUpgradeModal: true });
-        return false;
-      }
-    }
-    
-    console.log('[checkUsageLimits] Passed all checks, allowing action');
-    return true;
-  },
-
-  incrementMessageCount: async () => {
-    const { user } = get();
-    
-    if (user) {
-      // Increment in database
-      await supabaseService.incrementMessageCount(user.id);
-      set((state) => {
-        const currentMessageCount = normalizeCount(state.subscription.messageCount);
-        return {
-          subscription: {
-            ...state.subscription,
-            messageCount: currentMessageCount + 1,
-          }
-        };
-      });
-    } else {
-      // Increment in localStorage for anonymous users
-      const count = parseInt(localStorage.getItem('anonymousMessageCount') || '0');
-      localStorage.setItem('anonymousMessageCount', (count + 1).toString());
-    }
-  },
-
-  incrementSongCount: async () => {
-    const { user } = get();
-    
-    if (user) {
-      // Increment in database
-      await supabaseService.incrementSongCount(user.id);
-      set((state) => {
-        const currentSongCount = normalizeCount(state.subscription.songCount);
-        const currentSongsThisPeriod = normalizeCount(state.subscription.songsThisPeriod);
-        const nextSongCount = currentSongCount + 1;
-        const nextMusicCredits = state.subscription.isPremium
-          ? state.musicCredits
-          : Math.max(0, 5 - nextSongCount);
-        
-        return {
-          subscription: {
-            ...state.subscription,
-            songCount: nextSongCount,
-            songsThisPeriod: currentSongsThisPeriod + 1,
-          },
-          musicCredits: nextMusicCredits,
-        };
-      });
-    } else {
-      // Increment in localStorage for anonymous users
-      const count = parseInt(localStorage.getItem('anonymousSongCount') || '0');
-      localStorage.setItem('anonymousSongCount', (count + 1).toString());
-    }
-  },
-
-  startPremiumCheckout: async () => {
-    const { user } = get();
-    if (!user) {
-      console.warn('[startPremiumCheckout] User must sign in before upgrading');
-      set({ showSignInModal: true });
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: PREMIUM_PRICE_ID,
-          customerEmail: user.email,
-          userId: user.id,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || 'Failed to start checkout');
-      }
-
-      const data = await response.json();
-      if (!data.url) {
-        throw new Error('Checkout session did not return a redirect URL');
-      }
-
-      window.location.href = data.url;
-    } catch (error) {
-      console.error('[startPremiumCheckout] Failed to start checkout:', error);
-      alert('Unable to start checkout. Please try again in a moment.');
-    }
-  },
-
-  confirmPremiumPurchase: async (sessionId: string) => {
-    try {
-      const response = await fetch('/api/confirm-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sessionId }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || 'Failed to confirm purchase');
-      }
-
-      console.log('[confirmPremiumPurchase] Purchase confirmed, reloading profile');
-      await get().loadUserProfile();
-      set({ showUpgradeModal: false });
-    } catch (error) {
-      console.error('[confirmPremiumPurchase] Failed to confirm purchase:', error);
-      throw error;
-    }
-  },
-
-  setShowUpgradeModal: (show: boolean) => {
-    set({ showUpgradeModal: show });
-  },
-
-  setShowSignInModal: (show: boolean) => {
-    set({ showSignInModal: show });
   },
 
   toggleFavorite: (messageId: string) => {
-    const { messages, favoriteSparks, currentPersonality } = get();
-
-    let updatedMessages = messages;
-    let updatedFavorites = favoriteSparks;
-
-    const messageIndex = messages.findIndex((msg) => msg.id === messageId);
-
-    if (messageIndex >= 0) {
-      const targetMessage = messages[messageIndex];
-      const nextFavoriteState = !targetMessage.isFavorite;
-
-      updatedMessages = [...messages];
-      updatedMessages[messageIndex] = {
-        ...targetMessage,
-        isFavorite: nextFavoriteState,
+    const messages = get().messages;
+    const { currentPersonality } = get();
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    
+    if (messageIndex === -1) return;
+    
+    const message = messages[messageIndex];
+    const isFavorite = !message.isFavorite;
+    
+    const updatedMessages = [
+      ...messages.slice(0, messageIndex),
+      { ...message, isFavorite },
+      ...messages.slice(messageIndex + 1)
+    ];
+    
+    set({ messages: updatedMessages });
+    storageService.saveMessages(currentPersonality.id, updatedMessages);
+    
+    const favorites = storageService.loadFavorites();
+    
+    if (isFavorite) {
+      const newFavorite: FavoriteSpark = {
+        id: messageId,
+        content: message.content,
+        timestamp: message.timestamp,
+        personalityId: currentPersonality.id,
+        personalityName: currentPersonality.name
       };
-
-      storageService.saveMessages(currentPersonality.id, updatedMessages);
-
-      if (nextFavoriteState) {
-        const newFavorite: FavoriteSpark = {
-          id: targetMessage.id,
-          content: targetMessage.content,
-          timestamp: targetMessage.timestamp,
-          personalityId: targetMessage.personalityId ?? currentPersonality.id,
-          personalityName: currentPersonality.name,
-        };
-
-        updatedFavorites = [
-          newFavorite,
-          ...favoriteSparks.filter((fav) => fav.id !== targetMessage.id),
-        ];
-      } else {
-        updatedFavorites = favoriteSparks.filter((fav) => fav.id !== targetMessage.id);
-      }
+      const updatedFavorites = [...favorites, newFavorite];
+      storageService.saveFavorites(updatedFavorites);
+      set({ favoriteSparks: updatedFavorites });
     } else {
-      updatedFavorites = favoriteSparks.filter((fav) => fav.id !== messageId);
+      const updatedFavorites = favorites.filter(f => f.id !== messageId);
+      storageService.saveFavorites(updatedFavorites);
+      set({ favoriteSparks: updatedFavorites });
     }
-
-    storageService.saveFavorites(updatedFavorites);
-    set({ messages: updatedMessages, favoriteSparks: updatedFavorites });
   }
-});
-
-export const useChatStore = create<ChatState>(chatStoreCreator);
-
-export const createChatStore = () => createStore<ChatState>(chatStoreCreator);
+}));

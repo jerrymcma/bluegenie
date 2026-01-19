@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Volume2, Sparkles, Music4, Library } from 'lucide-react';
+import { Volume2, Sparkles, Music4 } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 import { MessageBubble } from '../components/MessageBubble';
 import { TypingIndicator } from '../components/TypingIndicator';
@@ -7,11 +7,6 @@ import { WelcomeMessage } from '../components/WelcomeMessage';
 import { PersonalitySelector } from '../components/PersonalitySelector';
 import { ChatInput } from '../components/ChatInput';
 import { MusicGenerationDialog } from '../components/MusicGenerationDialog';
-import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
-import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal';
-import { SignInModal } from '../components/SignInModal';
-import { GeneratedMusic } from '../types';
-import { IS_STRIPE_TEST_MODE } from '../config/stripe';
 
 export function ChatScreen() {
   const {
@@ -19,53 +14,17 @@ export function ChatScreen() {
     isLoading,
     currentPersonality,
     isSpeaking,
-    musicLibrary,
-    deleteMusicFromLibrary,
-    markMusicAsRead,
     changePersonality,
     initialize,
-    showUpgradeModal,
-    showSignInModal,
-    setShowUpgradeModal,
-    setShowSignInModal,
-    signIn,
-    startPremiumCheckout,
-    confirmPremiumPurchase,
-    subscription,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
-  const [showMusicLibrary, setShowMusicLibrary] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     initialize();
-    
-    // Check for successful payment in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      const sessionId = urlParams.get('session_id');
-      (async () => {
-        try {
-          if (!sessionId) {
-            throw new Error('Missing session ID from Stripe redirect');
-          }
-          await confirmPremiumPurchase(sessionId);
-          alert('🎉 Premium activated! You now have 50 songs per month.');
-        } catch (error) {
-          console.error('[ChatScreen] Failed to activate premium after checkout', error);
-          const message = error instanceof Error ? error.message : JSON.stringify(error);
-          alert(`Payment completed, but we could not activate Premium automatically. Details: ${message}`);
-        } finally {
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      })();
-    } else if (urlParams.get('canceled') === 'true') {
-      // Payment was canceled
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [initialize, confirmPremiumPurchase]);
+  }, [initialize]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -86,12 +45,6 @@ export function ChatScreen() {
 
   const isMusicPersonality = currentPersonality.id === 'music_composer';
   const isSparki = currentPersonality.id === 'default';
-  const songsUsed = Number(subscription.songCount ?? 0);
-  const normalizedSongsUsed = Number.isFinite(songsUsed) ? songsUsed : 0;
-  const freeSongsRemaining = Math.max(0, 5 - normalizedSongsUsed);
-
-  const unreadCount = musicLibrary.filter((m) => !m.isRead).length;
-  const hasUnreadMusic = unreadCount > 0;
 
   const handleMusicButtonClick = () => {
     if (isSparki) {
@@ -108,48 +61,11 @@ export function ChatScreen() {
     }
   };
 
-  const handlePlayMusic = (music: GeneratedMusic) => {
-    markMusicAsRead(music.id);
-    window.open(music.url, '_blank');
-  };
 
-  const handleShareMusic = async (music: GeneratedMusic) => {
-    markMusicAsRead(music.id);
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'My Blue Genie Music',
-          text: `Check out this music I generated with Blue Genie: ${music.prompt.substring(0, 100)}`,
-          url: music.url,
-        });
-      } else {
-        await navigator.clipboard.writeText(music.url);
-        alert('Music link copied to clipboard!');
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      try {
-        await navigator.clipboard.writeText(music.url);
-        alert('Music link copied to clipboard!');
-      } catch (clipboardError) {
-        alert('Unable to share. Please try again.');
-      }
-    }
-  };
-
-  const handleDeleteMusic = (id: string) => {
-    if (confirm('Are you sure you want to delete this track from your library?')) {
-      deleteMusicFromLibrary(id);
-    }
-  };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {IS_STRIPE_TEST_MODE && (
-        <div className="bg-amber-100 text-amber-900 text-center text-sm py-2 px-4 shadow-inner">
-          <strong>Stripe Test Mode:</strong> Use test cards like <code>4242 4242 4242 4242</code>. No real charges will occur.
-        </div>
-      )}
+
       {/* Header */}
       <header className="flex-shrink-0 bg-white shadow-md border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -189,102 +105,71 @@ export function ChatScreen() {
             )}
             {isMusicPersonality && (
               <button
-                onClick={() => setShowMusicLibrary(true)}
-                className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-md hover:shadow-lg ${
-                  hasUnreadMusic
-                    ? 'bg-purple-600 border-2 border-purple-400 text-white shadow-purple-400 shadow-lg animate-pulse'
-                    : 'bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300'
-                }`}
-                title="Music Library"
+                onClick={handleMusicButtonClick}
+                className="w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-md hover:shadow-lg bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300"
+                title="Generate Music"
               >
-                <Library className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-white text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-purple-600">
-                    {unreadCount}
-                  </span>
-                )}
+                <Music4 className="w-5 h-5" />
               </button>
             )}
+            {!isMusicPersonality && (
+              <button
+                onClick={handleMusicButtonClick}
+                className="w-10 h-10 flex items-center justify-center bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all shadow-md hover:shadow-lg"
+                title="Music Generation"
+              >
+                <Music4 className="w-5 h-5" />
+              </button>
+            )}
+            {isSparki && (
+              <button
+                onClick={handleMusicButtonClick}
+                className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
+              >
+                <span className="font-semibold text-sm">Music</span>
+                <Music4 className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              onClick={handleStartFresh}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-all shadow-md hover:shadow-lg"
+            >
+              Start Fresh
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Messages Area */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto pb-4">
+        <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
           {messages.length === 0 ? (
             <WelcomeMessage
               personalityName={currentPersonality.name}
               greeting={currentPersonality.greeting}
             />
           ) : (
-            <>
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              {isLoading && <TypingIndicator />}
-              <div ref={messagesEndRef} />
-            </>
+            messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))
           )}
+          {isLoading && <TypingIndicator />}
+          <div ref={messagesEndRef} />
         </div>
-      </main>
+      </div>
 
-      {/* Music Generation UI (visible only for music personality) */}
-      {isMusicPersonality && (
-        <div className="flex-shrink-0 px-4 pb-2 text-center">
-          <p className="text-sm text-gray-600 mb-2">
-            {subscription.isPremium
-              ? 'Premium music unlocked (50 songs/month)'
-              : `${freeSongsRemaining} of 5 free songs remaining`}
-          </p>
-          <button
-            onClick={() => setShowMusicDialog(true)}
-            className="w-full max-w-sm mx-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-3 rounded-full hover:from-pink-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
-          >
-            <Music4 className="w-5 h-5" />
-            <span className="font-semibold text-base">Generate Music</span>
-          </button>
+      {/* Input area */}
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-4xl mx-auto">
+          <ChatInput
+            onStartFresh={handleStartFresh}
+            onShowFavorites={() => {}}
+            onMusicClick={handleMusicButtonClick}
+          />
         </div>
-      )}
+      </div>
 
-      {/* Input Area */}
-      <footer className="flex-shrink-0">
-        <ChatInput
-          onStartFresh={handleStartFresh}
-          onShowFavorites={() => {}}
-          onMusicClick={handleMusicButtonClick}
-        />
-        
-        {/* Footer with Copyright and Android App Link - Always visible at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-2 px-4 z-40">
-          <div className="max-w-4xl mx-auto flex items-center justify-center space-x-4 text-xs text-gray-600">
-            <a
-              href="/terms"
-              className="hover:text-blue-500 hover:underline"
-            >
-              Terms
-            </a>
-            <span>•</span>
-            <a
-              href="/privacy"
-              className="hover:text-blue-500 hover:underline"
-            >
-              Privacy
-            </a>
-            <span>•</span>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 font-medium hover:underline"
-            >
-              Open Android App
-            </a>
-          </div>
-        </div>
-      </footer>
-
-      {/* Modals */}
+      {/* Dialogs */}
       <PersonalitySelector
         isOpen={showPersonalitySelector}
         onClose={() => setShowPersonalitySelector(false)}
@@ -292,25 +177,6 @@ export function ChatScreen() {
       <MusicGenerationDialog
         isOpen={showMusicDialog}
         onClose={() => setShowMusicDialog(false)}
-      />
-      <MusicLibraryDialog
-        isOpen={showMusicLibrary}
-        onClose={() => setShowMusicLibrary(false)}
-        library={musicLibrary}
-        onPlayMusic={handlePlayMusic}
-        onShareMusic={handleShareMusic}
-        onDeleteMusic={handleDeleteMusic}
-      />
-      <SignInModal
-        isOpen={showSignInModal}
-        onClose={() => setShowSignInModal(false)}
-        onSignIn={signIn}
-      />
-      <PremiumUpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        onUpgrade={startPremiumCheckout}
-        isRenewal={subscription.needsRenewal}
       />
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

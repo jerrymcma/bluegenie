@@ -22,7 +22,7 @@ class MusicService {
     return true;
   }
 
-  async generateClip(prompt: string, authToken: string): Promise<string> {
+  async generateClip(prompt: string, authToken: string = 'free'): Promise<string> {
     try {
       const { lyrics, style } = this.parsePrompt(prompt);
 

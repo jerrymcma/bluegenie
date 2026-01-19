@@ -1,19 +1,16 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+  "functions": {
+    "api/groq.js": {
+      "maxDuration": 60
     },
+    "api/music.js": {
+      "maxDuration": 120
+    }
+  },
+  "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/index.html",
-      "destination": "/",
-      "permanent": true
     }
   ],
   "headers": [
@@ -31,15 +28,6 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
-        }
-      ]
-    },
-    {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
         }
       ]
     }
