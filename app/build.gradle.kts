@@ -1,3 +1,8 @@
+import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
+import org.gradle.kotlin.dsl.android
+import org.gradle.kotlin.dsl.kotlin
+import org.gradle.kotlin.dsl.libs
+import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.platform
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -5,7 +10,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    kotlin("plugin.serialization") version "2.1.0"
+    kotlin("plugin.serialization") version "2.1.20"
 }
 
 android {
@@ -21,23 +26,16 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.bluegenie.app"
+        applicationId = "com.sparkiai.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 44
-        versionName = "44.0.0.0"
+        versionCode = 51
+        versionName = "50.0.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        // AI API Keys (will be set from local.properties for security)
-        buildConfigField(
-            "String",
-            "GEMINI_API_KEY",
-            "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\""
-        )
 
         // Stability AI API Key for music generation (Stable Audio)
         buildConfigField(
@@ -53,13 +51,6 @@ android {
             "\"${localProperties.getProperty("REPLICATE_API_KEY", "your-replicate-api-key-here")}\""
         )
 
-        // Suno API Key for premium music generation
-        buildConfigField(
-            "String",
-            "SUNO_API_KEY",
-            "\"${localProperties.getProperty("SUNO_API_KEY", "")}\""
-        )
-
         // Groq API Key for LLM responses
         buildConfigField(
             "String",
@@ -67,48 +58,62 @@ android {
             "\"${localProperties.getProperty("GROQ_API_KEY", "")}\""
         )
 
-        // Google OAuth Client IDs
-        val googleClientId = localProperties.getProperty("GOOGLE_CLIENT_ID", "")
-        val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: googleClientId
+        // Brave Web Search API Key
+        buildConfigField(
+            "String",
+            "BRAVE_API_KEY",
+            "\"${localProperties.getProperty("BRAVE_API_KEY", "")}\""
+        )
 
-        // Android Client ID - for Google Play Services
+        // Brave Grounding API Key
+        buildConfigField(
+            "String",
+            "BRAVE_GROUNDING_API_KEY",
+            "\"${localProperties.getProperty("BRAVE_GROUNDING_API_KEY", "")}\""
+        )
+
+        // Google OAuth Client IDs - DISABLED (app is now free without sign-in)
+        // val googleClientId = localProperties.getProperty("GOOGLE_CLIENT_ID", "")
+        // val googleWebClientId = localProperties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: googleClientId
+
+        // Android Client ID - for Google Play Services - DISABLED
         buildConfigField(
             "String",
             "GOOGLE_CLIENT_ID",
-            "\"$googleClientId\""
+            "\"\""
         )
         
-        // Web Client ID - for Supabase ID token authentication
+        // Web Client ID - for Supabase ID token authentication - DISABLED
         buildConfigField(
             "String",
             "GOOGLE_WEB_CLIENT_ID",
-            "\"$googleWebClientId\""
+            "\"\""
         )
 
-        // Supabase Configuration
+        // Supabase Configuration - DISABLED (app is now free without sign-in)
         buildConfigField(
             "String",
             "SUPABASE_URL",
-            "\"${localProperties.getProperty("SUPABASE_URL", "")}\""
+            "\"\""
         )
         buildConfigField(
             "String",
             "SUPABASE_ANON_KEY",
-            "\"${localProperties.getProperty("SUPABASE_ANON_KEY", "")}\""
+            "\"\""
         )
 
-        // Stripe Configuration
+        // Stripe Configuration - DISABLED (app is now free)
         buildConfigField(
             "String",
             "STRIPE_PUBLISHABLE_KEY",
-            "\"${localProperties.getProperty("STRIPE_PUBLISHABLE_KEY", "")}\""
+            "\"\""
         )
         
-        // Web app URL for Stripe checkout
+        // Web app URL for Stripe checkout - DISABLED
         buildConfigField(
             "String",
             "WEB_APP_URL",
-            "\"${localProperties.getProperty("WEB_APP_URL", "https://bluegeniemagic.com")}\""
+            "\"\""
         )
     }
 
@@ -176,6 +181,9 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
+    // Splash Screen API for Android 12+
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
     // Compose BOM
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
@@ -193,21 +201,14 @@ dependencies {
     // Navigation Compose
     implementation(libs.navigation.compose)
 
-    // Google AI Client SDK for Gemini
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    // Google Sign-In - DISABLED (app is now free without sign-in)
+    // implementation("com.google.android.gms:play-services-auth:21.0.0")
 
-    // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
-
-    // Google Auth for Vertex AI
-    implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
-    implementation("com.google.auth:google-auth-library-credentials:1.23.0")
-
-    // Supabase for user management and subscription tracking
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.3")
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.3")
-    implementation("io.ktor:ktor-client-android:2.3.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    // Supabase for user management and subscription tracking - DISABLED (app is now free)
+    // implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.3")
+    // implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.3")
+    // implementation("io.ktor:ktor-client-android:2.3.7")
+    // implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // Networking
     implementation(libs.retrofit)
@@ -234,4 +235,15 @@ dependencies {
     // Debug
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
+}
+
+// Added task to generate signed AAB for Play Store release
+tasks.register("generateSignedAAB") {
+    group = "release"
+    description = "Builds a signed AAB for Google Play release."
+    dependsOn("bundleRelease")
+    doLast {
+        val aabPath = "$buildDir/outputs/bundle/release/app-release.aab"
+        println("Signed AAB generated at: $aabPath")
+    }
 }

@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "api/groq.js": {
+      "maxDuration": 60
+    },
+    "api/music.js": {
+      "maxDuration": 120
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.browser.customtabs.CustomTabsIntent
+// import androidx.browser.customtabs.CustomTabsIntent  // DISABLED - no longer needed (app is free)
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 
 class MainActivity : ComponentActivity() {
     
-    // Store ViewModel reference to check premium status on resume
+    // Store ViewModel reference - no longer needed for premium checks (app is free)
     private var chatViewModel: ChatViewModel? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,22 +48,20 @@ class MainActivity : ComponentActivity() {
     
     override fun onResume() {
         super.onResume()
-        // Check if user completed Stripe payment
+        // No longer checking for Stripe payment (app is free)
         chatViewModel?.onAppResume()
     }
 }
 
 /**
- * Opens a URL in a Chrome Custom Tab.
- *
- * @param context The context to use for launching the Custom Tab.
- * @param url The URL to open.
+ * Opens a URL in a Chrome Custom Tab - DISABLED (no longer needed)
+ * Was previously used for Stripe checkout, which is now removed
  */
-fun openUrlInCustomTab(context: Context, url: String) {
-    val builder = CustomTabsIntent.Builder()
-    val customTabsIntent = builder.build()
-    customTabsIntent.launchUrl(context, Uri.parse(url))
-}
+// fun openUrlInCustomTab(context: Context, url: String) {
+//     val builder = CustomTabsIntent.Builder()
+//     val customTabsIntent = builder.build()
+//     customTabsIntent.launchUrl(context, Uri.parse(url))
+// }
 
 @Composable
 fun BlueGenieApp(onViewModelCreated: (ChatViewModel) -> Unit = {}) {

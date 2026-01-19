@@ -61,27 +61,25 @@ object FeatureFlags {
     }
 
     /**
-     * 💰 Premium Subscription Model Configuration
-     * Matches Web App monetization:
-     * - 5 free songs with Google login
-     * - $5/month Premium: 50 songs + all personalities unlocked
+     * 💰 Premium Subscription Model Configuration - DISABLED
+     * App is now completely free with no sign-in required
      */
     object PremiumConfig {
-        // Number of free songs per user (requires Google sign-in)
-        const val FREE_SONGS_LIMIT = 5
+        // Number of free songs per user - UNLIMITED (no sign-in required)
+        const val FREE_SONGS_LIMIT = Int.MAX_VALUE
 
-        // Premium subscription details
-        const val PREMIUM_SONGS_PER_PERIOD = 50
+        // Premium subscription details - DISABLED
+        const val PREMIUM_SONGS_PER_PERIOD = Int.MAX_VALUE
         const val PREMIUM_PERIOD_DAYS = 30
-        const val PREMIUM_PRICE_USD = 5.00
+        const val PREMIUM_PRICE_USD = 0.00
 
-        // Show remaining free songs counter
-        const val SHOW_FREE_SONGS_COUNTER = true
+        // Show remaining free songs counter - DISABLED
+        const val SHOW_FREE_SONGS_COUNTER = false
 
-        // Require sign-in for song generation (to track free songs)
-        const val REQUIRE_SIGNIN_FOR_SONGS = true
+        // Require sign-in for song generation - DISABLED (app is free)
+        const val REQUIRE_SIGNIN_FOR_SONGS = false
 
-        // Free personalities (available without premium)
+        // Free personalities - ALL PERSONALITIES ARE FREE
         val FREE_PERSONALITIES = setOf("default", "music_composer")
     }
 

@@ -419,3 +419,17 @@ private sealed class PredictionResult {
     data class Error(val message: String) : PredictionResult()
 }
 
+/**
+ * Represents the result of a music generation operation.
+ * Can be either a success with audio data or an error.
+ */
+sealed class MusicGenerationResult {
+    data class Success(
+        val audioData: ByteArray,
+        val mimeType: String,
+        val durationSeconds: Int,
+        val prompt: String
+    ) : MusicGenerationResult()
+
+    data class Error(val message: String) : MusicGenerationResult()
+}

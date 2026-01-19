@@ -42,9 +42,10 @@ class MusicGenerationTracker(context: Context) {
 
     /**
      * Check if user has free songs available
+     * Always returns true now that the app is completely free
      */
     fun hasFreeSongsAvailable(): Boolean {
-        return getFreeSongsRemaining() > 0
+        return true // App is free - unlimited songs
     }
 
     /**
@@ -63,23 +64,18 @@ class MusicGenerationTracker(context: Context) {
 
     /**
      * Check if user should see upgrade prompt
+     * Always returns false now that the app is completely free
      */
     fun shouldShowUpgradePrompt(): Boolean {
-        val generated = getSongsGenerated()
-        val promptThreshold = 4 // Show at 4/5 songs
-        val limit = FeatureFlags.PremiumConfig.FREE_SONGS_LIMIT
-
-        return generated >= promptThreshold && generated < limit &&
-                FeatureFlags.PremiumConfig.SHOW_FREE_SONGS_COUNTER
+        return false // App is free - no upgrade needed
     }
 
     /**
      * Check if user can generate music
-     * Returns true if in free tier
-     * Note: This tracker is deprecated - use SupabaseService subscription checks instead
+     * Always returns true now that the app is completely free
      */
     fun canGenerateMusic(): Boolean {
-        return isInFreeTier()
+        return true // App is free - no restrictions
     }
 
     /**

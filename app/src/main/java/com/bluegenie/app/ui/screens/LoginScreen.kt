@@ -6,8 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,8 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluegenie.app.R
-import com.bluegenie.app.utils.GoogleSignInManager
-import com.google.android.gms.auth.api.signin.GoogleSignIn
+// import com.bluegenie.app.utils.GoogleSignInManager  // DISABLED - app is free
+// import com.google.android.gms.auth.api.signin.GoogleSignIn  // DISABLED - app is free
 
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -31,6 +29,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.text.ClickableText
 
+// ===============================================================================
+// LoginScreen - DISABLED
+// ===============================================================================
+// This screen is disabled because the Blue Genie app is now completely free
+// with no sign-in required. Users can access all features immediately.
+// ===============================================================================
+
+/*
 private const val TAG = "LoginScreen"
 
 @Composable
@@ -108,7 +114,7 @@ fun LoginScreen(
         ) {
             // App Logo/Icon
             Image(
-                painter = painterResource(id = R.drawable.bluegenie_logo),
+                painter = painterResource(id = R.drawable.blue_genie_icon),
                 contentDescription = "Blue Genie Logo",
                 modifier = Modifier
                     .size(120.dp)
@@ -237,3 +243,4 @@ fun LoginScreen(
         }
     }
 }
+*/

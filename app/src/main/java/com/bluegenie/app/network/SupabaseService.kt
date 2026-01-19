@@ -1,5 +1,21 @@
 package com.bluegenie.app.network
 
+// ===============================================================================
+// SupabaseService - DISABLED
+// ===============================================================================
+// This entire file is disabled because the Blue Genie app is now completely free
+// with no sign-in or subscription requirements.
+//
+// Previously handled:
+// - Google Sign-In authentication
+// - User profile management
+// - Premium subscription tracking
+// - Song count limits
+//
+// All of these features have been removed to make the app free for all users.
+// ===============================================================================
+
+/*
 import android.content.Context
 import android.util.Log
 import com.bluegenie.app.BuildConfig
@@ -20,10 +36,6 @@ import kotlinx.serialization.Serializable
 import java.util.Calendar
 import java.util.Date
 
-/**
- * Supabase service for Android matching web app structure
- * Handles authentication and user profile management
- */
 class SupabaseService(context: Context) {
 
     private val supabase = createSupabaseClient(
@@ -39,15 +51,11 @@ class SupabaseService(context: Context) {
         private const val TABLE_USER_PROFILES = "user_profiles"
     }
 
-    /**
-     * Sign in with Google ID Token
-     */
     suspend fun signInWithGoogle(idToken: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             Log.d(TAG, "🔐 Signing in with Google ID token (length: ${idToken.length})")
             Log.d(TAG, "   Token preview: ${idToken.take(50)}...")
             
-            // Use the IDToken authentication method
             supabase.auth.signInWith(IDToken) {
                 this.idToken = idToken
                 this.provider = Google
@@ -55,7 +63,6 @@ class SupabaseService(context: Context) {
             
             Log.d(TAG, "✅ Successfully signed in with Google via Supabase")
             
-            // Verify we're signed in
             val user = supabase.auth.currentUserOrNull()
             if (user != null) {
                 Log.d(TAG, "✅ User authenticated: ${user.email}")
@@ -69,7 +76,6 @@ class SupabaseService(context: Context) {
             Log.e(TAG, "   Exception type: ${e.javaClass.simpleName}")
             Log.e(TAG, "   Stack trace: ${e.stackTraceToString()}")
             
-            // Provide helpful error message
             val helpfulMessage = when {
                 e.message?.contains("invalid", ignoreCase = true) == true -> 
                     "Invalid ID token. This may be a configuration issue with Google Cloud Console."
@@ -85,9 +91,6 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Sign out current user
-     */
     suspend fun signOut(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             supabase.auth.signOut()
@@ -98,33 +101,20 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Get current user ID
-     */
     fun getCurrentUserId(): String? {
         return supabase.auth.currentUserOrNull()?.id
     }
 
-    /**
-     * Get current user email
-     */
     fun getCurrentUserEmail(): String? {
         return supabase.auth.currentUserOrNull()?.email
     }
 
-    /**
-     * Check if user is signed in
-     */
     fun isSignedIn(): Boolean {
         return supabase.auth.currentUserOrNull() != null
     }
 
-    /**
-     * Get or create user profile
-     */
     suspend fun getUserProfile(userId: String, email: String): Result<UserProfile> = withContext(Dispatchers.IO) {
         try {
-            // Try to get existing profile
             val existingProfile = supabase.from(TABLE_USER_PROFILES)
                 .select(columns = Columns.ALL) {
                     filter {
@@ -138,7 +128,6 @@ class SupabaseService(context: Context) {
                 return@withContext Result.success(existingProfile.toUserProfile())
             }
 
-            // Create new profile if doesn't exist
             Log.d(TAG, "Creating new user profile for $userId")
             val newProfile = UserProfileDto(
                 id = userId,
@@ -161,12 +150,8 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Increment message count for user
-     */
     suspend fun incrementMessageCount(userId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // Get current profile
             val profile = supabase.from(TABLE_USER_PROFILES)
                 .select(columns = Columns.list("message_count")) {
                     filter {
@@ -177,7 +162,6 @@ class SupabaseService(context: Context) {
 
             val currentCount = profile?.messageCount ?: 0
 
-            // Update with incremented count
             supabase.from(TABLE_USER_PROFILES)
                 .update({
                     set("message_count", currentCount + 1)
@@ -193,12 +177,8 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Increment song count for user
-     */
     suspend fun incrementSongCount(userId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // Get current profile
             val profile = supabase.from(TABLE_USER_PROFILES)
                 .select(columns = Columns.list("song_count", "songs_this_period")) {
                     filter {
@@ -210,7 +190,6 @@ class SupabaseService(context: Context) {
             val currentSongCount = profile?.songCount ?: 0
             val currentSongsThisPeriod = profile?.songsThisPeriod ?: 0
 
-            // Update with incremented counts
             supabase.from(TABLE_USER_PROFILES)
                 .update({
                     set("song_count", currentSongCount + 1)
@@ -227,9 +206,6 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Activate premium subscription
-     */
     suspend fun activatePremium(userId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val now = System.currentTimeMillis()
@@ -251,14 +227,9 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Check if subscription needs renewal
-     * Returns true if: 30 days passed OR 50 songs used
-     */
     fun checkSubscriptionRenewal(profile: UserProfile): Boolean {
         if (!profile.isPremium) return false
 
-        // If no period start date, treat as new subscription (no renewal needed yet)
         val periodStart = profile.periodStartDate?.toLongOrNull() 
             ?: profile.subscriptionStartDate?.toLongOrNull()
             ?: return false
@@ -266,13 +237,9 @@ class SupabaseService(context: Context) {
         val now = System.currentTimeMillis()
         val daysSinceStart = (now - periodStart) / (1000 * 60 * 60 * 24)
 
-        // Renewal needed if: 30 days passed OR 50 songs used
         return daysSinceStart >= 30 || profile.songsThisPeriod >= 50
     }
 
-    /**
-     * Renew subscription (reset period)
-     */
     suspend fun renewSubscription(userId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val now = System.currentTimeMillis()
@@ -292,9 +259,6 @@ class SupabaseService(context: Context) {
         }
     }
 
-    /**
-     * Build UserSubscription from profile
-     */
     fun buildSubscription(profile: UserProfile): UserSubscription {
         return UserSubscription(
             isPremium = profile.isPremium,
@@ -308,9 +272,6 @@ class SupabaseService(context: Context) {
     }
 }
 
-/**
- * DTO for Supabase user profile table
- */
 @Serializable
 data class UserProfileDto(
     @SerialName("id") val id: String,
@@ -340,20 +301,14 @@ data class UserProfileDto(
     }
 }
 
-/**
- * DTO for message count queries
- */
 @Serializable
 data class MessageCountDto(
     @SerialName("message_count") val messageCount: Int = 0
 )
 
-/**
- * DTO for song count queries
- */
 @Serializable
 data class SongCountDto(
     @SerialName("song_count") val songCount: Int = 0,
     @SerialName("songs_this_period") val songsThisPeriod: Int = 0
 )
-
+*/

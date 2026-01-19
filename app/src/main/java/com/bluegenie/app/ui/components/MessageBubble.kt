@@ -49,7 +49,8 @@ fun MessageBubble(
     message: Message,
     onSpeakClick: ((String) -> Unit)? = null,
     onFavoriteClick: ((String) -> Unit)? = null,
-    onLogoutClick: (() -> Unit)? = null
+    onLogoutClick: (() -> Unit)? = null,
+    onClearChatClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -197,6 +198,7 @@ fun MessageBubble(
                             { favoriteHandler(message.id) }
                         },
                         onLogout = onLogoutClick,
+                        onClearChat = onClearChatClick,
                         tintColor = PrimaryBlue
                     )
                 }
@@ -222,6 +224,7 @@ private fun MessageMenuActions(
     onShare: () -> Unit,
     onFavorite: (() -> Unit)? = null,
     onLogout: (() -> Unit)? = null,
+    onClearChat: (() -> Unit)? = null,
     tintColor: Color = PrimaryBlue
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -252,6 +255,15 @@ private fun MessageMenuActions(
             onFavorite?.let {
                 DropdownMenuItem(
                     text = { Text(if (isFavorited) "Remove Favorite" else "Favorite Spark") },
+                    onClick = {
+                        menuExpanded = false
+                        it()
+                    }
+                )
+            }
+            onClearChat?.let {
+                DropdownMenuItem(
+                    text = { Text("Clear chat history") },
                     onClick = {
                         menuExpanded = false
                         it()

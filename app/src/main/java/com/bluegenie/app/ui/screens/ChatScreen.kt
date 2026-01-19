@@ -112,8 +112,8 @@ import android.os.Build
 import com.bluegenie.app.R
 import com.bluegenie.app.ui.components.MessageBubble
 import com.bluegenie.app.ui.components.PersonalitySelectorDialog
-import com.bluegenie.app.ui.components.SignInModal
-import com.bluegenie.app.ui.components.PremiumUpgradeModal
+// import com.bluegenie.app.ui.components.SignInModal  // DISABLED - app is free
+// import com.bluegenie.app.ui.components.PremiumUpgradeModal  // DISABLED - app is free
 import com.bluegenie.app.ui.components.GenerateMusicButton
 import com.bluegenie.app.ui.components.MusicGenerationDialog
 import com.bluegenie.app.ui.components.MusicLibraryDialog
@@ -121,9 +121,10 @@ import com.bluegenie.app.ui.components.MusicUsageStatsCard
 import com.bluegenie.app.ui.theme.*
 import com.bluegenie.app.viewmodel.ChatViewModel
 import com.bluegenie.app.model.MessageType
+import com.bluegenie.app.model.UserSubscription
 import com.bluegenie.app.utils.VoiceManager
-import com.bluegenie.app.utils.GoogleSignInManager
-import com.google.android.gms.auth.api.signin.GoogleSignIn
+// import com.bluegenie.app.utils.GoogleSignInManager  // DISABLED - app is free
+// import com.google.android.gms.auth.api.signin.GoogleSignIn  // DISABLED - app is free
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -139,7 +140,7 @@ fun ChatScreen(
 ) {
     val context = LocalContext.current
     val voiceManager = remember { VoiceManager(context) }
-    val googleSignInManager = remember { GoogleSignInManager(context) }
+    // val googleSignInManager = remember { GoogleSignInManager(context) }  // DISABLED - app is free
 
     // Initialize ViewModel with context for memory management
     LaunchedEffect(Unit) {
@@ -153,26 +154,30 @@ fun ChatScreen(
     val recognizedText by voiceManager.recognizedText.collectAsState()
     val currentPersonality by viewModel.currentPersonality.collectAsState()
     val availablePersonalities by viewModel.availablePersonalities.collectAsState()
-    val subscription by viewModel.subscription.collectAsState()
-    val showSignInModal by viewModel.showSignInModal.collectAsState()
-    val showUpgradeModal by viewModel.showUpgradeModal.collectAsState()
+    // Subscription state - DISABLED (app is free)
+    // Create a free subscription object for components that still need it
+    val freeSubscription = remember { UserSubscription(isPremium = false, songCount = 0) }
+    // val subscription by viewModel.subscription.collectAsState()
+    // val showSignInModal by viewModel.showSignInModal.collectAsState()
+    // val showUpgradeModal by viewModel.showUpgradeModal.collectAsState()
 
-    val signInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        val account = googleSignInManager.handleSignInResult(task)
-        val idToken = account?.idToken
-        if (idToken != null) {
-            viewModel.signInWithGoogle(idToken)
-        } else {
-            Toast.makeText(
-                context,
-                "Unable to sign in. Please try again.",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
+    // Sign-in launcher - DISABLED (app is free)
+    // val signInLauncher = rememberLauncherForActivityResult(
+    //     contract = ActivityResultContracts.StartActivityForResult()
+    // ) { result ->
+    //     val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+    //     val account = googleSignInManager.handleSignInResult(task)
+    //     val idToken = account?.idToken
+    //     if (idToken != null) {
+    //         viewModel.signInWithGoogle(idToken)
+    //     } else {
+    //         Toast.makeText(
+    //             context,
+    //             "Unable to sign in. Please try again.",
+    //             Toast.LENGTH_LONG
+    //         ).show()
+    //     }
+    // }
 
     // Music generation state
     val isMusicGenerating by viewModel.isMusicGenerating.collectAsState()
@@ -292,7 +297,7 @@ fun ChatScreen(
         }
     }
 
-    val sparkSnippet = "✨ Hey Blue Genie ✨🔮, let's summon a Genius Genie Idea ✨ with your crystal ball! ✨🔮"
+    val sparkSnippet = "🔮✨ Hey Blue Genie, let's summon a Genius Genie Idea with your crystal ball! 🔮✨"
 
     var lastLibraryCount by remember { mutableIntStateOf(0) }
     var highlightMusicLibrary by remember { mutableStateOf(false) }
@@ -431,10 +436,12 @@ fun ChatScreen(
                             viewModel.toggleFavorite(messageId)
                         },
                         onLogoutClick = {
-                            googleSignInManager.signOut {
-                                viewModel.signOut()
-                                Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
-                            }
+                            // DISABLED - No sign-in/sign-out in free app
+                            Toast.makeText(context, "No account sign-in required - app is free!", Toast.LENGTH_SHORT).show()
+                        },
+                        onClearChatClick = {
+                            viewModel.clearCurrentPersonalityMemory()
+                            Toast.makeText(context, "Chat history cleared", Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -456,12 +463,12 @@ fun ChatScreen(
                     .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                // Usage stats card - show subscription info
-                MusicUsageStatsCard(
-                    subscription = subscription,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                )
+                // Usage stats card - DISABLED (no subscription in free app)
+                // MusicUsageStatsCard(
+                //     subscription = subscription,
+                //     modifier = Modifier
+                //         .align(Alignment.CenterHorizontally)
+                // )
 
                 // Music Library button moved here
                 val hasMusic = musicLibrary.isNotEmpty()
@@ -551,14 +558,10 @@ fun ChatScreen(
                     }
                 }
 
-                // Generate Music Button
+                // Generate Music Button - No sign-in required (app is free)
                 GenerateMusicButton(
                     onClick = {
-                        if (!viewModel.isUserSignedIn()) {
-                            viewModel.showSignIn()
-                        } else {
-                            showMusicGenerationDialog = true
-                        }
+                        showMusicGenerationDialog = true
                     },
                     enabled = viewModel.canGenerateMusic(),
                     isGenerating = isMusicGenerating,
@@ -1049,13 +1052,15 @@ fun ChatScreen(
         PersonalitySelectorDialog(
             personalities = availablePersonalities,
             currentPersonality = currentPersonality,
-            subscription = subscription,
+            subscription = freeSubscription, // All personalities are free
             onShowUpgrade = {
-                viewModel.setShowUpgradeModal(true)
+                // DISABLED - No upgrade needed (app is free)
+                Toast.makeText(context, "All personalities are free!", Toast.LENGTH_SHORT).show()
                 showPersonalitySelector = false
             },
             onPersonalitySelected = { personality ->
                 viewModel.changePersonality(personality)
+                showPersonalitySelector = false
             },
             onDismiss = { showPersonalitySelector = false }
         )
@@ -1287,7 +1292,7 @@ fun ChatScreen(
                 ) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "✨🔮 Favorites 🧞",
+                        text = "🔮✨ Favorites 🧞",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
@@ -1354,21 +1359,22 @@ fun ChatScreen(
         }
     }
 
-    SignInModal(
-        isOpen = showSignInModal,
-        onSignIn = {
-            viewModel.setShowSignInModal(false)
-            signInLauncher.launch(googleSignInManager.getSignInIntent())
-        },
-        onDismiss = { viewModel.setShowSignInModal(false) }
-    )
+    // Sign-in and upgrade modals - DISABLED (app is free)
+    // SignInModal(
+    //     isOpen = showSignInModal,
+    //     onSignIn = {
+    //         viewModel.setShowSignInModal(false)
+    //         signInLauncher.launch(googleSignInManager.getSignInIntent())
+    //     },
+    //     onDismiss = { viewModel.setShowSignInModal(false) }
+    // )
 
-    PremiumUpgradeModal(
-        isOpen = showUpgradeModal,
-        onUpgrade = { viewModel.startPremiumCheckout() },
-        onDismiss = { viewModel.setShowUpgradeModal(false) },
-        isRenewal = subscription.needsRenewal
-    )
+    // PremiumUpgradeModal(
+    //     isOpen = showUpgradeModal,
+    //     onUpgrade = { viewModel.startPremiumCheckout() },
+    //     onDismiss = { viewModel.setShowUpgradeModal(false) },
+    //     isRenewal = subscription.needsRenewal
+    // )
 }
 
 @Composable
@@ -1513,7 +1519,7 @@ private fun PulsatingCrystalBallIcon() {
     )
 
     Image(
-        painter = painterResource(id = R.drawable.crystal_ball_icon),
+        painter = painterResource(id = R.drawable.sparkles_icon),
         contentDescription = "Crystal Ball",
         modifier = Modifier
             .size(28.dp)

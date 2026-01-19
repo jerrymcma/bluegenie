@@ -17,18 +17,17 @@ import com.bluegenie.app.model.Message
 import com.bluegenie.app.model.MessageType
 import com.bluegenie.app.model.ResponseStyle
 import com.bluegenie.app.model.UserSubscription
+import com.bluegenie.app.network.GroqService
 // import com.bluegenie.app.network.LyriaService  // Disabled - using Replicate instead
-import com.bluegenie.app.network.SupabaseService
+// import com.bluegenie.app.network.SupabaseService  // DISABLED - app is free
 import com.bluegenie.app.network.MusicGenerationResult
 import com.bluegenie.app.network.ReplicateService
-import com.bluegenie.app.network.SunoService
-import com.bluegenie.app.repository.AIRepository
 import com.bluegenie.app.utils.ChatMemoryManager
 import com.bluegenie.app.utils.MusicGenerationTracker
 import com.bluegenie.app.utils.MusicLibraryManager
 import com.bluegenie.app.utils.MusicUsageStats
 import com.bluegenie.app.utils.MusicPlayer
-import com.bluegenie.app.utils.StripeCheckoutHelper
+// import com.bluegenie.app.utils.StripeCheckoutHelper  // DISABLED - app is free
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,13 +39,12 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val aiRepository: AIRepository
     private var memoryManager: ChatMemoryManager? = null
     private var musicLibraryManager: MusicLibraryManager? = null
     private var musicTracker: MusicGenerationTracker? = null
     private val replicateService: ReplicateService = ReplicateService()
+    private val groqService: GroqService = GroqService()
     // private val lyriaService: LyriaService = LyriaService()  // Disabled - using Replicate instead
-    private val sunoService: SunoService = SunoService()
     private var musicPlayer: MusicPlayer? = null
 
 
@@ -88,8 +86,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _isMusicPlaying = MutableStateFlow(false)
     val isMusicPlaying: StateFlow<Boolean> = _isMusicPlaying.asStateFlow()
 
-    // Subscription state
-    private var supabaseService: SupabaseService? = null
+    // Subscription state - DISABLED (app is now free without sign-in)
+    // private var supabaseService: SupabaseService? = null
     
     private val _subscription = MutableStateFlow(UserSubscription())
     val subscription: StateFlow<UserSubscription> = _subscription.asStateFlow()
@@ -102,7 +100,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     
     init {
         val context = getApplication<Application>().applicationContext
-        aiRepository = AIRepository(context)
         initialize(context)
     }
 
@@ -117,15 +114,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             musicPlayer = MusicPlayer(context)
             applicationContext = context.applicationContext
             
-            // Initialize Supabase service for subscription management
-            supabaseService = SupabaseService(context)
+            // Initialize Supabase service for subscription management - DISABLED (app is free)
+            // supabaseService = SupabaseService(context)
             
-            // Check if user is already signed in
-            viewModelScope.launch {
-                checkExistingSignIn()
-            }
-
-            // Suno service doesn't require initialization
+            // Check if user is already signed in - DISABLED (no sign-in required)
+            // viewModelScope.launch {
+            //     checkExistingSignIn()
+            // }
 
             // Observe music player state
             viewModelScope.launch {
@@ -236,12 +231,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         fileName: String? = null,
         messageType: MessageType = MessageType.TEXT
     ) {
-        if ((content.isBlank() && imageUri == null) || _isLoading.value) return
+        if (content.isBlank() || _isLoading.value) return
 
-        // Check for auto-reset before adding new message
         handleAutoResetIfNeeded()
 
-        // Add user message
         val userMessage = Message(
             content = content,
             isFromUser = true,
@@ -252,58 +245,27 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             personalityId = _currentPersonality.value.id
         )
         _messages.value = _messages.value + userMessage
-        saveMessages() // Save after adding user message
+        saveMessages()
 
-        // Set voice response preference
         _shouldSpeakResponse.value = shouldSpeak
 
-        // Get conversation context for AI
         val conversationContext =
             memoryManager?.getConversationContext(_currentPersonality.value.id) ?: emptyList()
 
-        // Get AI response
         val aiInputContent = augmentUserMessage(content)
 
         _isLoading.value = true
         viewModelScope.launch {
-            val imagePayload =
-                if (messageType == MessageType.IMAGE || messageType == MessageType.TEXT_WITH_IMAGE) {
-                    loadImagePayload(imageUri)
-                } else {
-                    null
-                }
             try {
                 val result = withTimeoutOrNull(30000) { // 30 second timeout
-                    val aiResponse = when (messageType) {
-                        MessageType.IMAGE -> aiRepository.getImageAnalysisResponse(
-                            aiInputContent,
-                            imageUri,
-                            imagePayload?.data,
-                            imagePayload?.mimeType,
-                            _currentPersonality.value,
-                            conversationContext
-                        )
-
-                        MessageType.TEXT_WITH_IMAGE -> aiRepository.getImageAnalysisResponse(
-                            aiInputContent,
-                            imageUri,
-                            imagePayload?.data,
-                            imagePayload?.mimeType,
-                            _currentPersonality.value,
-                            conversationContext
-                        )
-
-                        else -> aiRepository.getAIResponse(
-                            aiInputContent,
-                            _currentPersonality.value,
-                            conversationContext
-                        )
-                    }
-                    aiResponse
+                    groqService.generateResponse(
+                        aiInputContent,
+                        _currentPersonality.value,
+                        conversationContext
+                    )
                 }
 
                 if (result == null) {
-                    // Timeout occurred
                     throw Exception("Request timed out.")
                 }
 
@@ -313,9 +275,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     personalityId = _currentPersonality.value.id
                 )
                 _messages.value = _messages.value + aiMessage
-                saveMessages() // Save after adding AI response
+                saveMessages()
 
-                // Store last AI response for voice output
                 _lastAIResponse.value = result
             } catch (e: Exception) {
                 val errorMessage = Message(
@@ -324,13 +285,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     personalityId = _currentPersonality.value.id
                 )
                 _messages.value = _messages.value + errorMessage
-                saveMessages() // Save error message
+                saveMessages()
                 _lastAIResponse.value = errorMessage.content
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
 
     fun changePersonality(personality: AIPersonality) {
         // Save current conversation before switching
@@ -428,9 +390,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         return when (FeatureFlags.MusicComposerConfig.ACTIVE_MUSIC_PROVIDER) {
-            MusicProvider.SUNO -> sunoService.isConfigured()
             MusicProvider.REPLICATE -> replicateService.isConfigured()
-            MusicProvider.LYRIA -> FeatureFlags.ENABLE_LYRIA_MUSIC_GENERATION
+            else -> false
         }
     }
 
@@ -454,19 +415,19 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // Check subscription limits
-        val sub = _subscription.value
-        if (!sub.isPremium && sub.songCount >= 5) {
-            // Free tier user has used all 5 songs
-            _showUpgradeModal.value = true
-            return
-        }
-
-        if (sub.isPremium && sub.needsRenewal) {
-            // Premium user needs to renew
-            _showUpgradeModal.value = true
-            return
-        }
+        // Check subscription limits - DISABLED (app is free with unlimited music generation)
+        // val sub = _subscription.value
+        // if (!sub.isPremium && sub.songCount >= 5) {
+        //     // Free tier user has used all 5 songs
+        //     _showUpgradeModal.value = true
+        //     return
+        // }
+        // 
+        // if (sub.isPremium && sub.needsRenewal) {
+        //     // Premium user needs to renew
+        //     _showUpgradeModal.value = true
+        //     return
+        // }
 
         _isMusicGenerating.value = true
 
@@ -474,9 +435,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 // Add user message showing what music they're generating
                 val providerLabel = when (FeatureFlags.MusicComposerConfig.ACTIVE_MUSIC_PROVIDER) {
-                    MusicProvider.SUNO -> "Suno"
                     MusicProvider.REPLICATE -> "MusicGen"
-                    MusicProvider.LYRIA -> "Lyria"
+                    else -> "Music"
                 }
 
                 val userMessage = Message(
@@ -488,7 +448,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 saveMessages()
 
                 // Show generating status
-                val progressCopy = "✨ Generating your magic music...(sparkles) ✨✨"
+                val progressCopy = "✨ Generating your magic music... ✨✨"
 
                 val generatingMessage = Message(
                     content = progressCopy,
@@ -513,9 +473,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val provider = FeatureFlags.MusicComposerConfig.ACTIVE_MUSIC_PROVIDER
 
                 val result = when (provider) {
-                    MusicProvider.SUNO -> generateWithSuno(prompt, finalPrompt, useRawPrompt)
                     MusicProvider.REPLICATE -> generateWithReplicate(finalPrompt, prompt)
-                    MusicProvider.LYRIA -> generateWithReplicate(finalPrompt, prompt)  // Lyria disabled, fallback to Replicate
+                    else -> MusicGenerationResult.Error("No valid music provider configured.")
                 }
 
                 when (result) {
@@ -535,30 +494,20 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         updateMusicUsageStats()
                         loadMusicLibrary()
                         
-                        // Increment song count in Supabase
-                        supabaseService?.getCurrentUserId()?.let { userId ->
-                            viewModelScope.launch {
-                                supabaseService?.incrementSongCount(userId)
-                                // Reload subscription to update song count
-                                reloadUserProfile()
-                            }
-                        }
+                        // Increment song count in Supabase - DISABLED (app is free)
+                        // supabaseService?.getCurrentUserId()?.let { userId ->
+                        //     viewModelScope.launch {
+                        //         supabaseService?.incrementSongCount(userId)
+                        //         // Reload subscription to update song count
+                        //         reloadUserProfile()
+                        //     }
+                        // }
 
                         // Remove generating message and add success message
                         _messages.value = _messages.value.dropLast(1)
 
-                        val sub = _subscription.value
-                        val costInfo = if (!sub.isPremium) {
-                            val remaining = 5 - sub.songCount
-                            if (remaining > 0) {
-                                "This was FREE! You have $remaining free songs remaining. 🎉"
-                            } else {
-                                "Upgrade to Premium for 50 songs per month! 👑"
-                            }
-                        } else {
-                            val remaining = 50 - sub.songsThisPeriod
-                            "Premium: $remaining of 50 songs remaining this month. 👑"
-                        }
+                        // Cost info - App is free with unlimited music generation
+                        val costInfo = "This music generation is completely FREE! 🎉 Enjoy unlimited music creation! 🎵"
 
                         val successMessage = Message(
                             content = "🎵 **Your music is ready!** 🎶\n\n" +
@@ -768,7 +717,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             if (trumpMentionsCurrent) {
                 return buildString {
                     append(
-                        "Context anchor: You previously confirmed that Donald Trump is the current President of the United States as of January 20, 2025. " +
+                        "Context anchor: You previously confirmed that Donald Trump is the current President of the United States as of January 20, 25. " +
                                 "The user is still talking about that exact administration. Answer the question using 2025 data and provide the Vice President serving with Donald Trump right now. " +
                                 "Do not mention past administrations or older vice presidents.\n\n"
                     )
@@ -1006,21 +955,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val mimeType: String
     )
 
-    private suspend fun getSunoMusic(
-        prompt: String,
-        finalPrompt: String,
-        useRawPrompt: Boolean
-    ): MusicGenerationResult {
-        val result = sunoService.generateMusic(finalPrompt)
-        if (result is MusicGenerationResult.Error && !useRawPrompt) {
-            if (result.message.contains("flagged", ignoreCase = true)) {
-                Log.d("ChatViewModel", " Suno flagged enhanced prompt, retrying raw")
-                return sunoService.generateMusic(prompt)
-            }
-        }
-        return result
-    }
-
     private suspend fun getReplicateMusic(
         finalPrompt: String,
         originalPrompt: String
@@ -1039,21 +973,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         return result
     }
 
-    // private suspend fun getLyriaMusic(finalPrompt: String): MusicGenerationResult {
-    //     applicationContext?.let { context ->
-    //         lyriaService.initialize(context)
-    //     }
-    //     return lyriaService.generateMusic(prompt = finalPrompt)
-    // }
-
-    private suspend fun generateWithSuno(
-        prompt: String,
-        finalPrompt: String,
-        useRawPrompt: Boolean
-    ): MusicGenerationResult {
-        return getSunoMusic(prompt, finalPrompt, useRawPrompt)
-    }
-
     private suspend fun generateWithReplicate(
         finalPrompt: String,
         originalPrompt: String
@@ -1061,269 +980,109 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         return getReplicateMusic(finalPrompt, originalPrompt)
     }
 
-    // private suspend fun generateWithLyria(finalPrompt: String): MusicGenerationResult {
-    //     return getLyriaMusic(finalPrompt)
-    // }
-
     // ============ SUBSCRIPTION MANAGEMENT METHODS ============
 
+    // ============ SIGN-IN & SUBSCRIPTION METHODS - DISABLED (app is free) ============
+    
     /**
-     * Check if user is already signed in on app start
+     * Check if user is already signed in on app start - DISABLED
      */
     private suspend fun checkExistingSignIn() {
-        val userId = supabaseService?.getCurrentUserId()
-        val email = supabaseService?.getCurrentUserEmail()
-        
-        if (userId != null && email != null) {
-            Log.d("ChatViewModel", "Found existing sign-in: $email")
-            reloadUserProfile()
-        }
+        // DISABLED - No sign-in required
+        // val userId = supabaseService?.getCurrentUserId()
+        // val email = supabaseService?.getCurrentUserEmail()
+        // 
+        // if (userId != null && email != null) {
+        //     Log.d("ChatViewModel", "Found existing sign-in: $email")
+        //     reloadUserProfile()
+        // }
     }
 
     /**
-     * Sign in with Google using ID token
+     * Sign in with Google using ID token - DISABLED
      */
     fun signInWithGoogle(idToken: String) {
-        viewModelScope.launch {
-            Log.d("ChatViewModel", "🔐 Starting Google sign-in with token")
-            
-            val result = supabaseService?.signInWithGoogle(idToken)
-            result?.onSuccess {
-                Log.d("ChatViewModel", "✅ Successfully signed in with Google")
-                
-                // Load user profile first (before closing modal or showing message)
-                delay(500) // Brief delay to ensure Supabase session is ready
-                reloadUserProfile()
-                
-                // Now close modal
-                _showSignInModal.value = false
-                
-                // Show success message (counter will show song count)
-                val sub = _subscription.value
-                
-                if (sub.isPremium) {
-                    addSystemMessage("✅ Signed in successfully! Welcome back, Premium member! 👑")
-                } else {
-                    addSystemMessage("✅ Signed in successfully! You're ready to generate music. 🎉")
-                }
-            }?.onFailure { error ->
-                Log.e("ChatViewModel", "❌ Failed to sign in with Google: ${error.message}", error)
-                
-                // Provide user-friendly error message
-                val userMessage = when {
-                    error.message?.contains("invalid", ignoreCase = true) == true -> 
-                        "❌ Configuration Error\n\n" +
-                        "Your Android app needs to be registered in Google Cloud Console.\n\n" +
-                        "Please contact support or try again later."
-                    error.message?.contains("network", ignoreCase = true) == true -> 
-                        "❌ Network Error\n\n" +
-                        "Please check your internet connection and try again."
-                    else -> 
-                        "❌ Sign In Failed\n\n" +
-                        "${error.message}\n\n" +
-                        "Please try again or check your internet connection."
-                }
-                
-                addSystemMessage(userMessage)
-            }
-        }
+        // DISABLED - No sign-in required
+        Log.d("ChatViewModel", "Sign-in disabled - app is free")
     }
 
     /**
-     * Sign out current user
+     * Sign out current user - DISABLED
      */
     fun signOut() {
-        viewModelScope.launch {
-            val result = supabaseService?.signOut()
-            result?.onSuccess {
-                _subscription.value = UserSubscription()
-                addSystemMessage("Signed out successfully.")
-            }
-        }
+        // DISABLED - No sign-in required
+        Log.d("ChatViewModel", "Sign-out disabled - app is free")
     }
 
     /**
-     * Check if user is signed in
+     * Check if user is signed in - DISABLED (always returns false)
      */
     fun isUserSignedIn(): Boolean {
-        return supabaseService?.isSignedIn() == true
+        return false // App is free, no sign-in required
     }
 
     /**
-     * Show sign-in modal
+     * Show sign-in modal - DISABLED
      */
     fun showSignIn() {
-        _showSignInModal.value = true
+        // DISABLED - No sign-in required
+        Log.d("ChatViewModel", "Sign-in modal disabled - app is free")
     }
 
     /**
-     * Reload user profile from Supabase
+     * Reload user profile from Supabase - DISABLED
      */
     private suspend fun reloadUserProfile() {
-        val userId = supabaseService?.getCurrentUserId() ?: return
-        val email = supabaseService?.getCurrentUserEmail() ?: return
-        
-        val result = supabaseService?.getUserProfile(userId, email)
-        result?.onSuccess { profile ->
-            val subscription = supabaseService?.buildSubscription(profile)
-            if (subscription != null) {
-                _subscription.value = subscription
-                Log.d("ChatViewModel", "Loaded profile: isPremium=${subscription.isPremium}, songs=${subscription.songCount}")
-            }
-        }?.onFailure { error ->
-            Log.e("ChatViewModel", "Failed to load user profile", error)
-        }
+        // DISABLED - No user profiles
     }
 
     /**
-     * Start premium checkout process
-     * Opens Stripe checkout in browser
+     * Start premium checkout process - DISABLED
      */
     fun startPremiumCheckout() {
-        val context = applicationContext
-        val userId = supabaseService?.getCurrentUserId()
-        val email = supabaseService?.getCurrentUserEmail()
-        
-        Log.d("ChatViewModel", "🛒 Starting premium checkout")
-        Log.d("ChatViewModel", "   Context: ${if (context != null) "✓" else "✗"}")
-        Log.d("ChatViewModel", "   User ID: ${userId ?: "null"}")
-        Log.d("ChatViewModel", "   Email: ${email ?: "null"}")
-        
-        if (userId == null || email == null) {
-            Log.e("ChatViewModel", "❌ User not signed in, showing sign-in modal")
-            _showSignInModal.value = true
-            return
-        }
-        
-        if (context == null) {
-            Log.e("ChatViewModel", "❌ Cannot start checkout: context is null")
-            addSystemMessage("❌ Unable to open checkout. Please restart the app and try again.")
-            return
-        }
-        
-        viewModelScope.launch {
-            try {
-                Log.d("ChatViewModel", "📱 Initiating Stripe checkout...")
-                
-                // Close the upgrade modal first
-                _showUpgradeModal.value = false
-                
-                // Show loading message in chat
-                addSystemMessage("Opening payment page... 💳")
-                
-                // Show toast for immediate feedback
-                withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        context,
-                        "Connecting to payment server...",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                
-                // Open Stripe checkout in browser
-                StripeCheckoutHelper.openCheckout(context, userId, email)
-                
-                Log.d("ChatViewModel", "✅ Stripe checkout opened for user: $email")
-                
-                // Add success message
-                addSystemMessage("✅ Payment page opened! Complete your purchase in the browser, then return to the app.")
-                
-                // Show success toast
-                withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        context,
-                        "Opening browser...",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                
-                // Set flag to check premium status when user returns
-                checkPremiumOnResume = true
-                
-            } catch (e: Exception) {
-                Log.e("ChatViewModel", "❌ Failed to open Stripe checkout: ${e.message}", e)
-                
-                // Show user-friendly error message
-                val userMessage = when {
-                    e.message?.contains("network", ignoreCase = true) == true ||
-                    e.message?.contains("connect", ignoreCase = true) == true ->
-                        "❌ Network Error\n\nCannot connect to payment server.\n\nPlease check your internet connection and try again."
-                    
-                    e.message?.contains("browser", ignoreCase = true) == true ->
-                        "❌ Browser Not Found\n\nNo web browser app is installed.\n\nPlease install a browser (Chrome, Firefox, etc.) and try again."
-                    
-                    e.message?.contains("timeout", ignoreCase = true) == true ->
-                        "❌ Connection Timeout\n\nThe request took too long.\n\nPlease check your internet connection and try again."
-                    
-                    else ->
-                        "❌ Payment Error\n\n${e.message}\n\nPlease try again or contact support if the issue persists."
-                }
-                
-                addSystemMessage(userMessage)
-                
-                // Show error toast
-                withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        context,
-                        "Failed to open checkout: ${e.message?.take(50)}",
-                        android.widget.Toast.LENGTH_LONG
-                    ).show()
-                }
-                
-                // Re-open the modal so they can try again
-                _showUpgradeModal.value = true
-            }
-        }
+        // DISABLED - App is free
+        Log.d("ChatViewModel", "Premium checkout disabled - app is free")
     }
     
-    // Flag to check premium status when app resumes
-    private var checkPremiumOnResume = false
-    
     /**
-     * Call this from Activity.onResume() to check premium status after payment
+     * Call this from Activity.onResume() to check premium status after payment - DISABLED
      */
     fun onAppResume() {
-        if (checkPremiumOnResume) {
-            checkPremiumOnResume = false
-            viewModelScope.launch {
-                delay(500) // Brief delay to ensure webhook has processed
-                checkPremiumStatus()
-            }
-        }
+        // DISABLED - No premium status to check
     }
 
     /**
-     * Check premium status after payment
+     * Check premium status after payment - DISABLED
      */
     suspend fun checkPremiumStatus() {
-        reloadUserProfile()
+        // DISABLED - No premium status
     }
 
     /**
-     * Set show sign-in modal
+     * Set show sign-in modal - DISABLED
      */
     fun setShowSignInModal(show: Boolean) {
-        _showSignInModal.value = show
+        // DISABLED - No sign-in modal
     }
 
     /**
-     * Set show upgrade modal
+     * Set show upgrade modal - DISABLED
      */
     fun setShowUpgradeModal(show: Boolean) {
-        _showUpgradeModal.value = show
+        // DISABLED - No upgrade modal
     }
 
     /**
-     * Get current user ID
+     * Get current user ID - DISABLED (always returns null)
      */
     fun getCurrentUserId(): String? {
-        return supabaseService?.getCurrentUserId()
+        return null // No user authentication
     }
 
     /**
-     * Get current user email
+     * Get current user email - DISABLED (always returns null)
      */
     fun getCurrentUserEmail(): String? {
-        return supabaseService?.getCurrentUserEmail()
+        return null // No user authentication
     }
 }

@@ -71,20 +71,15 @@ fun PersonalitySelectorDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(personalities) { personality ->
-                        val isLocked = !subscription.isPremium && 
-                            !FREE_PERSONALITIES.contains(personality.id)
+                        // All personalities are free - no locks
+                        val isLocked = false
                         
                         PersonalityCard(
                             personality = personality,
                             isSelected = personality.id == currentPersonality.id,
                             isLocked = isLocked,
                             onClick = {
-                                if (isLocked) {
-                                    if (shouldPromptUpgrade) {
-                                        onShowUpgrade()
-                                    }
-                                    return@PersonalityCard
-                                }
+                                // Directly select personality (app is free)
                                 onPersonalitySelected(personality)
                                 onDismiss()
                             }
@@ -143,16 +138,16 @@ fun PersonalityCard(
                 // Personality icon in a consistent box, aligned to top
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(72.dp)
                         .offset(y = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     when {
                         personality.id == "default" -> {
                             Image(
-                                painter = painterResource(id = R.drawable.lamp_icon),
+                                painter = painterResource(id = R.drawable.blue_genie_icon_trans),
                                 contentDescription = "Blue Genie",
-                                modifier = Modifier.size(56.dp),
+                                modifier = Modifier.size(100.dp),
                                 contentScale = ContentScale.Fit
                             )
                         }
@@ -199,7 +194,7 @@ fun PersonalityCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Column(
                     modifier = Modifier.weight(1f)
@@ -223,7 +218,7 @@ fun PersonalityCard(
                     isLocked -> {
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(18.dp)
                                 .clip(CircleShape)
                                 .background(
                                     Brush.linearGradient(
@@ -239,7 +234,7 @@ fun PersonalityCard(
                                 imageVector = Icons.Default.Lock,
                                 contentDescription = "Locked",
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                     }
@@ -264,8 +259,8 @@ fun PersonalityChipRow(
     onPersonalityClick: (AIPersonality) -> Unit
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
     ) {
         items(personalities) { personality ->
             PersonalityChip(
@@ -295,7 +290,7 @@ fun PersonalityChip(
         shape = RoundedCornerShape(20.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

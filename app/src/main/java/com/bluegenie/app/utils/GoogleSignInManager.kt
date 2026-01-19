@@ -1,5 +1,13 @@
 package com.bluegenie.app.utils
 
+// ===============================================================================
+// GoogleSignInManager - DISABLED
+// ===============================================================================
+// This utility is disabled because the Blue Genie app is now completely free
+// with no sign-in required. All Google authentication has been removed.
+// ===============================================================================
+
+/*
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -92,4 +100,5 @@ class GoogleSignInManager(private val context: Context) {
         return GoogleSignIn.getLastSignedInAccount(context)
     }
 }
+*/
 
