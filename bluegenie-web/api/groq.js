@@ -216,8 +216,12 @@ You have access to a web search tool for questions requiring real-time data.`;
 
     if (conversationContext && Array.isArray(conversationContext)) {
       conversationContext.forEach(({ user, model }) => {
-        messages.push({ role: 'user', content: user });
-        messages.push({ role: 'assistant', content: model });
+        if (typeof user === 'string' && user.trim().length > 0) {
+          messages.push({ role: 'user', content: user });
+        }
+        if (typeof model === 'string' && model.trim().length > 0) {
+          messages.push({ role: 'assistant', content: model });
+        }
       });
     }
 
