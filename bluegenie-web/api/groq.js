@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || '';
 const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
@@ -128,7 +128,7 @@ async function generateResponseFromHistory(messages, model) {
   throw new Error('No choices in follow-up response');
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
