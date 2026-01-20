@@ -4,7 +4,8 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY |
 const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BRAVE_GROUNDING_URL = 'https://api.search.brave.com/res/v1/chat/completions';
-const VISION_MODEL = 'llama-3.3-70b-versatile';
+const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+const VISION_MODEL = DEFAULT_MODEL;
 
 function extractQueryFromMalformedCall(content) {
   const patterns = [
@@ -211,7 +212,7 @@ CRITICAL - Tool usage rules:
 
 You have access to a web search tool for questions requiring real-time data.`;
 
-    const requestModel = hasImage ? VISION_MODEL : personality?.model || 'llama-3.3-70b-versatile';
+    const requestModel = hasImage ? VISION_MODEL : personality?.model || DEFAULT_MODEL;
 
     const messages = [
       {
