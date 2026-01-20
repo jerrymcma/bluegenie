@@ -229,7 +229,15 @@ You have access to a web search tool for questions requiring real-time data.`;
     console.log('Groq response code:', response.status);
 
     if (response.ok) {
-      const jsonResponse = JSON.parse(responseBody);
+      let jsonResponse;
+      try {
+        jsonResponse = JSON.parse(responseBody);
+      } catch (parseError) {
+        console.error('Failed to parse Groq response:', parseError);
+        console.error('Response body:', responseBody);
+        throw new Error('Invalid JSON response from Groq API');
+      }
+
       const choices = jsonResponse?.choices;
       
       if (choices && choices.length > 0) {
@@ -287,6 +295,9 @@ You have access to a web search tool for questions requiring real-time data.`;
           return res.status(200).json({ text: content, model: personality?.model || 'llama-3.3-70b-versatile' });
         }
       }
+
+      console.error('No valid choices in Groq response:', jsonResponse);
+      throw new Error('No valid response from Groq API');
     }
 
     if (response.status === 400) {
@@ -322,12 +333,32 @@ You have access to a web search tool for questions requiring real-time data.`;
             }
           }
         }
+        console.error('Groq 400 error:', errorJson);
+        throw new Error(`Groq API validation error: ${errorJson?.error?.message || 'Unknown error'}`);
       } catch (parseError) {
         console.error('Error parsing 400 response:', parseError);
+        console.error('Response body:', responseBody);
+        throw new Error('Invalid error response from Groq API');
       }
     }
 
-    throw new Error(`API Error: ${response.status}`);
+    if (response.status === 401) {
+      console.error('Groq authentication failed - check API key');
+      throw new Error('Authentication failed with Groq API - please check your API key');
+    }
+
+    if (response.status === 429) {
+      console.error('Groq rate limit exceeded');
+      throw new Error('Rate limit exceeded. Please try again in a moment.');
+    }
+
+    if (response.status === 500 || response.status === 502 || response.status === 503) {
+      console.error(`Groq server error: ${response.status}`);
+      throw new Error('Groq AI service is temporarily unavailable. Please try again later.');
+    }
+
+    console.error('Unexpected Groq API response:', response.status, responseBody);
+    throw new Error(`Groq API returned status ${response.status}`);
 
   } catch (error) {
     console.error('Groq API error:', error);
