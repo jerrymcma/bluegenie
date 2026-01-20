@@ -8,6 +8,7 @@ import { WelcomeMessage } from '../components/WelcomeMessage';
 import { PersonalitySelector } from '../components/PersonalitySelector';
 import { ChatInput } from '../components/ChatInput';
 import { MusicGenerationDialog } from '../components/MusicGenerationDialog';
+import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
 
 export function ChatScreen() {
   const {
@@ -17,11 +18,16 @@ export function ChatScreen() {
     isSpeaking,
     changePersonality,
     initialize,
+    musicLibrary,
+    loadMusicLibrary,
+    deleteGeneratedMusic,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
+  const [showMusicLibrary, setShowMusicLibrary] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     initialize();
@@ -44,16 +50,43 @@ export function ChatScreen() {
     setShowStartFreshDialog(false);
   };
 
-  const isSparki = currentPersonality.id === 'default';
-
   const handleMusicButtonClick = () => {
-    if (isSparki) {
+    if (currentPersonality.id !== 'music_composer') {
       const musicSparki = personalities.MUSIC;
       if (musicSparki) {
         changePersonality(musicSparki);
       }
-    } else {
-      setShowMusicDialog(true);
+    }
+  };
+
+  const handleOpenMusicLibrary = () => {
+    loadMusicLibrary();
+    setShowMusicLibrary(true);
+  };
+
+  const handlePlayMusic = (url: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.play();
+  };
+
+  const handleShareMusic = async (url: string, prompt: string) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Magic Music',
+          text: prompt,
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
     }
   };
 
@@ -121,6 +154,8 @@ export function ChatScreen() {
           <ChatInput
             onShowFavorites={() => {}}
             onMusicClick={handleMusicButtonClick}
+            onOpenMusicGenerator={() => setShowMusicDialog(true)}
+            onOpenMusicLibrary={handleOpenMusicLibrary}
           />
         </div>
       </div>
@@ -133,6 +168,14 @@ export function ChatScreen() {
       <MusicGenerationDialog
         isOpen={showMusicDialog}
         onClose={() => setShowMusicDialog(false)}
+      />
+      <MusicLibraryDialog
+        isOpen={showMusicLibrary}
+        onClose={() => setShowMusicLibrary(false)}
+        library={musicLibrary}
+        onPlayMusic={(music) => handlePlayMusic(music.url)}
+        onShareMusic={(music) => handleShareMusic(music.url, music.prompt)}
+        onDeleteMusic={(musicId) => deleteGeneratedMusic(musicId)}
       />
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

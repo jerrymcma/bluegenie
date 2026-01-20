@@ -3,6 +3,7 @@ import { Message, FavoriteSpark } from '../types';
 const STORAGE_KEY_PREFIX = 'sparkifire_messages_';
 const LAST_RESET_KEY_PREFIX = 'sparkifire_last_reset_';
 const FAVORITES_KEY = 'sparkifire_favorites';
+const MUSIC_LIBRARY_KEY = 'sparkifire_music_library';
 const AUTO_RESET_HOURS = 24;
 
 export class StorageService {
@@ -117,6 +118,26 @@ export class StorageService {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
     } catch (error) {
       console.error('Error saving favorite sparks:', error);
+    }
+  }
+
+  loadMusicLibrary<T>(): T[] {
+    try {
+      const data = localStorage.getItem(MUSIC_LIBRARY_KEY);
+      if (data) {
+        return JSON.parse(data);
+      }
+    } catch (error) {
+      console.error('Error loading music library:', error);
+    }
+    return [];
+  }
+
+  saveMusicLibrary<T>(library: T[]): void {
+    try {
+      localStorage.setItem(MUSIC_LIBRARY_KEY, JSON.stringify(library));
+    } catch (error) {
+      console.error('Error saving music library:', error);
     }
   }
 }

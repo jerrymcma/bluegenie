@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Message, AIPersonality, MessageType, FavoriteSpark } from '../types';
+import { Message, AIPersonality, MessageType, FavoriteSpark, GeneratedMusic } from '../types';
 import { personalities } from '../data/personalities';
 import { groqService } from '../services/groqService';
 import { storageService } from '../services/storageService';
@@ -19,6 +19,7 @@ export interface ChatState {
   isGeneratingMusic: boolean;
   musicStatus: string | null;
   favoriteSparks: FavoriteSpark[];
+  musicLibrary: GeneratedMusic[];
   
   sendMessage: (
     content: string,
@@ -32,7 +33,10 @@ export interface ChatState {
   setIsListening: (isListening: boolean) => void;
   setIsSpeaking: (isSpeaking: boolean) => void;
   setMusicStatus: (status: string | null) => void;
-  generateMusic: (payload: string) => Promise<string | null>;
+  generateMusic: (payload: string, prompt: string) => Promise<string | null>;
+  loadMusicLibrary: () => void;
+  addGeneratedMusic: (music: GeneratedMusic) => void;
+  deleteGeneratedMusic: (musicId: string) => void;
   initialize: () => void;
   toggleFavorite: (messageId: string) => void;
 }
@@ -46,6 +50,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isGeneratingMusic: false,
   musicStatus: null,
   favoriteSparks: [],
+  musicLibrary: [],
 
   initialize: () => {
     const { currentPersonality } = get();
@@ -72,7 +77,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
 
     const favorites = storageService.loadFavorites();
-    set({ favoriteSparks: favorites });
+    const library = storageService.loadMusicLibrary<GeneratedMusic>();
+    set({ favoriteSparks: favorites, musicLibrary: library });
   },
 
   sendMessage: async (
@@ -218,26 +224,56 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setIsListening: (isListening: boolean) => set({ isListening }),
   setIsSpeaking: (isSpeaking: boolean) => set({ isSpeaking }),
   setMusicStatus: (status: string | null) => set({ musicStatus: status }),
+  loadMusicLibrary: () => {
+    const library = storageService.loadMusicLibrary<GeneratedMusic>();
+    set({ musicLibrary: library });
+  },
+  addGeneratedMusic: (music: GeneratedMusic) => {
+    const updatedLibrary = [music, ...get().musicLibrary];
+    storageService.saveMusicLibrary(updatedLibrary);
+    set({ musicLibrary: updatedLibrary });
+  },
+  deleteGeneratedMusic: (musicId: string) => {
+    const updatedLibrary = get().musicLibrary.filter((track) => track.id !== musicId);
+    storageService.saveMusicLibrary(updatedLibrary);
+    set({ musicLibrary: updatedLibrary });
+  },
 
-  generateMusic: async (payload: string): Promise<string | null> => {
+  generateMusic: async (payload: string, prompt: string): Promise<string | null> => {
     set({ isGeneratingMusic: true, musicStatus: 'Starting music generation...' });
 
     try {
-      // No auth required - completely free
       const result = await musicService.generateClip(payload, 'free');
-      
-      set({ 
-        isGeneratingMusic: false, 
-        musicStatus: null 
-      });
+      const downloadPrefix = 'Download it here: ';
+      const downloadIndex = result.indexOf(downloadPrefix);
+      let url: string | null = null;
+
+      if (downloadIndex !== -1) {
+        url = result.substring(downloadIndex + downloadPrefix.length).trim();
+      }
+
+      if (url) {
+        const newTrack: GeneratedMusic = {
+          id: crypto.randomUUID(),
+          prompt,
+          url,
+          durationSeconds: 0,
+          timestamp: Date.now(),
+          isFreeTier: true,
+          costCents: 0,
+          isRead: false,
+        };
+        const updatedLibrary = [newTrack, ...get().musicLibrary];
+        storageService.saveMusicLibrary(updatedLibrary);
+        set({ musicLibrary: updatedLibrary });
+      }
+
+      set({ isGeneratingMusic: false, musicStatus: result });
 
       return result;
     } catch (error) {
       console.error('[generateMusic] Error:', error);
-      set({ 
-        isGeneratingMusic: false, 
-        musicStatus: null 
-      });
+      set({ isGeneratingMusic: false, musicStatus: null });
       
       return 'Sorry, music generation failed. Please try again.';
     }

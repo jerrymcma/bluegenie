@@ -29,7 +29,8 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
 
     try {
       const payload = sanitizedStyle ? `${sanitizedLyrics}|${sanitizedStyle}` : sanitizedLyrics;
-      await generateMusic(payload);
+      const promptText = sanitizedStyle || sanitizedLyrics || 'Music';
+      await generateMusic(payload, promptText);
     } catch (error) {
       console.error('Music generation error', error);
       setMusicStatus('Sorry, I could not generate music just now. Please try again.');

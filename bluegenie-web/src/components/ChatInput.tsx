@@ -8,10 +8,12 @@ import { FlashOnIcon } from './icons/FlashOnIcon';
 interface ChatInputProps {
   onShowFavorites: () => void;
   onMusicClick: () => void;
+  onOpenMusicGenerator: () => void;
+  onOpenMusicLibrary: () => void;
 }
 
-export function ChatInput({ onShowFavorites, onMusicClick }: ChatInputProps) {
-  const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
+export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator, onOpenMusicLibrary }: ChatInputProps) {
+  const { sendMessage, isLoading, isListening, setIsListening, currentPersonality } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -112,6 +114,8 @@ export function ChatInput({ onShowFavorites, onMusicClick }: ChatInputProps) {
     onShowFavorites();
   };
 
+  const isMusicPersonality = currentPersonality.id === 'music_composer';
+
   return (
     <div
       className="bg-white/95 border-t border-gray-200 pt-3 px-3 sm:px-4 pb-12 shadow-lg"
@@ -143,6 +147,23 @@ export function ChatInput({ onShowFavorites, onMusicClick }: ChatInputProps) {
           <div className="mb-3 flex items-center justify-center space-x-2 bg-blue-50 p-2 rounded-lg">
             <Mic className="w-4 h-4 text-blue-500 animate-pulse" />
             <span className="text-sm text-blue-500 font-medium">Listening...</span>
+          </div>
+        )}
+
+        {isMusicPersonality && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            <button
+              onClick={onOpenMusicLibrary}
+              className="flex-1 min-w-[160px] px-4 py-2 rounded-xl border-2 border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 hover:border-purple-300 transition-colors"
+            >
+              Music Library
+            </button>
+            <button
+              onClick={onOpenMusicGenerator}
+              className="flex-1 min-w-[160px] px-4 py-2 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors"
+            >
+              Generate Music
+            </button>
           </div>
         )}
 
