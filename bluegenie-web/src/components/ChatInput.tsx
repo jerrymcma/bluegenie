@@ -116,6 +116,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
 
   const isMusicPersonality = currentPersonality.id === 'music_composer';
   const unreadMusicCount = musicLibrary.filter((track) => !track.isRead).length;
+  const gradientButtonClass = 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl';
 
   return (
     <div
@@ -155,18 +156,18 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
           <div className="mb-3 flex flex-wrap gap-2">
             <button
               onClick={onOpenMusicLibrary}
-              className={`flex-1 min-w-[160px] px-4 py-2 rounded-xl border-2 font-semibold transition-colors flex items-center justify-center gap-2 ${unreadMusicCount > 0 ? 'border-purple-400 text-purple-800 bg-purple-50' : 'border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300'}`}
+              className={`flex-1 min-w-[160px] px-4 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 ${gradientButtonClass}`}
             >
               <span>Music Library</span>
               {unreadMusicCount > 0 && (
-                <span className="min-w-[24px] h-6 px-2 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center">
+                <span className="min-w-[24px] h-6 px-2 rounded-full bg-white/20 text-white text-xs flex items-center justify-center">
                   {unreadMusicCount}
                 </span>
               )}
             </button>
             <button
               onClick={onOpenMusicGenerator}
-              className="flex-1 min-w-[160px] px-4 py-2 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors"
+              className={`flex-1 min-w-[160px] px-4 py-2 rounded-xl font-semibold ${gradientButtonClass}`}
             >
               Generate Music
             </button>
@@ -192,7 +193,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                 {/* Music Button on left */}
                 <button
                     onClick={onMusicClick}
-                    className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
+                    className={`w-10 h-10 flex items-center justify-center rounded-full ${gradientButtonClass}`}
                     title="Generate Music"
                 >
                     <Music4 className="w-5 h-5" />
@@ -202,7 +203,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                 <div className="relative">
                     <button
                         onClick={() => setShowImageOptions(!showImageOptions)}
-                        className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md hover:shadow-lg"
+                        className={`w-10 h-10 flex items-center justify-center rounded-full ${gradientButtonClass}`}
                         title="Open Blue Genie tools"
                     >
                         <Plus className="w-5 h-5 text-yellow-300" strokeWidth={3} />
@@ -242,14 +243,14 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                 </div>
 
                 {/* Voice Button */}
-                <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md hover:shadow-lg ${isListening ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-blue-500 text-white hover:bg-blue-600'}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
+                <button onClick={handleVoiceToggle} className={`w-10 h-10 flex items-center justify-center rounded-full ${gradientButtonClass}`} title={isListening ? 'Stop listening' : 'Start voice input'}>
                     {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
 
                 {/* Spark Idea Button */}
                 <button
                     onClick={handleSparkIdea}
-                    className="w-12 h-12 flex items-center justify-center bg-blue-500 rounded-2xl shadow-lg hover:shadow-2xl hover:bg-blue-600 transition-all"
+                    className={`w-12 h-12 flex items-center justify-center rounded-2xl ${gradientButtonClass}`}
                     title="Blue Genie Idea"
                 >
                     <FlashOnIcon className="w-6 h-6" color="#FFD54F" />
@@ -261,7 +262,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
             <button
                 onClick={handleSend}
                 disabled={(!messageText.trim() && !selectedImagePreview) || isLoading}
-                className="min-w-[110px] flex items-center justify-center gap-2 bg-blue-500 text-white pl-4 pr-6 py-3 rounded-xl hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-lg"
+                className={`min-w-[110px] flex items-center justify-center gap-2 pl-4 pr-6 py-3 rounded-xl ${gradientButtonClass} disabled:bg-gray-300 disabled:cursor-not-allowed`}
             >
                 <Send className="w-5 h-5" />
                 <span className="font-semibold">Send</span>

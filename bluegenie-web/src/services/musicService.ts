@@ -36,7 +36,7 @@ class MusicService {
         return 'The music job did not finish successfully. Please try a simpler prompt or try again soon.';
       }
 
-      return `✨ Sparki composed your song! Download it here: ${outputUrl}`;
+      return `✨ Blue Genie composed your song! Download it here: ${outputUrl}`;
     } catch (error: unknown) {
       console.error('MusicService.generateClip error', error);
       
