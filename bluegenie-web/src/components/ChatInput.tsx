@@ -13,7 +13,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator, onOpenMusicLibrary }: ChatInputProps) {
-  const { sendMessage, isLoading, isListening, setIsListening, currentPersonality } = useChatStore();
+  const { sendMessage, isLoading, isListening, setIsListening, currentPersonality, musicLibrary } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -115,6 +115,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
   };
 
   const isMusicPersonality = currentPersonality.id === 'music_composer';
+  const unreadMusicCount = musicLibrary.filter((track) => !track.isRead).length;
 
   return (
     <div
@@ -154,9 +155,14 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
           <div className="mb-3 flex flex-wrap gap-2">
             <button
               onClick={onOpenMusicLibrary}
-              className="flex-1 min-w-[160px] px-4 py-2 rounded-xl border-2 border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 hover:border-purple-300 transition-colors"
+              className={`flex-1 min-w-[160px] px-4 py-2 rounded-xl border-2 font-semibold transition-colors flex items-center justify-center gap-2 ${unreadMusicCount > 0 ? 'border-purple-400 text-purple-800 bg-purple-50' : 'border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300'}`}
             >
-              Music Library
+              <span>Music Library</span>
+              {unreadMusicCount > 0 && (
+                <span className="min-w-[24px] h-6 px-2 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center">
+                  {unreadMusicCount}
+                </span>
+              )}
             </button>
             <button
               onClick={onOpenMusicGenerator}

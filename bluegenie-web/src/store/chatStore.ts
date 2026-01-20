@@ -37,6 +37,7 @@ export interface ChatState {
   loadMusicLibrary: () => void;
   addGeneratedMusic: (music: GeneratedMusic) => void;
   deleteGeneratedMusic: (musicId: string) => void;
+  markMusicAsRead: (musicId: string) => void;
   initialize: () => void;
   toggleFavorite: (messageId: string) => void;
 }
@@ -235,6 +236,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
   deleteGeneratedMusic: (musicId: string) => {
     const updatedLibrary = get().musicLibrary.filter((track) => track.id !== musicId);
+    storageService.saveMusicLibrary(updatedLibrary);
+    set({ musicLibrary: updatedLibrary });
+  },
+  markMusicAsRead: (musicId: string) => {
+    const updatedLibrary = get().musicLibrary.map((track) =>
+      track.id === musicId ? { ...track, isRead: true } : track
+    );
     storageService.saveMusicLibrary(updatedLibrary);
     set({ musicLibrary: updatedLibrary });
   },

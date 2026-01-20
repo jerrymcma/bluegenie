@@ -21,6 +21,7 @@ export function ChatScreen() {
     musicLibrary,
     loadMusicLibrary,
     deleteGeneratedMusic,
+    markMusicAsRead,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
@@ -64,7 +65,7 @@ export function ChatScreen() {
     setShowMusicLibrary(true);
   };
 
-  const handlePlayMusic = (url: string) => {
+  const handlePlayMusic = (trackId: string, url: string) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -72,6 +73,7 @@ export function ChatScreen() {
     const audio = new Audio(url);
     audioRef.current = audio;
     audio.play();
+    markMusicAsRead(trackId);
   };
 
   const handleShareMusic = async (url: string, prompt: string) => {
@@ -173,7 +175,7 @@ export function ChatScreen() {
         isOpen={showMusicLibrary}
         onClose={() => setShowMusicLibrary(false)}
         library={musicLibrary}
-        onPlayMusic={(music) => handlePlayMusic(music.url)}
+        onPlayMusic={(music) => handlePlayMusic(music.id, music.url)}
         onShareMusic={(music) => handleShareMusic(music.url, music.prompt)}
         onDeleteMusic={(musicId) => deleteGeneratedMusic(musicId)}
       />
