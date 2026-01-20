@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || '';
 const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -9,12 +11,36 @@ function extractQueryFromMalformedCall(content) {
     /['"]?query['"]?\s*:\s*['"]([^'"]+)['"]/,
     /query['":]?\s*[=:]\s*['"]([^'"]+)['"]/
   ];
-  
+
   for (const pattern of patterns) {
     const match = content.match(pattern);
     if (match) return match[1];
   }
   return null;
+}
+
+function stringifyResponseBody(data) {
+  if (data === undefined || data === null) {
+    return '';
+  }
+  if (typeof data === 'string') {
+    return data;
+  }
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return '';
+  }
+}
+
+function parseJsonBody(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (typeof value === 'object') {
+    return value;
+  }
+  return JSON.parse(value);
 }
 
 async function performWebSearch(query) {
@@ -34,21 +60,25 @@ async function performWebSearch(query) {
       ]
     };
 
-    const response = await fetch(BRAVE_GROUNDING_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Subscription-Token': BRAVE_GROUNDING_API_KEY
-      },
-      body: JSON.stringify(requestBody)
-    });
+    const response = await axios.post(
+      BRAVE_GROUNDING_URL,
+      requestBody,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Subscription-Token': BRAVE_GROUNDING_API_KEY
+        },
+        timeout: 20000,
+        validateStatus: () => true
+      }
+    );
 
-    if (!response.ok) {
+    if (response.status < 200 || response.status >= 300) {
       console.error('Brave grounding failed:', response.status);
       return `Search failed: ${response.status}`;
     }
 
-    const data = await response.json();
+    const data = response.data;
     const choices = data?.choices;
     if (choices && choices.length > 0) {
       const content = choices[0]?.message?.content || '';
@@ -58,7 +88,10 @@ async function performWebSearch(query) {
     return 'No direct answer found.';
   } catch (error) {
     console.error('Grounding error:', error);
-    return `Search error: ${error.message}`;
+    if (axios.isAxiosError(error)) {
+      return `Search error: ${error.message}`;
+    }
+    return `Search error: ${error?.message || 'Unknown error'}`;
   }
 }
 
@@ -69,20 +102,24 @@ async function generateResponseFromHistory(messages, model) {
     tool_choice: 'none'
   };
 
-  const followUpResponse = await fetch(GROQ_BASE_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(followUpRequestBody)
-  });
+  const followUpResponse = await axios.post(
+    GROQ_BASE_URL,
+    followUpRequestBody,
+    {
+      headers: {
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 40000,
+      validateStatus: () => true
+    }
+  );
 
-  if (!followUpResponse.ok) {
+  if (followUpResponse.status < 200 || followUpResponse.status >= 300) {
     throw new Error(`Follow-up request failed: ${followUpResponse.status}`);
   }
 
-  const followUpData = await followUpResponse.json();
+  const followUpData = followUpResponse.data;
   const followUpChoices = followUpData?.choices;
   if (followUpChoices && followUpChoices.length > 0) {
     return followUpChoices[0]?.message?.content || 'I seem to be at a loss for words...';
@@ -107,15 +144,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Only text messages are supported' });
     }
 
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
     });
-    
-    const currentMonth = new Date().toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
+
+    const currentMonth = new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
     });
 
     const systemPrompt = `You are ${personality?.name || 'Blue Genie'}, a ${personality?.description || 'Your intelligent AI assistant'}.
@@ -216,22 +253,26 @@ You have access to a web search tool for questions requiring real-time data.`;
       tools
     };
 
-    const response = await fetch(GROQ_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    });
+    const response = await axios.post(
+      GROQ_BASE_URL,
+      requestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 40000,
+        validateStatus: () => true
+      }
+    );
 
-    const responseBody = await response.text();
+    const responseBody = stringifyResponseBody(response.data);
     console.log('Groq response code:', response.status);
 
-    if (response.ok) {
+    if (response.status >= 200 && response.status < 300) {
       let jsonResponse;
       try {
-        jsonResponse = JSON.parse(responseBody);
+        jsonResponse = parseJsonBody(response.data);
       } catch (parseError) {
         console.error('Failed to parse Groq response:', parseError);
         console.error('Response body:', responseBody);
@@ -239,7 +280,7 @@ You have access to a web search tool for questions requiring real-time data.`;
       }
 
       const choices = jsonResponse?.choices;
-      
+
       if (choices && choices.length > 0) {
         const firstChoice = choices[0];
         const messageObj = firstChoice?.message;
@@ -250,14 +291,13 @@ You have access to a web search tool for questions requiring real-time data.`;
           if (toolCalls.length > 0) {
             messages.push(messageObj);
             const toolCall = toolCalls[0];
-            const functionName = toolCall?.function?.name;
             const argumentsString = toolCall?.function?.arguments;
-            
+
             const args = JSON.parse(argumentsString);
             const query = args.query;
-            
+
             const searchResult = await performWebSearch(query);
-            
+
             messages.push({
               role: 'tool',
               content: searchResult,
@@ -273,19 +313,19 @@ You have access to a web search tool for questions requiring real-time data.`;
           const extractedQuery = extractQueryFromMalformedCall(content);
           if (extractedQuery) {
             console.log('Caught malformed tool call, extracted query:', extractedQuery);
-            
+
             const searchResult = await performWebSearch(extractedQuery);
-            
+
             messages.push({
               role: 'assistant',
               content: 'Let me search for that information...'
             });
-            
+
             messages.push({
               role: 'user',
               content: `Here are the search results for '${extractedQuery}':\n\n${searchResult}\n\nPlease summarize this information in a natural, conversational way.`
             });
-            
+
             const finalResponse = await generateResponseFromHistory(messages, personality?.model || 'llama-3.3-70b-versatile');
             return res.status(200).json({ text: finalResponse, model: personality?.model || 'llama-3.3-70b-versatile' });
           }
@@ -302,32 +342,32 @@ You have access to a web search tool for questions requiring real-time data.`;
 
     if (response.status === 400) {
       try {
-        const errorJson = JSON.parse(responseBody);
+        const errorJson = parseJsonBody(response.data);
         if (errorJson?.error) {
           const error = errorJson.error;
           const code = error?.code;
-          
+
           if (code === 'tool_use_failed' && error?.failed_generation) {
             const failedGen = error.failed_generation;
             console.log('Caught pre-rejected malformed tool call:', failedGen);
-            
+
             const query = extractQueryFromMalformedCall(failedGen);
-            
+
             if (query) {
               console.log('Extracted query from malformed call:', query);
-              
+
               const searchResult = await performWebSearch(query);
-              
+
               messages.push({
                 role: 'assistant',
                 content: 'Let me search for that information...'
               });
-              
+
               messages.push({
                 role: 'user',
                 content: `Here are the search results for '${query}':\n\n${searchResult}\n\nPlease summarize this information in a natural, conversational way.`
               });
-              
+
               const finalResponse = await generateResponseFromHistory(messages, personality?.model || 'llama-3.3-70b-versatile');
               return res.status(200).json({ text: finalResponse, model: personality?.model || 'llama-3.3-70b-versatile' });
             }
@@ -362,9 +402,9 @@ You have access to a web search tool for questions requiring real-time data.`;
 
   } catch (error) {
     console.error('Groq API error:', error);
-    return res.status(500).json({ 
-      error: 'Failed to generate response', 
-      details: error.message 
+    return res.status(500).json({
+      error: 'Failed to generate response',
+      details: error.message
     });
   }
 }
