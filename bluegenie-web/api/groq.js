@@ -1,5 +1,5 @@
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
-const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || '';
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || '';
+const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BRAVE_GROUNDING_URL = 'https://api.search.brave.com/res/v1/chat/completions';
 
