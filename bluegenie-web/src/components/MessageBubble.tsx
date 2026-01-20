@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Volume2, MoreVertical, Copy, Share2, Bookmark, RefreshCw } from 'lucide-react';
+import { Volume2, MoreVertical, Copy, Share2, Bookmark, RefreshCw, X } from 'lucide-react';
 import { Message } from '../types';
 import { voiceService } from '../services/voiceService';
 import { useChatStore } from '../store/chatStore';
@@ -12,6 +12,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, onRequestStartFresh }: MessageBubbleProps) {
   const { setIsSpeaking, toggleFavorite } = useChatStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,13 +72,38 @@ export function MessageBubble({ message, onRequestStartFresh }: MessageBubblePro
       <div className="flex justify-end mb-4">
         <div className="max-w-[85%]">
           {message.imageUri && (
-            <div className="mb-2">
-              <img
-                src={message.imageUri}
-                alt="User uploaded"
-                className="rounded-lg max-w-full h-auto"
-              />
-            </div>
+            <>
+              <div className="mb-2">
+                <img
+                  src={message.imageUri}
+                  alt="User uploaded"
+                  className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setIsLightboxOpen(true)}
+                />
+              </div>
+              {isLightboxOpen && (
+                <div 
+                  className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200"
+                  onClick={() => setIsLightboxOpen(false)}
+                >
+                  <button 
+                    className="absolute top-4 right-4 text-white/70 hover:text-white p-2 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsLightboxOpen(false);
+                    }}
+                  >
+                    <X className="w-8 h-8" />
+                  </button>
+                  <img 
+                    src={message.imageUri} 
+                    alt="Full view" 
+                    className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                    onClick={(e) => e.stopPropagation()} 
+                  />
+                </div>
+              )}
+            </>
           )}
           <div className="bg-blue-500 text-white rounded-2xl px-4 py-3 shadow-md">
             <p className="whitespace-pre-wrap break-words">{message.content}</p>
