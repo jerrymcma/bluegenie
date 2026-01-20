@@ -78,7 +78,7 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <p className="text-sm text-blue-600 text-center">
-            Every Sparki Model has unique chat memory and conversation application.
+            Every Blue Genie Model has unique chat memory and conversation application.
           </p>
         </div>
       </div>

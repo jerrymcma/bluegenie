@@ -21,6 +21,15 @@ export const personalities: Record<string, AIPersonality> = {
     responseStyle: ResponseStyle.MUSIC,
     color: '#E91E63'
   },
+  ULTIMATE: {
+    id: 'ultimate',
+    name: 'BG Ultimate',
+    description: 'Most powerful & versatile AI Guru',
+    icon: '⚡',
+    greeting: 'Welcome! I am BG Ultimate, the pinnacle of AI assistance. With unmatched capabilities across all domains, I\'m here to provide you with the most comprehensive and powerful AI experience. What challenge shall we conquer together? ⚡🔥',
+    responseStyle: ResponseStyle.ULTIMATE,
+    color: '#B71C1C'
+  },
   PROFESSIONAL: {
     id: 'professional',
     name: 'Genie Pro',
@@ -92,15 +101,6 @@ export const personalities: Record<string, AIPersonality> = {
     greeting: 'Let\'s GO! I\'m Genie Picks, your ultimate sports companion! 🏈⚽🏀 Whether you want to talk stats, make predictions, discuss strategy, or just celebrate the love of the game - I\'m here for it all! What sport are we diving into today, champ?',
     responseStyle: ResponseStyle.SPORTS,
     color: '#FF6F00'
-  },
-  ULTIMATE: {
-    id: 'ultimate',
-    name: 'BG Ultimate',
-    description: 'Most powerful & versatile AI Guru',
-    icon: '⚡',
-    greeting: 'Welcome! I am BG Ultimate, the pinnacle of AI assistance. With unmatched capabilities across all domains, I\'m here to provide you with the most comprehensive and powerful AI experience. What challenge shall we conquer together? ⚡🔥',
-    responseStyle: ResponseStyle.ULTIMATE,
-    color: '#B71C1C'
   }
 };
 
