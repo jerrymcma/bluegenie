@@ -4,6 +4,7 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY |
 const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BRAVE_GROUNDING_URL = 'https://api.search.brave.com/res/v1/chat/completions';
+const VISION_MODEL = 'llama-3.2-90b-vision-preview';
 
 function extractQueryFromMalformedCall(content) {
   const patterns = [
@@ -138,10 +139,13 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Groq API key is not configured' });
     }
 
-    const { type, message: userMessage, personality, conversationContext } = req.body;
+    const { type, message: userMessage, personality, conversationContext, imageBase64 } = req.body;
 
-    if (type !== 'text') {
-      return res.status(400).json({ error: 'Only text messages are supported' });
+    const normalizedType = typeof type === 'string' ? type.toUpperCase() : 'TEXT';
+    const hasImage = normalizedType === 'IMAGE' || normalizedType === 'TEXT_WITH_IMAGE';
+
+    if (hasImage && !imageBase64) {
+      return res.status(400).json({ error: 'Image content is missing' });
     }
 
     const currentDate = new Date().toLocaleDateString('en-US', {
@@ -207,6 +211,8 @@ CRITICAL - Tool usage rules:
 
 You have access to a web search tool for questions requiring real-time data.`;
 
+    const requestModel = hasImage ? VISION_MODEL : personality?.model || 'llama-3.3-70b-versatile';
+
     const messages = [
       {
         role: 'system',
@@ -215,19 +221,34 @@ You have access to a web search tool for questions requiring real-time data.`;
     ];
 
     if (conversationContext && Array.isArray(conversationContext)) {
-      conversationContext.forEach(({ user, model }) => {
-        if (typeof user === 'string' && user.trim().length > 0) {
-          messages.push({ role: 'user', content: user });
-        }
-        if (typeof model === 'string' && model.trim().length > 0) {
-          messages.push({ role: 'assistant', content: model });
+      conversationContext.forEach((entry) => {
+        if (entry?.role && entry?.content) {
+          if (typeof entry.content === 'string' && entry.content.trim().length > 0) {
+            messages.push({ role: entry.role, content: entry.content });
+          }
+        } else {
+          const { user, model } = entry || {};
+          if (typeof user === 'string' && user.trim().length > 0) {
+            messages.push({ role: 'user', content: user });
+          }
+          if (typeof model === 'string' && model.trim().length > 0) {
+            messages.push({ role: 'assistant', content: model });
+          }
         }
       });
     }
 
+    const userText = typeof userMessage === 'string' && userMessage.trim().length > 0 ? userMessage.trim() : 'Describe this image.';
+    const userContent = hasImage
+      ? [
+          { type: 'text', text: userText },
+          { type: 'image_url', image_url: { url: imageBase64 } }
+        ]
+      : userMessage;
+
     messages.push({
       role: 'user',
-      content: userMessage
+      content: userContent
     });
 
     const tools = [
@@ -252,7 +273,7 @@ You have access to a web search tool for questions requiring real-time data.`;
 
     const requestBody = {
       messages,
-      model: personality?.model || 'llama-3.3-70b-versatile',
+      model: requestModel,
       tool_choice: 'auto',
       tools
     };
@@ -308,8 +329,8 @@ You have access to a web search tool for questions requiring real-time data.`;
               tool_call_id: toolCall.id
             });
 
-            const finalResponse = await generateResponseFromHistory(messages, personality?.model || 'llama-3.3-70b-versatile');
-            return res.status(200).json({ text: finalResponse, model: personality?.model || 'llama-3.3-70b-versatile' });
+            const finalResponse = await generateResponseFromHistory(messages, requestModel);
+            return res.status(200).json({ text: finalResponse, model: requestModel });
           }
         }
 
@@ -330,13 +351,13 @@ You have access to a web search tool for questions requiring real-time data.`;
               content: `Here are the search results for '${extractedQuery}':\n\n${searchResult}\n\nPlease summarize this information in a natural, conversational way.`
             });
 
-            const finalResponse = await generateResponseFromHistory(messages, personality?.model || 'llama-3.3-70b-versatile');
-            return res.status(200).json({ text: finalResponse, model: personality?.model || 'llama-3.3-70b-versatile' });
+            const finalResponse = await generateResponseFromHistory(messages, requestModel);
+            return res.status(200).json({ text: finalResponse, model: requestModel });
           }
         }
 
         if (content) {
-          return res.status(200).json({ text: content, model: personality?.model || 'llama-3.3-70b-versatile' });
+          return res.status(200).json({ text: content, model: requestModel });
         }
       }
 
@@ -372,8 +393,8 @@ You have access to a web search tool for questions requiring real-time data.`;
                 content: `Here are the search results for '${query}':\n\n${searchResult}\n\nPlease summarize this information in a natural, conversational way.`
               });
 
-              const finalResponse = await generateResponseFromHistory(messages, personality?.model || 'llama-3.3-70b-versatile');
-              return res.status(200).json({ text: finalResponse, model: personality?.model || 'llama-3.3-70b-versatile' });
+              const finalResponse = await generateResponseFromHistory(messages, requestModel);
+              return res.status(200).json({ text: finalResponse, model: requestModel });
             }
           }
         }

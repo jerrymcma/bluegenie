@@ -134,7 +134,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const aiResponse = await groqService.generateResponse(
         content,
         currentPersonality,
-        conversationContext
+        conversationContext,
+        imagePreview || undefined,
+        messageType
       );
 
       // Add AI message

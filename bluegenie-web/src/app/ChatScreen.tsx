@@ -133,7 +133,6 @@ export function ChatScreen() {
         <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
           {messages.length === 0 ? (
             <WelcomeMessage
-              personalityName={currentPersonality.name}
               greeting={currentPersonality.greeting}
             />
           ) : (

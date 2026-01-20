@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AIPersonality, ConversationPair } from '../types';
+import { AIPersonality, ConversationPair, MessageType } from '../types';
 
 interface GroqApiResponse {
   text?: string;
@@ -23,16 +23,19 @@ class GroqService {
   async generateResponse(
     userMessage: string,
     personality: AIPersonality | null,
-    conversationContext: ConversationPair[] = []
+    conversationContext: ConversationPair[] = [],
+    imageBase64?: string,
+    messageType: MessageType = MessageType.TEXT
   ): Promise<string> {
     try {
       const response = await axios.post<GroqApiResponse>(
         this.apiEndpoint,
         {
-          type: 'text',
+          type: messageType || MessageType.TEXT,
           message: userMessage,
           personality,
-          conversationContext
+          conversationContext,
+          imageBase64
         },
         {
           headers: {
