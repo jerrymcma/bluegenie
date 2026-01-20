@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { Volume2, MoreVertical, Copy, Share2, Bookmark } from 'lucide-react';
+import { Volume2, MoreVertical, Copy, Share2, Bookmark, RefreshCw } from 'lucide-react';
 import { Message } from '../types';
 import { voiceService } from '../services/voiceService';
 import { useChatStore } from '../store/chatStore';
 
 interface MessageBubbleProps {
   message: Message;
+  onRequestStartFresh: () => void;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, onRequestStartFresh }: MessageBubbleProps) {
   const { setIsSpeaking, toggleFavorite } = useChatStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -133,6 +134,18 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                       <Bookmark className={`w-4 h-4 ${message.isFavorite ? 'text-amber-500' : 'text-gray-600'}`} />
                       <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorite Genie Rub'}</span>
                     </button>
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <button
+                        onClick={() => {
+                          onRequestStartFresh();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md transition-colors text-left"
+                      >
+                        <RefreshCw className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700">Start Fresh</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

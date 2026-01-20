@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Volume2, Sparkles, Music4 } from 'lucide-react';
+import { Volume2, Sparkles } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
+import { personalities } from '../data/personalities';
 import { MessageBubble } from '../components/MessageBubble';
 import { TypingIndicator } from '../components/TypingIndicator';
 import { WelcomeMessage } from '../components/WelcomeMessage';
@@ -43,20 +44,15 @@ export function ChatScreen() {
     setShowStartFreshDialog(false);
   };
 
-  const isMusicPersonality = currentPersonality.id === 'music_composer';
   const isSparki = currentPersonality.id === 'default';
 
   const handleMusicButtonClick = () => {
     if (isSparki) {
-      // Switch to Magic Music Blue Genie personality
-      import('../data/personalities').then(({ personalities }) => {
-        const musicSparki = personalities.MUSIC;
-        if (musicSparki) {
-          changePersonality(musicSparki);
-        }
-      });
+      const musicSparki = personalities.MUSIC;
+      if (musicSparki) {
+        changePersonality(musicSparki);
+      }
     } else {
-      // Already in Music personality, open the generator dialog
       setShowMusicDialog(true);
     }
   };
@@ -86,55 +82,12 @@ export function ChatScreen() {
             />
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
-            {isSparki ? (
-              <button
-                onClick={() => setShowPersonalitySelector(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
-              >
-                <span className="font-semibold text-sm">Models</span>
-                <Sparkles className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setShowPersonalitySelector(true)}
-                className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
-                title="Switch AI Model"
-              >
-                <Sparkles className="w-5 h-5" />
-              </button>
-            )}
-            {isMusicPersonality && (
-              <button
-                onClick={handleMusicButtonClick}
-                className="w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-md hover:shadow-lg bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300"
-                title="Generate Music"
-              >
-                <Music4 className="w-5 h-5" />
-              </button>
-            )}
-            {!isMusicPersonality && (
-              <button
-                onClick={handleMusicButtonClick}
-                className="w-10 h-10 flex items-center justify-center bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all shadow-md hover:shadow-lg"
-                title="Music Generation"
-              >
-                <Music4 className="w-5 h-5" />
-              </button>
-            )}
-            {isSparki && (
-              <button
-                onClick={handleMusicButtonClick}
-                className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
-              >
-                <span className="font-semibold text-sm">Music</span>
-                <Music4 className="w-4 h-4" />
-              </button>
-            )}
             <button
-              onClick={handleStartFresh}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-all shadow-md hover:shadow-lg"
+              onClick={() => setShowPersonalitySelector(true)}
+              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
             >
-              Start Fresh
+              <span className="font-semibold text-sm">Models</span>
+              <Sparkles className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -150,7 +103,11 @@ export function ChatScreen() {
             />
           ) : (
             messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
+              <MessageBubble
+                key={message.id}
+                message={message}
+                onRequestStartFresh={handleStartFresh}
+              />
             ))
           )}
           {isLoading && <TypingIndicator />}
@@ -162,7 +119,6 @@ export function ChatScreen() {
       <div className="flex-shrink-0 bg-white border-t border-gray-200 shadow-lg">
         <div className="max-w-4xl mx-auto">
           <ChatInput
-            onStartFresh={handleStartFresh}
             onShowFavorites={() => {}}
             onMusicClick={handleMusicButtonClick}
           />

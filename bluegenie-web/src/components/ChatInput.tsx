@@ -6,12 +6,11 @@ import { MessageType } from '../types';
 import { FlashOnIcon } from './icons/FlashOnIcon';
 
 interface ChatInputProps {
-  onStartFresh: () => void;
   onShowFavorites: () => void;
   onMusicClick: () => void;
 }
 
-export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatInputProps) {
+export function ChatInput({ onShowFavorites, onMusicClick }: ChatInputProps) {
   const { sendMessage, isLoading, isListening, setIsListening } = useChatStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
@@ -196,11 +195,7 @@ export function ChatInput({ onStartFresh, onShowFavorites, onMusicClick }: ChatI
                                 <ImageIcon className="w-5 h-5 text-blue-500 mb-1" />
                                 <span className="text-xs text-gray-700 font-medium">Gallery</span>
                               </button>
-                              <button onClick={() => { setShowImageOptions(false); onStartFresh(); }} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
-                                <X className="w-5 h-5 text-blue-500 mb-1" />
-                                <span className="text-xs text-gray-700 font-medium">Start Fresh</span>
-                              </button>
-                              <button onClick={handleFavoritesShortcut} className="flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
+                              <button onClick={handleFavoritesShortcut} className="col-span-2 flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
                                 <FlashOnIcon className="w-5 h-5" color="#FFB300" />
                                 <span className="text-xs text-gray-700 font-medium">Favorite Genie Rubs</span>
                               </button>
