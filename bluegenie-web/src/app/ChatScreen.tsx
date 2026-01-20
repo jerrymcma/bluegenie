@@ -176,6 +176,12 @@ export function ChatScreen() {
         onClose={() => setShowMusicLibrary(false)}
         library={musicLibrary}
         onPlayMusic={(music) => handlePlayMusic(music.id, music.url)}
+        onStopMusic={() => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+          }
+        }}
         onShareMusic={(music) => handleShareMusic(music.url, music.prompt)}
         onDeleteMusic={(musicId) => deleteGeneratedMusic(musicId)}
       />

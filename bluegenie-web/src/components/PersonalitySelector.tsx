@@ -24,7 +24,7 @@ export function PersonalitySelector({ isOpen, onClose }: PersonalitySelectorProp
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="relative p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-blue-600 text-center">Sparki Ai Models ✨</h2>
+          <h2 className="text-2xl font-bold text-blue-600 text-center">Blue Genie Models ✨</h2>
           <button
             onClick={onClose}
             className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"

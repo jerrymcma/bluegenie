@@ -1,4 +1,4 @@
-import { X, PlayCircle, Share2, Trash2, MoreVertical } from 'lucide-react';
+import { X, PlayCircle, Share2, Trash2, MoreVertical, Square } from 'lucide-react';
 import { GeneratedMusic } from '../types';
 import { useState } from 'react';
 
@@ -7,6 +7,7 @@ interface MusicLibraryDialogProps {
   onClose: () => void;
   library: GeneratedMusic[];
   onPlayMusic: (music: GeneratedMusic) => void;
+  onStopMusic: (music: GeneratedMusic) => void;
   onShareMusic: (music: GeneratedMusic) => void;
   onDeleteMusic: (id: string) => void;
 }
@@ -16,6 +17,7 @@ export function MusicLibraryDialog({
   onClose,
   library,
   onPlayMusic,
+  onStopMusic,
   onShareMusic,
   onDeleteMusic,
 }: MusicLibraryDialogProps) {
@@ -61,6 +63,7 @@ export function MusicLibraryDialog({
                   key={music.id}
                   music={music}
                   onPlay={() => onPlayMusic(music)}
+                  onStop={() => onStopMusic(music)}
                   onShare={() => onShareMusic(music)}
                   onDelete={() => onDeleteMusic(music.id)}
                 />
@@ -86,11 +89,12 @@ export function MusicLibraryDialog({
 interface MusicTrackCardProps {
   music: GeneratedMusic;
   onPlay: () => void;
+  onStop: () => void;
   onShare: () => void;
   onDelete: () => void;
 }
 
-function MusicTrackCard({ music, onPlay, onShare, onDelete }: MusicTrackCardProps) {
+function MusicTrackCard({ music, onPlay, onStop, onShare, onDelete }: MusicTrackCardProps) {
   const [showOptions, setShowOptions] = useState(false);
 
   const getShortPrompt = (prompt: string, maxLength: number = 40) => {
@@ -140,13 +144,20 @@ function MusicTrackCard({ music, onPlay, onShare, onDelete }: MusicTrackCardProp
 
       {showOptions ? (
         <div className="mt-3 pt-3 border-t border-gray-600">
-          <div className="flex justify-around">
+          <div className="flex flex-wrap justify-around gap-2">
             <button
               onClick={onPlay}
               className="flex flex-col items-center gap-1 px-4 py-2 hover:bg-gray-600 rounded-lg"
             >
               <PlayCircle className="w-5 h-5 text-green-400" />
               <span className="text-xs text-white">Play</span>
+            </button>
+            <button
+              onClick={onStop}
+              className="flex flex-col items-center gap-1 px-4 py-2 hover:bg-gray-600 rounded-lg"
+            >
+              <Square className="w-5 h-5 text-red-400" />
+              <span className="text-xs text-white">Stop</span>
             </button>
             <button
               onClick={onShare}
@@ -165,13 +176,22 @@ function MusicTrackCard({ music, onPlay, onShare, onDelete }: MusicTrackCardProp
           </div>
         </div>
       ) : (
-        <button
-          onClick={onPlay}
-          className="w-full mt-3 px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2"
-        >
-          <PlayCircle className="w-4 h-4" />
-          Play Track
-        </button>
+        <div className="w-full mt-3 flex items-center gap-2">
+          <button
+            onClick={onPlay}
+            className="flex-1 px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2"
+          >
+            <PlayCircle className="w-4 h-4" />
+            Play Track
+          </button>
+          <button
+            onClick={onStop}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2"
+          >
+            <Square className="w-4 h-4" />
+            Stop
+          </button>
+        </div>
       )}
     </div>
   );
