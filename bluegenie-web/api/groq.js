@@ -5,7 +5,7 @@ const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.e
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BRAVE_GROUNDING_URL = 'https://api.search.brave.com/res/v1/chat/completions';
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
-const VISION_MODEL = 'llama-3.2-90b-vision-preview';
+const VISION_MODEL = 'meta-llama/llama-4-maverick-17b-128e-instruct';
 
 function extractQueryFromMalformedCall(content) {
   const patterns = [
