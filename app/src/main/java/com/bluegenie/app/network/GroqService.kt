@@ -21,6 +21,7 @@ class GroqService {
 
     private val apiKey: String = BuildConfig.GROQ_API_KEY
     private val baseUrl: String = "https://api.groq.com/openai/v1/chat/completions"
+    private val visionModel: String = "meta-llama/llama-4-maverick-17b-128e-instruct"
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -178,7 +179,8 @@ class GroqService {
     suspend fun generateResponse(
         userMessage: String,
         personality: AIPersonality,
-        conversationContext: List<Pair<String, String>>
+        conversationContext: List<Pair<String, String>>,
+        imageBase64: String? = null
     ): String = withContext(Dispatchers.IO) {
         try {
             if (apiKey.isBlank()) {
@@ -260,14 +262,30 @@ class GroqService {
                 })
             }
 
-            // Add the current user message
+            // Add the current user message with optional image
             messages.put(JSONObject().apply {
                 put("role", "user")
-                put("content", userMessage)
+                if (imageBase64 != null) {
+                    put("content", JSONArray().apply {
+                        put(JSONObject().apply {
+                            put("type", "text")
+                            put("text", userMessage.ifBlank { "Describe this image." })
+                        })
+                        put(JSONObject().apply {
+                            put("type", "image_url")
+                            put("image_url", JSONObject().apply {
+                                put("url", "data:image/jpeg;base64,$imageBase64")
+                            })
+                        })
+                    })
+                } else {
+                    put("content", userMessage)
+                }
             })
             
             Log.d("GroqService", "📨 User message: $userMessage")
-            Log.d("GroqService", "🤖 Using model: ${personality.model}")
+            val requestModel = if (imageBase64 != null) visionModel else personality.model
+            Log.d("GroqService", "🤖 Using model: $requestModel")
             Log.d("GroqService", "💬 Total messages in context: ${messages.length()}")
             
             val tools = JSONArray().apply {
@@ -292,7 +310,7 @@ class GroqService {
 
             val requestBody = JSONObject().apply {
                 put("messages", messages)
-                put("model", personality.model)
+                put("model", requestModel)
                 put("tool_choice", "auto")
                 put("tools", tools)
             }.toString()

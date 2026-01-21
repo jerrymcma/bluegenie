@@ -5,8 +5,9 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
+import android.util.Base64
+import com.bluegenie.app.model.ImagePayload
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bluegenie.app.config.FeatureFlags
 import com.bluegenie.app.config.FeatureFlags.MusicProvider
@@ -29,7 +30,6 @@ import com.bluegenie.app.utils.MusicUsageStats
 import com.bluegenie.app.utils.MusicPlayer
 // import com.bluegenie.app.utils.StripeCheckoutHelper  // DISABLED - app is free
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -231,7 +231,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         fileName: String? = null,
         messageType: MessageType = MessageType.TEXT
     ) {
-        if (content.isBlank() || _isLoading.value) return
+        if ((content.isBlank() && imageUri == null) || _isLoading.value) return
 
         handleAutoResetIfNeeded()
 
@@ -257,11 +257,20 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val result = withTimeoutOrNull(30000) { // 30 second timeout
+                // Load and encode image if present
+                val imageBase64 = if (imageUri != null) {
+                    val payload = loadImagePayload(imageUri)
+                    payload?.let { Base64.encodeToString(it.bytes, Base64.NO_WRAP) }
+                } else {
+                    null
+                }
+
+                val result = withTimeoutOrNull(45000) { // 45 second timeout for vision
                     groqService.generateResponse(
                         aiInputContent,
                         _currentPersonality.value,
-                        conversationContext
+                        conversationContext,
+                        imageBase64
                     )
                 }
 
@@ -950,11 +959,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private data class ImagePayload(
-        val data: ByteArray,
-        val mimeType: String
-    )
-
     private suspend fun getReplicateMusic(
         finalPrompt: String,
         originalPrompt: String
@@ -1001,7 +1005,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Sign in with Google using ID token - DISABLED
      */
-    fun signInWithGoogle(idToken: String) {
+    fun signInWithGoogle(@Suppress("UNUSED_PARAMETER") idToken: String) {
         // DISABLED - No sign-in required
         Log.d("ChatViewModel", "Sign-in disabled - app is free")
     }
@@ -1061,14 +1065,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Set show sign-in modal - DISABLED
      */
-    fun setShowSignInModal(show: Boolean) {
+    fun setShowSignInModal(@Suppress("UNUSED_PARAMETER") show: Boolean) {
         // DISABLED - No sign-in modal
     }
 
     /**
      * Set show upgrade modal - DISABLED
      */
-    fun setShowUpgradeModal(show: Boolean) {
+    fun setShowUpgradeModal(@Suppress("UNUSED_PARAMETER") show: Boolean) {
         // DISABLED - No upgrade modal
     }
 

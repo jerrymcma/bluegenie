@@ -272,6 +272,36 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
         {/* Hidden File Inputs */}
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageSelect} className="hidden" />
+
+        {/* Footer Links */}
+        <div className="flex items-center justify-center mt-4 space-x-2 text-xs text-gray-500">
+          <a
+            href="https://bluegeniemagic.com/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            Privacy
+          </a>
+          <span>•</span>
+          <a
+            href="https://bluegeniemagic.com/terms.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            Terms
+          </a>
+          <span>•</span>
+          <a
+            href="https://play.google.com/store/apps/details?id=com.sparkiai.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            Android App
+          </a>
+        </div>
       </div>
     </div>
   );

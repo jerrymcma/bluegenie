@@ -254,7 +254,7 @@ private fun MessageMenuActions(
             )
             onFavorite?.let {
                 DropdownMenuItem(
-                    text = { Text(if (isFavorited) "Remove Favorite" else "Favorite Spark") },
+                    text = { Text(if (isFavorited) "Remove Favorite" else "Save as Favorite") },
                     onClick = {
                         menuExpanded = false
                         it()

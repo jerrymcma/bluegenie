@@ -71,6 +71,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
@@ -993,7 +994,7 @@ fun ChatScreen(
             ) {
                 TextButton(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, "https://bluegeniemagic.com/privacy".toUri())
+                        val intent = Intent(Intent.ACTION_VIEW, "https://bluegeniemagic.com/privacy.html".toUri())
                         context.startActivity(intent)
                     },
                     contentPadding = PaddingValues(4.dp, 0.dp)
@@ -1012,7 +1013,7 @@ fun ChatScreen(
                 )
                 TextButton(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, "https://bluegeniemagic.com/terms".toUri())
+                        val intent = Intent(Intent.ACTION_VIEW, "https://bluegeniemagic.com/terms.html".toUri())
                         context.startActivity(intent)
                     },
                     contentPadding = PaddingValues(4.dp, 0.dp)
@@ -1131,7 +1132,7 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         AttachmentOptionButton(
-                            label = "Images",
+                            label = "Gallery",
                             icon = Icons.Default.PhotoLibrary,
                             onClick = {
                                 galleryLauncher.launch("image/*")
@@ -1485,7 +1486,7 @@ fun WelcomeMessage(
                     fontWeight = FontWeight.Bold,
                     color = TextOnAIMessage)
                 Spacer(modifier = Modifier.width(6.dp))
-                PulsatingCrystalBallIcon()
+                Text(text = "⭐️", fontSize = 20.sp)
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -1495,38 +1496,6 @@ fun WelcomeMessage(
             )
         }
     }
-}
-@Composable
-private fun PulsatingCrystalBallIcon() {
-    val infiniteTransition = rememberInfiniteTransition(label = "welcome-crystal-ball")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "crystal-ball-scale"
-    )
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.85f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "crystal-ball-alpha"
-    )
-
-    Image(
-        painter = painterResource(id = R.drawable.sparkles_icon),
-        contentDescription = "Crystal Ball",
-        modifier = Modifier
-            .size(28.dp)
-            .scale(scale)
-            .graphicsLayer(alpha = alpha),
-        contentScale = ContentScale.Fit
-    )
 }
 
 @Composable
