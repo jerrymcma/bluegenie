@@ -199,23 +199,14 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                     <Music4 className="w-5 h-5" />
                 </button>
 
-                {/* Direct Image Upload Button */}
-                <button
-                    onClick={handleGalleryClick}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full ${gradientButtonClass}`}
-                    title="Upload Image"
-                >
-                    <ImageIcon className="w-5 h-5" />
-                </button>
-
                 {/* Image/Tools Button with Popover */}
                 <div className="relative">
                     <button
                         onClick={() => setShowImageOptions(!showImageOptions)}
                         className={`w-10 h-10 flex items-center justify-center rounded-full ${gradientButtonClass}`}
-                        title="Open Blue Genie tools"
+                        title="Add content"
                     >
-                        <Plus className="w-5 h-5 text-yellow-300" strokeWidth={3} />
+                        <Plus className="w-5 h-5" />
                     </button>
                     {showImageOptions && (
                         <div className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl border border-blue-500 p-4 space-y-4 min-w-[220px]">
