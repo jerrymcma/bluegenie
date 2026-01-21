@@ -9,6 +9,7 @@ import { PersonalitySelector } from '../components/PersonalitySelector';
 import { ChatInput } from '../components/ChatInput';
 import { MusicGenerationDialog } from '../components/MusicGenerationDialog';
 import { MusicLibraryDialog } from '../components/MusicLibraryDialog';
+import { FavoritesDialog } from '../components/FavoritesDialog';
 
 export function ChatScreen() {
   const {
@@ -22,11 +23,14 @@ export function ChatScreen() {
     loadMusicLibrary,
     deleteGeneratedMusic,
     markMusicAsRead,
+    favoriteSparks,
+    toggleFavorite,
   } = useChatStore();
   const [showPersonalitySelector, setShowPersonalitySelector] = useState(false);
   const [showStartFreshDialog, setShowStartFreshDialog] = useState(false);
   const [showMusicDialog, setShowMusicDialog] = useState(false);
   const [showMusicLibrary, setShowMusicLibrary] = useState(false);
+  const [showFavoritesDialog, setShowFavoritesDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -153,7 +157,7 @@ export function ChatScreen() {
       <div className="flex-shrink-0 bg-white border-t border-gray-200 shadow-lg">
         <div className="max-w-4xl mx-auto">
           <ChatInput
-            onShowFavorites={() => {}}
+            onShowFavorites={() => setShowFavoritesDialog(true)}
             onMusicClick={handleMusicButtonClick}
             onOpenMusicGenerator={() => setShowMusicDialog(true)}
             onOpenMusicLibrary={handleOpenMusicLibrary}
@@ -183,6 +187,12 @@ export function ChatScreen() {
         }}
         onShareMusic={(music) => handleShareMusic(music.url, music.prompt)}
         onDeleteMusic={(musicId) => deleteGeneratedMusic(musicId)}
+      />
+      <FavoritesDialog
+        isOpen={showFavoritesDialog}
+        onClose={() => setShowFavoritesDialog(false)}
+        favorites={favoriteSparks}
+        onRemoveFavorite={(id) => toggleFavorite(id)}
       />
       {showStartFreshDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

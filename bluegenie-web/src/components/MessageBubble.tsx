@@ -158,7 +158,7 @@ export function MessageBubble({ message, onRequestStartFresh }: MessageBubblePro
                       className="w-full flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md transition-colors text-left"
                     >
                       <Bookmark className={`w-4 h-4 ${message.isFavorite ? 'text-amber-500' : 'text-gray-600'}`} />
-                      <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorite Genie Rub'}</span>
+                      <span className="text-sm text-gray-700">{message.isFavorite ? 'Remove Favorite' : 'Favorites'}</span>
                     </button>
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button

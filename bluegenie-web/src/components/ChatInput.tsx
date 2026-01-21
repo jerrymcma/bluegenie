@@ -225,7 +225,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                               </button>
                               <button onClick={handleFavoritesShortcut} className="col-span-2 flex flex-col items-center justify-center border border-gray-200 rounded-xl py-3 hover:border-blue-500 hover:shadow-lg transition-all">
                                 <FlashOnIcon className="w-5 h-5" color="#FFB300" />
-                                <span className="text-xs text-gray-700 font-medium">Favorite Genie Rubs</span>
+                                <span className="text-xs text-gray-700 font-medium">Favorites</span>
                               </button>
                             </div>
                           </div>
@@ -234,7 +234,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                               Library
                             </p>
                             <button onClick={handleFavoritesShortcut} className="w-full flex items-center justify-between px-3 py-2 border border-purple-200 rounded-xl text-sm text-purple-600 font-semibold hover:border-purple-400 hover:shadow-lg transition-all">
-                              <span>Favorite Genie Rubs</span>
+                              <span>Favorites</span>
                               <span className="text-lg">✨</span>
                             </button>
                           </div>
