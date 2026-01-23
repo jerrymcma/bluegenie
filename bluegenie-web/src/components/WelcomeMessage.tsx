@@ -8,8 +8,8 @@ export function WelcomeMessage({ greeting }: WelcomeMessageProps) {
       <div className="max-w-2xl w-full bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-gray-100">
         <h2 className="text-xl font-bold text-blue-600 mb-3">Welcome! ⭐️</h2>
         <p className="text-blue-600 mb-3 text-base">{greeting}</p>
-        <p className="text-blue-600 mb-3 text-base">You can enjoy 10 Blue Genie 🔮 models, generate songs with Magic Music 🎵✨, and smash that lightening bolt button to generate a Genius Genie idea 🔮✨!</p>
-        <p className="text-blue-600 text-base">What's on your mind... ✨</p>
+        <p className="text-blue-600 mb-3 text-base">You can enjoy 10 Blue Genie Models 🔮, generate songs with Magic Music 🎵✨, and smash that lightening bolt button for a Genius Genie Idea! 🔮✨</p>
+        <p className="text-blue-600 text-base">What's on your mind today... </p>
       </div>
     </div>
   );
