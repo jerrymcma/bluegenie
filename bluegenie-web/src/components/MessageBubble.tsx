@@ -105,7 +105,7 @@ export function MessageBubble({ message, onRequestStartFresh }: MessageBubblePro
               )}
             </>
           )}
-          <div className="bg-blue-500 text-white rounded-2xl px-2 py-1.5 shadow-md">
+          <div className="bg-blue-500 text-white rounded-2xl p-2.5 shadow-md">
             <p className="whitespace-pre-wrap break-words">{message.content}</p>
             <p className="text-xs text-blue-100 mt-1">{formatTime(message.timestamp)}</p>
           </div>
@@ -117,7 +117,7 @@ export function MessageBubble({ message, onRequestStartFresh }: MessageBubblePro
   return (
     <div className="flex justify-start mb-4">
       <div className="max-w-[85%]">
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800 rounded-2xl px-2 py-1.5 shadow-md border border-gray-100">
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800 rounded-2xl p-2.5 shadow-md border border-gray-100">
           <p className="whitespace-pre-wrap break-words text-blue-500" dangerouslySetInnerHTML={{ __html: message.content }} />
           <div className="flex items-center justify-between mt-2">
             <p className="text-xs text-gray-500">{formatTime(message.timestamp)}</p>
