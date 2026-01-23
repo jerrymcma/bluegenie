@@ -7,7 +7,7 @@ export const personalities: Record<string, AIPersonality> = {
     name: 'Blue Genie',
     description: 'Your intelligent AI assistant',
     icon: '🔮',
-    greeting: "👋 Hi there! I'm Blue Genie 🔮✨✨ How are you? I'm glad you're here! ⭐️",
+    greeting: "👋 Hi there! I'm Blue Genie 🔮 How are you? Glad you're here! ⭐️",
     responseStyle: ResponseStyle.FRIENDLY,
     color: '#2196F3'
   },
