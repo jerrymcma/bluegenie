@@ -120,7 +120,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
 
   return (
     <div
-      className="bg-white/95 border-t border-gray-200 pt-3 px-3 sm:px-4 pb-4 shadow-lg"
+      className="bg-white/95 border-t border-gray-200 pt-3 px-3 sm:px-4 pb-2 shadow-lg"
     >
       <div className="max-w-4xl mx-auto">
         {/* Selected Image Preview */}
