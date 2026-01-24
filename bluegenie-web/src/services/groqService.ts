@@ -56,6 +56,16 @@ class GroqService {
 
     } catch (error) {
       console.error('Groq service error (server proxy):', error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 413) {
+          return "The image file is too large to send. Please try a smaller image.";
+        }
+        if (error.response?.status === 504) {
+          return "The request timed out. Please try again.";
+        }
+      }
+
       if (error instanceof Error) {
         return `Sorry, I encountered an error: ${error.message}`;
       }

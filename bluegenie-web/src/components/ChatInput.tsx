@@ -21,7 +21,7 @@ const resizeImage = (file: File): Promise<string> => {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const MAX_SIZE = 1024;
+        const MAX_SIZE = 800;
 
         if (width > height) {
           if (width > MAX_SIZE) {
@@ -40,7 +40,14 @@ const resizeImage = (file: File): Promise<string> => {
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          console.log('Image resized:', {
+             originalSize: file.size,
+             newWidth: width,
+             newHeight: height,
+             dataUrlLength: dataUrl.length
+          });
+          resolve(dataUrl);
         } else {
           reject(new Error('Failed to get canvas context'));
         }
@@ -59,6 +66,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [showImageOptions, setShowImageOptions] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
@@ -84,6 +92,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
       setMessageText('');
       setSelectedImagePreview(null);
       setSelectedImageFile(null);
+      setImageError(null);
     }
   };
 
@@ -115,19 +124,21 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
 
   const handleImageSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    setImageError(null);
+    
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+         setImageError('Image is too large. Please choose a smaller image (under 10MB).');
+         return;
+      }
+
       try {
         const resizedImage = await resizeImage(file);
         setSelectedImagePreview(resizedImage);
         setSelectedImageFile(file);
       } catch (error) {
         console.error('Failed to resize image:', error);
-        setSelectedImageFile(file);
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setSelectedImagePreview(event.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+        setImageError('Failed to process image. Please try another one.');
       }
     } else {
       setSelectedImageFile(null);
@@ -188,6 +199,19 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
               className="p-1 hover:bg-red-100 rounded-full transition-colors"
             >
               <X className="w-5 h-5 text-red-500" />
+            </button>
+          </div>
+        )}
+
+        {/* Image Error Message */}
+        {imageError && (
+          <div className="mb-3 flex items-center justify-between bg-red-50 p-3 rounded-lg border border-red-100">
+            <span className="text-sm text-red-600 font-medium">{imageError}</span>
+            <button
+              onClick={() => setImageError(null)}
+              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+            >
+              <X className="w-4 h-4 text-red-500" />
             </button>
           </div>
         )}
