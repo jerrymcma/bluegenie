@@ -769,16 +769,74 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         return withContext(Dispatchers.IO) {
             try {
                 val resolver = context.contentResolver
-                val mimeType = resolver.getType(uri) ?: "image/jpeg"
-                resolver.openInputStream(uri)?.use { inputStream ->
-                    val bytes = inputStream.readBytes()
-                    ImagePayload(bytes, mimeType)
+                
+                // 1. Decode bounds first to check size
+                val options = android.graphics.BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
                 }
+                resolver.openInputStream(uri)?.use { 
+                    android.graphics.BitmapFactory.decodeStream(it, null, options) 
+                }
+
+                // 2. Calculate inSampleSize to roughly scale down
+                val MAX_DIMENSION = 800
+                options.inSampleSize = calculateInSampleSize(options, MAX_DIMENSION, MAX_DIMENSION)
+                options.inJustDecodeBounds = false
+
+                // 3. Decode full bitmap with scaling
+                var bitmap = resolver.openInputStream(uri)?.use { 
+                    android.graphics.BitmapFactory.decodeStream(it, null, options)
+                } ?: return@withContext null
+
+                // 4. Precise scaling if still too large
+                if (bitmap.width > MAX_DIMENSION || bitmap.height > MAX_DIMENSION) {
+                    val ratio = Math.min(
+                        MAX_DIMENSION.toFloat() / bitmap.width,
+                        MAX_DIMENSION.toFloat() / bitmap.height
+                    )
+                    val width = (bitmap.width * ratio).toInt()
+                    val height = (bitmap.height * ratio).toInt()
+                    
+                    val scaledBitmap = android.graphics.Bitmap.createScaledBitmap(bitmap, width, height, true)
+                    if (scaledBitmap != bitmap) {
+                        bitmap.recycle()
+                        bitmap = scaledBitmap
+                    }
+                }
+
+                // 5. Compress to JPEG
+                val stream = java.io.ByteArrayOutputStream()
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 60, stream)
+                val bytes = stream.toByteArray()
+                bitmap.recycle()
+
+                Log.d("ChatViewModel", "Image processed: ${bytes.size} bytes")
+                ImagePayload(bytes, "image/jpeg")
             } catch (error: Exception) {
                 Log.w("ChatViewModel", "Unable to read image data: ${error.message}")
                 null
             }
         }
+    }
+
+    private fun calculateInSampleSize(
+        options: android.graphics.BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int
+    ): Int {
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight: Int = height / 2
+            val halfWidth: Int = width / 2
+
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
     }
 
     /**

@@ -196,9 +196,9 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
                 setSelectedImagePreview(null);
                 setSelectedImageFile(null);
               }}
-              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+              className="p-1 hover:bg-blue-100 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-red-500" />
+              <X className="w-5 h-5 text-blue-500" />
             </button>
           </div>
         )}

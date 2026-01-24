@@ -690,7 +690,7 @@ fun ChatScreen(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Remove image",
-                                tint = Color.Red
+                                tint = PrimaryBlue
                             )
                         }
                     }
