@@ -123,9 +123,11 @@ export function MusicGenerationDialog({ isOpen, onClose }: MusicGenerationDialog
               placeholder="Genre, style, tempo, mood, instrumentals... 'Ex: Pop music upbeat medium tempo'"
               maxLength={300}
             />
-            <div className="flex items-center justify-between text-xs text-gray-500 px-3">
-              <span>10-300 characters when used.</span>
-              <span>{stylePrompt.length}/300</span>
+            <div className="flex items-center justify-between text-xs px-3">
+              <span className="text-gray-500">10-300 characters when used.</span>
+              <span className={stylePrompt.length > 0 && stylePrompt.length < 10 ? 'text-red-500 font-semibold' : 'text-gray-500'}>
+                {stylePrompt.length}/300
+              </span>
             </div>
           </div>
 
