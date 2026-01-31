@@ -10,13 +10,7 @@
       "maxDuration": 120
     }
   },
-  "redirects": [
-    {
-      "source": "https://bluegeniemagic.com/:path*",
-      "destination": "https://www.bluegeniemagic.com/:path*",
-      "permanent": true
-    }
-  ],
+  "redirects": [],
   "rewrites": [
     {
       "source": "/((?!api/).*)",
