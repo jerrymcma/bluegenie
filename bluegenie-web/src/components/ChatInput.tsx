@@ -72,7 +72,7 @@ export function ChatInput({ onShowFavorites, onMusicClick, onOpenMusicGenerator,
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const SPARK_IDEA_PROMPT =
-    "👋 Hey Blue Genie 🔮, how\'s about creating a Genius Genie 🔮 idea with your crystal ball  🔮 ✨✨ (Press send)";
+    "👋 Hey Blue Genie 🔮, how's about creating a Genius Genie 🔮 idea with your crystal ball  🔮 ✨✨ (Press send)";
 
   const handleSend = () => {
     if ((messageText.trim() || selectedImagePreview) && !isLoading) {
