@@ -91,9 +91,9 @@ export class StorageService {
     }
   }
 
-  getConversationContext(personalityId: string, limit: number = 10): Array<{ role: 'user' | 'assistant', content: string }> {
+  getConversationContext(personalityId: string, limit: number = 150): Array<{ role: 'user' | 'assistant', content: string }> {
     const messages = this.loadMessages(personalityId);
-    const recentMessages = messages.slice(-limit * 2); // Get last N pairs (user + assistant)
+    const recentMessages = messages.slice(-limit); // Get last N messages
     
     return recentMessages.map(msg => ({
       role: msg.isFromUser ? 'user' as const : 'assistant' as const,
