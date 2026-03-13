@@ -40,6 +40,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     BlueGenieApp { viewModel ->
                         chatViewModel = viewModel
+                        // Handle deep link if app was opened via intent
+                        intent?.data?.let { uri ->
+                            viewModel.handleDeepLink(uri)
+                        }
                     }
                 }
             }

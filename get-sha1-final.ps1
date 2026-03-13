@@ -79,6 +79,4 @@ if ($shaLines) {
     Write-Host "ERROR: Could not read keystore" -ForegroundColor Red
     Write-Host "Make sure sparkifire-release.jks exists in: $PWD" -ForegroundColor Yellow
 }
-
 Write-Host ""
-Read-Host "Press Enter to exit"

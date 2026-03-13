@@ -1115,6 +1115,27 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Handles deep link data from Intents
+     */
+    fun handleDeepLink(uri: Uri) {
+        // Check for 'message' parameter in URL
+        // Example: bluegenie://chat?message=Tell+me+a+joke
+        // Or: https://bluegeniemagic.com/chat?message=Hello
+        val message = uri.getQueryParameter("message")
+        if (!message.isNullOrBlank()) {
+            sendMessage(message)
+        }
+        
+        // Example: Change personality via deep link
+        // bluegenie://chat?personality=sparky
+        val personalityId = uri.getQueryParameter("personality")
+        if (!personalityId.isNullOrBlank()) {
+             // Find and switch to personality if needed
+             // This is an example of what can be expanded
+        }
+    }
+
+    /**
      * Call this from Activity.onPause() to pause ongoing tasks
      */
     fun onAppPause() {
