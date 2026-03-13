@@ -13,7 +13,11 @@
   "redirects": [],
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/.well-known/(.*)",
+      "destination": "/.well-known/$1"
+    },
+    {
+      "source": "/((?!api/|\\.well-known/).*)",
       "destination": "/index.html"
     }
   ]
