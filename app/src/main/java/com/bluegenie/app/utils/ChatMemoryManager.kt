@@ -16,7 +16,7 @@ class ChatMemoryManager(context: Context) {
 
     companion object {
         private const val MAX_MESSAGES_PER_PERSONALITY = 500 // Messages saved for user viewing
-        private const val MAX_CONTEXT_MESSAGES = 50 // Messages sent to AI for context
+        private const val MAX_CONTEXT_MESSAGES = 150 // Messages sent to AI for context
         const val AUTO_RESET_MESSAGE =
             "We've reached the max number of messages, and the chat has restarted. Kindly refresh my memory...what were we saying?"
     }

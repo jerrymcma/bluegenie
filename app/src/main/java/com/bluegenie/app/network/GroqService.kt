@@ -21,7 +21,7 @@ class GroqService {
 
     private val apiKey: String = BuildConfig.GROQ_API_KEY
     private val baseUrl: String = "https://api.groq.com/openai/v1/chat/completions"
-    private val visionModel: String = "meta-llama/llama-4-maverick-17b-128e-instruct"
+    private val visionModel: String = "llama-3.2-90b-vision-preview"
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -251,14 +251,10 @@ class GroqService {
             })
 
             // Add conversation context
-            conversationContext.forEach { (user, model) ->
+            conversationContext.forEach { (role, content) ->
                 messages.put(JSONObject().apply {
-                    put("role", "user")
-                    put("content", user)
-                })
-                messages.put(JSONObject().apply {
-                    put("role", "assistant")
-                    put("content", model)
+                    put("role", role)
+                    put("content", content)
                 })
             }
 

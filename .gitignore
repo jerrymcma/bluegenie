@@ -34,3 +34,6 @@ league_spartan.zip
 *.ap_
 .idea/
 .gradle/
+
+.vercel
+.env*.local

@@ -1,7 +1,7 @@
 # SparkiFire AI 🔥
 
 A cutting-edge Android AI assistance app built with Jetpack Compose and Kotlin, featuring voice
-interaction, image sharing, and multiple AI personalities.
+interaction, image sharing, and 10 AI models.
 
 ## ✨ Features
 

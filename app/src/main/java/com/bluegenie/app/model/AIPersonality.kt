@@ -26,7 +26,7 @@ enum class ResponseStyle {
 }
 
 object AIPersonalities {
-    private const val LATEST_MODEL = "meta-llama/llama-4-maverick-17b-128e-instruct"
+    private const val LATEST_MODEL = "llama-3.3-70b-versatile"
 
     val DEFAULT = AIPersonality(
         id = "default",

@@ -51,6 +51,16 @@ class MainActivity : ComponentActivity() {
         // No longer checking for Stripe payment (app is free)
         chatViewModel?.onAppResume()
     }
+
+    override fun onPause() {
+        super.onPause()
+        chatViewModel?.onAppPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        chatViewModel?.onAppStop()
+    }
 }
 
 /**

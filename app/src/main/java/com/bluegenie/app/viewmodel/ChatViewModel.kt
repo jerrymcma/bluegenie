@@ -662,6 +662,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun stopMusic() {
         musicPlayer?.stop()
         _currentlyPlayingMusic.value = null
+        _isMusicPlaying.value = false
     }
 
     /**
@@ -1111,6 +1112,32 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun onAppResume() {
         // DISABLED - No premium status to check
+    }
+
+    /**
+     * Call this from Activity.onPause() to pause ongoing tasks
+     */
+    fun onAppPause() {
+        // Pause music if it's playing
+        if (_isMusicPlaying.value) {
+            pauseMusic()
+        }
+    }
+
+    /**
+     * Call this from Activity.onStop()
+     */
+    fun onAppStop() {
+        // Just in case, stop music if it's still playing
+        if (_isMusicPlaying.value) {
+            stopMusic()
+        }
+        saveMessages()
+    }
+
+    private fun pauseMusic() {
+        musicPlayer?.pause()
+        _isMusicPlaying.value = false
     }
 
     /**

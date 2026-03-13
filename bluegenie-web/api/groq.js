@@ -4,8 +4,8 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY |
 const BRAVE_GROUNDING_API_KEY = process.env.BRAVE_GROUNDING_API_KEY || process.env.VITE_BRAVE_GROUNDING_API_KEY || '';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BRAVE_GROUNDING_URL = 'https://api.search.brave.com/res/v1/chat/completions';
-const DEFAULT_MODEL = 'meta-llama/llama-4-maverick-17b-128e-instruct';
-const VISION_MODEL = 'meta-llama/llama-4-maverick-17b-128e-instruct';
+const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+const VISION_MODEL = 'llama-3.2-90b-vision-preview';
 
 function extractQueryFromMalformedCall(content) {
   const patterns = [
@@ -131,16 +131,36 @@ async function generateResponseFromHistory(messages, model) {
 }
 
 module.exports = async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    );
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
   try {
     if (!GROQ_API_KEY) {
       return res.status(500).json({ error: 'Groq API key is not configured' });
     }
 
-    const { type, message: userMessage, personality, conversationContext, imageBase64 } = req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+    const { type, message: userMessage, personality, conversationContext, imageBase64 } = body;
 
     const normalizedType = typeof type === 'string' ? type.toUpperCase() : 'TEXT';
     const hasImage = normalizedType === 'IMAGE' || normalizedType === 'TEXT_WITH_IMAGE';
@@ -430,7 +450,8 @@ You have access to a web search tool for questions requiring real-time data.`;
     console.error('Groq API error:', error);
     return res.status(500).json({
       error: 'Failed to generate response',
-      details: error.message
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
